@@ -30,7 +30,7 @@ export const baseConfig = {
     expect: {
         timeout: 10_000,
     },
-    globalSetup: resolve(import.meta.dirname, "../global-setup.ts"),
+    globalSetup: resolve(import.meta.dirname, "../global-setup.js"),
 };
 /**
  * Creates a workspace-specific config by merging with base config.
