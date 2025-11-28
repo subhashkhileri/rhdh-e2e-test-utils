@@ -1,0 +1,51 @@
+{
+  "name": "rhdh-e2e-test-utils",
+  "version": "1.0.0",
+  "description": "Test utilities for RHDH E2E tests",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "engines": {
+    "node": "22"
+  },
+  "files": [
+    "src",
+    "tsconfig.base.json"
+  ],
+  "scripts": {
+    "lint:check": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prettier:check": "prettier --check .",
+    "prettier:fix": "prettier --write ."
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./playwright-config": "./src/playwright-config/base-config.ts",
+    "./ui-helper": "./src/helpers/ui-helper.ts",
+    "./fixtures": "./src/fixtures/index.ts",
+    "./helpers": "./src/helpers/index.ts",
+    "./global-setup": "./src/global-setup.ts",
+    "./eslint": "./src/eslint/base-config.ts",
+    "./tsconfig": "./tsconfig.base.json"
+  },
+  "keywords": [
+    "rhdh",
+    "test-utils",
+    "playwright",
+    "e2e"
+  ],
+  "peerDependencies": {
+    "@playwright/test": "^1.56.1"
+  },
+  "dependencies": {
+    "eslint-plugin-check-file": "^3.2.0",
+    "eslint-plugin-playwright": "^2.2.0",
+    "typescript-eslint": "^8.33.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^5.0.0",
+    "eslint": "^9.28.0",
+    "prettier": "^3.5.3"
+  }
+}
