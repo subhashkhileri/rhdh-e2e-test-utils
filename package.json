@@ -3,29 +3,52 @@
   "version": "1.0.0",
   "description": "Test utilities for RHDH E2E tests",
   "type": "module",
-  "main": "./src/index.ts",
-  "types": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "engines": {
     "node": "22"
   },
   "files": [
-    "src",
+    "dist",
     "tsconfig.base.json"
   ],
   "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build",
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write ."
   },
   "exports": {
-    ".": "./src/index.ts",
-    "./playwright-config": "./src/playwright-config/base-config.ts",
-    "./ui-helper": "./src/helpers/ui-helper.ts",
-    "./fixtures": "./src/fixtures/index.ts",
-    "./helpers": "./src/helpers/index.ts",
-    "./global-setup": "./src/global-setup.ts",
-    "./eslint": "./src/eslint/base-config.ts",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./playwright-config": {
+      "types": "./dist/playwright-config/base-config.d.ts",
+      "default": "./dist/playwright-config/base-config.js"
+    },
+    "./ui-helper": {
+      "types": "./dist/helpers/ui-helper.d.ts",
+      "default": "./dist/helpers/ui-helper.js"
+    },
+    "./fixtures": {
+      "types": "./dist/fixtures/index.d.ts",
+      "default": "./dist/fixtures/index.js"
+    },
+    "./helpers": {
+      "types": "./dist/helpers/index.d.ts",
+      "default": "./dist/helpers/index.js"
+    },
+    "./global-setup": {
+      "types": "./dist/global-setup.d.ts",
+      "default": "./dist/global-setup.js"
+    },
+    "./eslint": {
+      "types": "./dist/eslint/base-config.d.ts",
+      "default": "./dist/eslint/base-config.js"
+    },
     "./tsconfig": "./tsconfig.base.json"
   },
   "keywords": [
