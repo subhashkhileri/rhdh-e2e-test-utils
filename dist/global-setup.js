@@ -3,5 +3,6 @@
  * This file runs once before all tests.
  */
 export default async function globalSetup() {
+    console.log("Running global setup...");
     // Add any global setup logic here
 }

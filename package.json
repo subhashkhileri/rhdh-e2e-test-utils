@@ -2,11 +2,40 @@
   "name": "rhdh-e2e-test-utils",
   "version": "1.0.0",
   "description": "Test utilities for RHDH E2E tests",
+  "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "engines": {
-    "node": "22"
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./eslint": {
+      "types": "./dist/eslint/base-config.d.ts",
+      "default": "./dist/eslint/base-config.js"
+    },
+    "./fixtures": {
+      "types": "./dist/fixtures/index.d.ts",
+      "default": "./dist/fixtures/index.js"
+    },
+    "./global-setup": {
+      "types": "./dist/global-setup.d.ts",
+      "default": "./dist/global-setup.js"
+    },
+    "./helpers": {
+      "types": "./dist/helpers/index.d.ts",
+      "default": "./dist/helpers/index.js"
+    },
+    "./playwright-config": {
+      "types": "./dist/playwright-config/base-config.d.ts",
+      "default": "./dist/playwright-config/base-config.js"
+    },
+    "./tsconfig": "./tsconfig.base.json",
+    "./ui-helper": {
+      "types": "./dist/helpers/ui-helper.d.ts",
+      "default": "./dist/helpers/ui-helper.js"
+    }
   },
   "files": [
     "dist",
@@ -14,61 +43,33 @@
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
-    "prepublishOnly": "npm run build",
+    "clean": "rm -rf dist",
     "lint:check": "eslint .",
     "lint:fix": "eslint . --fix",
+    "prepublishOnly": "npm run build",
     "prettier:check": "prettier --check .",
     "prettier:fix": "prettier --write ."
   },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
-    "./playwright-config": {
-      "types": "./dist/playwright-config/base-config.d.ts",
-      "default": "./dist/playwright-config/base-config.js"
-    },
-    "./ui-helper": {
-      "types": "./dist/helpers/ui-helper.d.ts",
-      "default": "./dist/helpers/ui-helper.js"
-    },
-    "./fixtures": {
-      "types": "./dist/fixtures/index.d.ts",
-      "default": "./dist/fixtures/index.js"
-    },
-    "./helpers": {
-      "types": "./dist/helpers/index.d.ts",
-      "default": "./dist/helpers/index.js"
-    },
-    "./global-setup": {
-      "types": "./dist/global-setup.d.ts",
-      "default": "./dist/global-setup.js"
-    },
-    "./eslint": {
-      "types": "./dist/eslint/base-config.d.ts",
-      "default": "./dist/eslint/base-config.js"
-    },
-    "./tsconfig": "./tsconfig.base.json"
-  },
   "keywords": [
-    "rhdh",
-    "test-utils",
+    "e2e",
     "playwright",
-    "e2e"
+    "rhdh",
+    "test-utils"
   ],
-  "peerDependencies": {
-    "@playwright/test": "^1.56.1"
+  "engines": {
+    "node": ">=22"
   },
-  "dependencies": {
-    "eslint-plugin-check-file": "^3.2.0",
-    "eslint-plugin-playwright": "^2.2.0",
-    "typescript-eslint": "^8.33.0"
+  "peerDependencies": {
+    "@playwright/test": "^1.56.1",
+    "zx": "^8.2.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
-    "typescript": "^5.0.0",
     "eslint": "^9.28.0",
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.33.0",
+    "eslint-plugin-check-file": "^3.2.0",
+    "eslint-plugin-playwright": "^2.2.0"
   }
 }
