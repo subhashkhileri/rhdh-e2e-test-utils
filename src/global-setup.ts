@@ -2,7 +2,16 @@
  * Global setup for Playwright tests.
  * This file runs once before all tests.
  */
+
+import { KubernetesClientHelper } from "./helpers/kubernetes-client.js";
+
+async function setClusterRouterBaseEnv(): Promise<void> {
+  const k8sClient = new KubernetesClientHelper();
+  process.env.K8S_CLUSTER_ROUTER_BASE =
+    await k8sClient.getClusterIngressDomain();
+}
+
 export default async function globalSetup(): Promise<void> {
   console.log("Running global setup...");
-  // Add any global setup logic here
+  await setClusterRouterBaseEnv();
 }

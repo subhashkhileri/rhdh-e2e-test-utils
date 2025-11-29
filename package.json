@@ -64,7 +64,8 @@
     "test-utils"
   ],
   "engines": {
-    "node": ">=22"
+    "node": ">=22",
+    "npm": ">=11"
   },
   "peerDependencies": {
     "@playwright/test": "^1.56.1",

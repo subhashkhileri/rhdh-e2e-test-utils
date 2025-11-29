@@ -32,7 +32,7 @@ export class RHDHDeployment {
     }
     async deploy() {
         this.log("Starting RHDH deployment...");
-        test.setTimeout(300_000);
+        test.setTimeout(500_000);
         // Create namespace first
         await $ `kubectl create namespace ${this.installation.namespace} || echo "Namespace ${this.installation.namespace} already exists and will be used"`;
         await this.applyAppConfig();
@@ -69,10 +69,10 @@ export class RHDHDeployment {
     }
     async deployWithHelm(valueFile) {
         const chartVersion = await this.resolveChartVersion(this.installation.version);
-        const valueFileObject = await mergeYamlFilesIfExists([
+        const valueFileObject = (await mergeYamlFilesIfExists([
             BASE_CONFIG.helm.valueFile,
             valueFile,
-        ]);
+        ]));
         // Merge dynamic plugins into the values file
         if (!valueFileObject.global) {
             valueFileObject.global = {};

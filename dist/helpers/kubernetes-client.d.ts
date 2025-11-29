@@ -5,6 +5,7 @@ import * as k8s from "@kubernetes/client-node";
 declare class KubernetesClientHelper {
     private _kc;
     private _k8sApi;
+    private _customObjectsApi;
     constructor();
     /**
      * Create or update a ConfigMap from a file
@@ -38,6 +39,11 @@ declare class KubernetesClientHelper {
      * Delete a namespace
      */
     deleteNamespace(namespace: string): Promise<void>;
+    /**
+     * Get the cluster's ingress domain from OpenShift config
+     * Equivalent to: oc get ingresses.config.openshift.io cluster -o jsonpath='{.spec.domain}'
+     */
+    getClusterIngressDomain(): Promise<string>;
 }
 export { KubernetesClientHelper };
 //# sourceMappingURL=kubernetes-client.d.ts.map

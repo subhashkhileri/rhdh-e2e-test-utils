@@ -12,11 +12,13 @@ $.verbose = true;
 class KubernetesClientHelper {
   private _kc: k8s.KubeConfig;
   private _k8sApi: k8s.CoreV1Api;
+  private _customObjectsApi: k8s.CustomObjectsApi;
 
   constructor() {
     this._kc = new k8s.KubeConfig();
     this._kc.loadFromDefault();
     this._k8sApi = this._kc.makeApiClient(k8s.CoreV1Api);
+    this._customObjectsApi = this._kc.makeApiClient(k8s.CustomObjectsApi);
   }
 
   /**
@@ -308,6 +310,31 @@ class KubernetesClientHelper {
         );
         throw error;
       }
+    }
+  }
+  /**
+   * Get the cluster's ingress domain from OpenShift config
+   * Equivalent to: oc get ingresses.config.openshift.io cluster -o jsonpath='{.spec.domain}'
+   */
+  async getClusterIngressDomain(): Promise<string> {
+    try {
+      const ingress = await this._customObjectsApi.getClusterCustomObject({
+        group: "config.openshift.io",
+        version: "v1",
+        plural: "ingresses",
+        name: "cluster",
+      });
+
+      const domain = (ingress as { spec?: { domain?: string } }).spec?.domain;
+      if (!domain) {
+        throw new Error("Ingress domain not found in cluster config");
+      }
+
+      return domain;
+    } catch (error) {
+      throw new Error(
+        `Failed to get cluster ingress domain: ${error instanceof Error ? error.message : error}`,
+      );
     }
   }
 }
