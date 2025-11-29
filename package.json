@@ -43,7 +43,10 @@
   },
   "files": [
     "dist",
-    "tsconfig.base.json"
+    "tsconfig.base.json",
+    "src/rhdh-deployment/config",
+    "src/rhdh-deployment/helm",
+    "src/rhdh-deployment/operator"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

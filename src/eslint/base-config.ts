@@ -13,6 +13,17 @@ import type { Linter } from "eslint";
  */
 export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
   return [
+    // Global ignores - must be first for ESLint flat config
+    {
+      ignores: [
+        "node_modules/**",
+        "playwright-report/**",
+        "test-results/**",
+        "blob-report/**",
+        "*.config.js",
+        "dist/**",
+      ],
+    },
     js.configs.recommended,
     ...tseslint.configs.recommended,
     {
@@ -96,16 +107,6 @@ export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
         ],
       },
     },
-    {
-      ignores: [
-        "node_modules/**",
-        "playwright-report/**",
-        "test-results/**",
-        "blob-report/**",
-        "*.config.js",
-        "*.config.ts",
-      ],
-    },
     // Playwright test files
     {
       ...playwright.configs["flat/recommended"],
@@ -165,6 +166,8 @@ export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
     {
       files: [
         "**/page-objects/**/*.ts",
+        "**/page/**/*.ts",
+        "**/pages/**/*.ts",
         "**/utils/**/*.ts",
         "**/helpers/**/*.ts",
       ],
@@ -175,7 +178,7 @@ export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
           {
             selector: "class",
             format: ["PascalCase"],
-            suffix: ["Page", "Component", "Helper", "Util"],
+            suffix: ["Page", "Component", "Helper", "Util", "PO"],
           },
           {
             selector: "memberLike",

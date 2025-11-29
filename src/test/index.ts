@@ -14,9 +14,9 @@ export const test = base.extend<
   RHDHDeploymentWorkerFixtures
 >({
   rhdhDeploymentWorker: [
-    async ({}, use, workerInfo) => {
+    async (_fixtures, use, workerInfo) => {
       console.log(
-        `Deploying rhdh for plugin ${workerInfo.project.name} in namespace ${workerInfo.project.name}`
+        `Deploying rhdh for plugin ${workerInfo.project.name} in namespace ${workerInfo.project.name}`,
       );
 
       // require("dotenv").config({

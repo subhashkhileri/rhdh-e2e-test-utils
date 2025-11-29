@@ -1,4 +1,4 @@
-import { KubernetesClient } from "../helpers/kubernetes-client.js";
+import { KubernetesClientHelper } from "../helpers/kubernetes-client.js";
 type DeploymentMethod = "helm" | "operator";
 type InstallationInput = {
     version?: string;
@@ -27,7 +27,7 @@ type InstallationBase = {
 };
 type Installation = InstallationBase & (HelmInstallation | OperatorInstallation);
 export declare class RHDHDeployment {
-    k8sClient: KubernetesClient;
+    k8sClient: KubernetesClientHelper;
     RHDH_BASE_URL: string;
     installation: Installation;
     constructor(input: InstallationInput);

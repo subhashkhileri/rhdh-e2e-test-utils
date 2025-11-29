@@ -7,13 +7,13 @@ $.verbose = true;
 /**
  * Kubernetes client wrapper with proper abstraction
  */
-class KubernetesClient {
-    kc;
-    k8sApi;
+class KubernetesClientHelper {
+    _kc;
+    _k8sApi;
     constructor() {
-        this.kc = new k8s.KubeConfig();
-        this.kc.loadFromDefault();
-        this.k8sApi = this.kc.makeApiClient(k8s.CoreV1Api);
+        this._kc = new k8s.KubeConfig();
+        this._kc.loadFromDefault();
+        this._k8sApi = this._kc.makeApiClient(k8s.CoreV1Api);
     }
     /**
      * Create or update a ConfigMap from a file
@@ -35,9 +35,9 @@ class KubernetesClient {
             };
             // Check if ConfigMap exists first
             try {
-                await this.k8sApi.readNamespacedConfigMap({ name, namespace });
+                await this._k8sApi.readNamespacedConfigMap({ name, namespace });
                 // Exists, so update it
-                const response = await this.k8sApi.replaceNamespacedConfigMap({
+                const response = await this._k8sApi.replaceNamespacedConfigMap({
                     name,
                     namespace,
                     body: configMap,
@@ -45,9 +45,9 @@ class KubernetesClient {
                 console.log(`✓ Updated ConfigMap ${name} in namespace ${namespace}`);
                 return response;
             }
-            catch (error) {
+            catch {
                 // Doesn't exist, create it
-                const response = await this.k8sApi.createNamespacedConfigMap({
+                const response = await this._k8sApi.createNamespacedConfigMap({
                     namespace,
                     body: configMap,
                 });
@@ -56,7 +56,7 @@ class KubernetesClient {
             }
         }
         catch (error) {
-            console.error(`✗ Failed to create/update ConfigMap ${name}:`, error.message);
+            console.error(`✗ Failed to create/update ConfigMap ${name}:`, error instanceof Error ? error.message : error);
             throw error;
         }
     }
@@ -65,11 +65,11 @@ class KubernetesClient {
      */
     async createNamespaceIfNotExists(namespace) {
         try {
-            const response = await this.k8sApi.readNamespace({ name: namespace });
+            const response = await this._k8sApi.readNamespace({ name: namespace });
             console.log(`✓ Namespace ${namespace} already exists`);
             return response;
         }
-        catch (error) {
+        catch {
             // If read fails (likely 404), try to create
             try {
                 const namespaceObj = {
@@ -79,14 +79,14 @@ class KubernetesClient {
                         name: namespace,
                     },
                 };
-                const response = await this.k8sApi.createNamespace({
+                const response = await this._k8sApi.createNamespace({
                     body: namespaceObj,
                 });
                 console.log(`✓ Created namespace ${namespace}`);
                 return response;
             }
             catch (createError) {
-                console.error(`✗ Failed to create namespace ${namespace}:`, createError.message);
+                console.error(`✗ Failed to create namespace ${namespace}:`, createError instanceof Error ? createError.message : createError);
                 throw createError;
             }
         }
@@ -134,27 +134,27 @@ class KubernetesClient {
     /**
      * Create or update a Secret
      */
-    async applySecret(secret, namespace) {
+    async _applySecret(secret, namespace) {
         const name = secret.metadata.name;
         try {
-            await this.k8sApi.replaceNamespacedSecret({
+            await this._k8sApi.replaceNamespacedSecret({
                 name,
                 namespace,
                 body: secret,
             });
             console.log(`✓ Updated Secret ${name} in namespace ${namespace}`);
         }
-        catch (error) {
+        catch {
             // If replace fails (likely 404), try to create
             try {
-                await this.k8sApi.createNamespacedSecret({
+                await this._k8sApi.createNamespacedSecret({
                     namespace,
                     body: secret,
                 });
                 console.log(`✓ Created Secret ${name} in namespace ${namespace}`);
             }
             catch (createError) {
-                console.error(`✗ Failed to create/update Secret ${name} in namespace ${namespace}:`, createError.message);
+                console.error(`✗ Failed to create/update Secret ${name} in namespace ${namespace}:`, createError instanceof Error ? createError.message : createError);
                 throw createError;
             }
         }
@@ -178,25 +178,25 @@ class KubernetesClient {
             },
         };
         try {
-            await this.k8sApi.replaceNamespacedConfigMap({
+            await this._k8sApi.replaceNamespacedConfigMap({
                 name,
                 namespace,
                 body: fullConfigMap,
             });
             console.log(`✓ Updated ConfigMap ${name} in namespace ${namespace}`);
         }
-        catch (error) {
+        catch {
             // Check for 404 status in different possible error structures
             try {
-                await this.k8sApi.createNamespacedConfigMap({
+                await this._k8sApi.createNamespacedConfigMap({
                     namespace,
                     body: fullConfigMap,
                 });
                 console.log(`✓ Created ConfigMap ${name} in namespace ${namespace}`);
             }
-            catch (error) {
-                console.error(`✗ Failed to create/update ConfigMap ${name} in namespace ${namespace}:`, error.message);
-                throw error;
+            catch (createError) {
+                console.error(`✗ Failed to create/update ConfigMap ${name} in namespace ${namespace}:`, createError instanceof Error ? createError.message : createError);
+                throw createError;
             }
         }
     }
@@ -215,24 +215,24 @@ class KubernetesClient {
             stringData: data.stringData,
         };
         try {
-            await this.k8sApi.replaceNamespacedSecret({
+            await this._k8sApi.replaceNamespacedSecret({
                 name,
                 namespace,
                 body: fullSecret,
             });
             console.log(`✓ Updated Secret ${name} in namespace ${namespace}`);
         }
-        catch (error) {
+        catch {
             // If replace fails (likely 404), try to create
             try {
-                await this.k8sApi.createNamespacedSecret({
+                await this._k8sApi.createNamespacedSecret({
                     namespace,
                     body: fullSecret,
                 });
                 console.log(`✓ Created Secret ${name} in namespace ${namespace}`);
             }
             catch (createError) {
-                console.error(`✗ Failed to create/update Secret ${name} in namespace ${namespace}:`, createError.message);
+                console.error(`✗ Failed to create/update Secret ${name} in namespace ${namespace}:`, createError instanceof Error ? createError.message : createError);
                 throw createError;
             }
         }
@@ -242,19 +242,22 @@ class KubernetesClient {
      */
     async deleteNamespace(namespace) {
         try {
-            await this.k8sApi.deleteNamespace({ name: namespace });
+            await this._k8sApi.deleteNamespace({ name: namespace });
             console.log(`✓ Deleted namespace ${namespace}`);
         }
         catch (error) {
             // Ignore if namespace doesn't exist (already deleted), but throw other errors
-            if (error.body?.code === 404 || error.response?.statusCode === 404 || error.statusCode === 404) {
+            const err = error;
+            if (err.body?.code === 404 ||
+                err.response?.statusCode === 404 ||
+                err.statusCode === 404) {
                 console.log(`✓ Namespace ${namespace} already deleted or doesn't exist`);
             }
             else {
-                console.error(`✗ Failed to delete namespace ${namespace}:`, error.message);
+                console.error(`✗ Failed to delete namespace ${namespace}:`, error instanceof Error ? error.message : error);
                 throw error;
             }
         }
     }
 }
-export { KubernetesClient };
+export { KubernetesClientHelper };

@@ -1,24 +1,43 @@
-import { KubernetesClient } from "../helpers/kubernetes-client.js";
+import { KubernetesClientHelper } from "../helpers/kubernetes-client.js";
 import { $ } from "zx";
 import yaml from "js-yaml";
 import { test } from "@playwright/test";
 import { mergeYamlFilesIfExists } from "../utils/merge-yamls.js";
 import { envsubst } from "../utils/common.js";
 import fs from "fs-extra";
+import path from "path";
+
+// Navigate from dist/rhdh-deployment/ to package root
+const PACKAGE_ROOT = path.resolve(import.meta.dirname, "../..");
 
 const BASE_CONFIG = {
-  appConfig: "src/rhdh-deployment/config/app-config-rhdh.yaml",
-  secrets: "src/rhdh-deployment/config/rhdh-secrets.yaml",
-  dynamicPlugins: "src/rhdh-deployment/config/dynamic-plugins.yaml",
+  appConfig: path.join(
+    PACKAGE_ROOT,
+    "src/rhdh-deployment/config/app-config-rhdh.yaml",
+  ),
+  secrets: path.join(
+    PACKAGE_ROOT,
+    "src/rhdh-deployment/config/rhdh-secrets.yaml",
+  ),
+  dynamicPlugins: path.join(
+    PACKAGE_ROOT,
+    "src/rhdh-deployment/config/dynamic-plugins.yaml",
+  ),
   helm: {
-    valueFile: "src/rhdh-deployment/helm/value_file.yaml",
+    valueFile: path.join(
+      PACKAGE_ROOT,
+      "src/rhdh-deployment/helm/value_file.yaml",
+    ),
   },
   operator: {
-    subscription: "src/rhdh-deployment/operator/subscription.yaml",
+    subscription: path.join(
+      PACKAGE_ROOT,
+      "src/rhdh-deployment/operator/subscription.yaml",
+    ),
   },
-} as const;
+};
 
-const CHART_URL="oci://quay.io/rhdh/chart";
+const CHART_URL = "oci://quay.io/rhdh/chart";
 
 type DeploymentMethod = "helm" | "operator";
 
@@ -55,7 +74,7 @@ type Installation = InstallationBase &
   (HelmInstallation | OperatorInstallation);
 
 export class RHDHDeployment {
-  public k8sClient = new KubernetesClient();
+  public k8sClient = new KubernetesClientHelper();
   public RHDH_BASE_URL: string;
   public installation: Installation;
 
@@ -63,7 +82,7 @@ export class RHDHDeployment {
     this.installation = this.normalizeInstallation(input);
     this.RHDH_BASE_URL = this.buildBaseUrl(this.installation);
     this.log(
-      `RHDH deployment initialized (namespace: ${this.installation.namespace})`
+      `RHDH deployment initialized (namespace: ${this.installation.namespace})`,
     );
     console.table(this.installation);
   }
@@ -97,7 +116,7 @@ export class RHDHDeployment {
     await this.k8sClient.applyConfigMapFromObject(
       "app-config-rhdh",
       appConfigYaml,
-      this.installation.namespace
+      this.installation.namespace,
     );
   }
 
@@ -110,7 +129,7 @@ export class RHDHDeployment {
     await this.k8sClient.applySecretFromObject(
       "rhdh-secrets",
       JSON.parse(envsubst(JSON.stringify(secretsYaml))),
-      this.installation.namespace
+      this.installation.namespace,
     );
   }
 
@@ -122,18 +141,18 @@ export class RHDHDeployment {
     await this.k8sClient.applyConfigMapFromObject(
       "dynamic-plugins",
       dynamicPluginsYaml,
-      this.installation.namespace
+      this.installation.namespace,
     );
   }
 
   private async deployWithHelm(valueFile: string): Promise<void> {
     const chartVersion = await this.resolveChartVersion(
-      this.installation.version
+      this.installation.version,
     );
     const valueFileObject = await mergeYamlFilesIfExists([
       BASE_CONFIG.helm.valueFile,
       valueFile,
-    ]);
+    ]) as Record<string, Record<string, unknown>>;
 
     // Merge dynamic plugins into the values file
     if (!valueFileObject.global) {
@@ -146,7 +165,7 @@ export class RHDHDeployment {
 
     fs.writeFileSync(
       `/tmp/${this.installation.namespace}-value-file.yaml`,
-      yaml.dump(valueFileObject)
+      yaml.dump(valueFileObject),
     );
 
     const helmCommand = await $`
@@ -166,7 +185,7 @@ export class RHDHDeployment {
     ]);
     fs.writeFileSync(
       `/tmp/${this.installation.namespace}-subscription.yaml`,
-      yaml.dump(subscriptionObject)
+      yaml.dump(subscriptionObject),
     );
     await $`
       set -e;
@@ -188,22 +207,22 @@ export class RHDHDeployment {
 
   async restartRollout(): Promise<void> {
     this.log(
-      `Restarting RHDH deployment in namespace ${this.installation.namespace}...`
+      `Restarting RHDH deployment in namespace ${this.installation.namespace}...`,
     );
     await $`oc rollout restart deployment -l app.kubernetes.io/instance=redhat-developer-hub -n ${this.installation.namespace}`;
     this.log(
-      `RHDH deployment restarted successfully in namespace ${this.installation.namespace}`
+      `RHDH deployment restarted successfully in namespace ${this.installation.namespace}`,
     );
     await this.waitUntilReady();
   }
 
   async waitUntilReady(timeout: number = 300): Promise<void> {
     this.log(
-      `Waiting for RHDH deployment to be ready in namespace ${this.installation.namespace}...`
+      `Waiting for RHDH deployment to be ready in namespace ${this.installation.namespace}...`,
     );
     await $`oc rollout status deployment -l app.kubernetes.io/instance=redhat-developer-hub -n ${this.installation.namespace} --timeout=${timeout}s`;
     this.log(
-      `RHDH deployment is ready in namespace ${this.installation.namespace}`
+      `RHDH deployment is ready in namespace ${this.installation.namespace}`,
     );
   }
 
@@ -215,12 +234,12 @@ export class RHDHDeployment {
     // Semantic versions (e.g., 1.2)
     if (/^(\d+(\.\d+)?)$/.test(version)) {
       const response = await fetch(
-        "https://quay.io/api/v1/repository/rhdh/chart/tag/?onlyActiveTags=true&limit=600"
+        "https://quay.io/api/v1/repository/rhdh/chart/tag/?onlyActiveTags=true&limit=600",
       );
 
       if (!response.ok)
         throw new Error(
-          `Failed to fetch chart versions: ${response.statusText}`
+          `Failed to fetch chart versions: ${response.statusText}`,
         );
 
       const data = (await response.json()) as { tags: Array<{ name: string }> };
@@ -252,32 +271,22 @@ export class RHDHDeployment {
     const base: InstallationBase = {
       version,
       namespace: input.namespace,
-      appConfig:
-        input.appConfig ??
-        `workspaces/${input.namespace}/e2e/config/app-config-rhdh.yaml`,
-      secrets:
-        input.secrets ??
-        `workspaces/${input.namespace}/e2e/config/rhdh-secrets.yaml`,
-      dynamicPlugins:
-        input.dynamicPlugins ??
-        `workspaces/${input.namespace}/e2e/config/dynamic-plugins.yaml`,
+      appConfig: input.appConfig ?? `config/app-config-rhdh.yaml`,
+      secrets: input.secrets ?? `config/rhdh-secrets.yaml`,
+      dynamicPlugins: input.dynamicPlugins ?? `config/dynamic-plugins.yaml`,
     };
 
     if (method === "helm") {
       return {
         ...base,
         method,
-        valueFile:
-          input.valueFile ??
-          `workspaces/${input.namespace}/e2e/config/value_file.yaml`,
+        valueFile: input.valueFile ?? `config/value_file.yaml`,
       };
     } else if (method === "operator") {
       return {
         ...base,
         method,
-        subscription:
-          input.subscription ??
-          `workspaces/${input.namespace}/e2e/config/subscription.yaml`,
+        subscription: input.subscription ?? `config/subscription.yaml`,
       };
     } else {
       throw new Error(`Invalid RHDH installation method: ${method}`);
@@ -288,7 +297,7 @@ export class RHDHDeployment {
     this.installation = this.normalizeInstallation(input);
     this.RHDH_BASE_URL = this.buildBaseUrl(this.installation);
     this.log(
-      `RHDH deployment initialized (namespace: ${this.installation.namespace})`
+      `RHDH deployment initialized (namespace: ${this.installation.namespace})`,
     );
     console.table(this.installation);
   }

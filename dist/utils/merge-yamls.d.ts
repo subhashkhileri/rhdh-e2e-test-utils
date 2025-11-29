@@ -5,14 +5,14 @@ import yaml from "js-yaml";
  * @param paths List of YAML file paths (base first, overlays last)
  * @returns Merged YAML object
  */
-export declare function mergeYamlFiles(paths: string[]): Promise<any>;
+export declare function mergeYamlFiles(paths: string[]): Promise<Record<string, unknown>>;
 /**
  * Merge multiple YAML files if they exist.
  *
  * @param paths List of YAML file paths
  * @returns Merged YAML object
  */
-export declare function mergeYamlFilesIfExists(paths: string[]): Promise<any>;
+export declare function mergeYamlFilesIfExists(paths: string[]): Promise<Record<string, unknown>>;
 /**
  * Merge multiple YAML files and write the result to an output file.
  *

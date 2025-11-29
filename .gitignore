@@ -57,3 +57,5 @@ build/
 # Coverage
 coverage/
 .nyc_output/
+
+.claude

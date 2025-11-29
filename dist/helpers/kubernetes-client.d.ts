@@ -2,9 +2,9 @@ import * as k8s from "@kubernetes/client-node";
 /**
  * Kubernetes client wrapper with proper abstraction
  */
-declare class KubernetesClient {
-    private kc;
-    private k8sApi;
+declare class KubernetesClientHelper {
+    private _kc;
+    private _k8sApi;
     constructor();
     /**
      * Create or update a ConfigMap from a file
@@ -23,19 +23,21 @@ declare class KubernetesClient {
     /**
      * Create or update a Secret
      */
-    private applySecret;
+    private _applySecret;
     /**
      * Create or update a ConfigMap from a plain object
      */
-    applyConfigMapFromObject(name: string, data: Record<string, any>, namespace: string): Promise<void>;
+    applyConfigMapFromObject(name: string, data: Record<string, unknown>, namespace: string): Promise<void>;
     /**
      * Create or update a Secret from a plain object
      */
-    applySecretFromObject(name: string, data: Record<string, any>, namespace: string): Promise<void>;
+    applySecretFromObject(name: string, data: {
+        stringData?: Record<string, string>;
+    }, namespace: string): Promise<void>;
     /**
      * Delete a namespace
      */
     deleteNamespace(namespace: string): Promise<void>;
 }
-export { KubernetesClient };
+export { KubernetesClientHelper };
 //# sourceMappingURL=kubernetes-client.d.ts.map

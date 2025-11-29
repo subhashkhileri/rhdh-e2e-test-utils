@@ -9,7 +9,7 @@ export const baseConfig: PlaywrightTestConfig = {
   testDir: "./tests",
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: '50%',
+  workers: "50%",
   outputDir: "test-results",
   timeout: 90_000,
   reporter: [

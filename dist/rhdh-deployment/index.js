@@ -1,24 +1,27 @@
-import { KubernetesClient } from "../helpers/kubernetes-client.js";
+import { KubernetesClientHelper } from "../helpers/kubernetes-client.js";
 import { $ } from "zx";
 import yaml from "js-yaml";
 import { test } from "@playwright/test";
 import { mergeYamlFilesIfExists } from "../utils/merge-yamls.js";
 import { envsubst } from "../utils/common.js";
 import fs from "fs-extra";
+import path from "path";
+// Navigate from dist/rhdh-deployment/ to package root
+const PACKAGE_ROOT = path.resolve(import.meta.dirname, "../..");
 const BASE_CONFIG = {
-    appConfig: "src/rhdh-deployment/config/app-config-rhdh.yaml",
-    secrets: "src/rhdh-deployment/config/rhdh-secrets.yaml",
-    dynamicPlugins: "src/rhdh-deployment/config/dynamic-plugins.yaml",
+    appConfig: path.join(PACKAGE_ROOT, "src/rhdh-deployment/config/app-config-rhdh.yaml"),
+    secrets: path.join(PACKAGE_ROOT, "src/rhdh-deployment/config/rhdh-secrets.yaml"),
+    dynamicPlugins: path.join(PACKAGE_ROOT, "src/rhdh-deployment/config/dynamic-plugins.yaml"),
     helm: {
-        valueFile: "src/rhdh-deployment/helm/value_file.yaml",
+        valueFile: path.join(PACKAGE_ROOT, "src/rhdh-deployment/helm/value_file.yaml"),
     },
     operator: {
-        subscription: "src/rhdh-deployment/operator/subscription.yaml",
+        subscription: path.join(PACKAGE_ROOT, "src/rhdh-deployment/operator/subscription.yaml"),
     },
 };
 const CHART_URL = "oci://quay.io/rhdh/chart";
 export class RHDHDeployment {
-    k8sClient = new KubernetesClient();
+    k8sClient = new KubernetesClientHelper();
     RHDH_BASE_URL;
     installation;
     constructor(input) {
@@ -154,27 +157,22 @@ export class RHDHDeployment {
         const base = {
             version,
             namespace: input.namespace,
-            appConfig: input.appConfig ??
-                `workspaces/${input.namespace}/e2e/config/app-config-rhdh.yaml`,
-            secrets: input.secrets ??
-                `workspaces/${input.namespace}/e2e/config/rhdh-secrets.yaml`,
-            dynamicPlugins: input.dynamicPlugins ??
-                `workspaces/${input.namespace}/e2e/config/dynamic-plugins.yaml`,
+            appConfig: input.appConfig ?? `config/app-config-rhdh.yaml`,
+            secrets: input.secrets ?? `config/rhdh-secrets.yaml`,
+            dynamicPlugins: input.dynamicPlugins ?? `config/dynamic-plugins.yaml`,
         };
         if (method === "helm") {
             return {
                 ...base,
                 method,
-                valueFile: input.valueFile ??
-                    `workspaces/${input.namespace}/e2e/config/value_file.yaml`,
+                valueFile: input.valueFile ?? `config/value_file.yaml`,
             };
         }
         else if (method === "operator") {
             return {
                 ...base,
                 method,
-                subscription: input.subscription ??
-                    `workspaces/${input.namespace}/e2e/config/subscription.yaml`,
+                subscription: input.subscription ?? `config/subscription.yaml`,
             };
         }
         else {

@@ -2,7 +2,7 @@ import { RHDHDeployment } from "../rhdh-deployment/index.js";
 import { test as base } from "@playwright/test";
 export const test = base.extend({
     rhdhDeploymentWorker: [
-        async ({}, use, workerInfo) => {
+        async (_fixtures, use, workerInfo) => {
             console.log(`Deploying rhdh for plugin ${workerInfo.project.name} in namespace ${workerInfo.project.name}`);
             // require("dotenv").config({
             //   path: `workspaces/${workerInfo.project.name}/e2e/.env`,

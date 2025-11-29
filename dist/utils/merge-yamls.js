@@ -22,7 +22,7 @@ export async function mergeYamlFiles(paths) {
     let merged = {};
     for (const path of paths) {
         const content = await fs.readFile(path, "utf8");
-        const parsed = yaml.load(content) || {};
+        const parsed = (yaml.load(content) || {});
         merged = deepMerge(merged, parsed);
     }
     return merged;
@@ -34,7 +34,7 @@ export async function mergeYamlFiles(paths) {
  * @returns Merged YAML object
  */
 export async function mergeYamlFilesIfExists(paths) {
-    return await mergeYamlFiles(paths.filter(path => fs.existsSync(path)));
+    return await mergeYamlFiles(paths.filter((path) => fs.existsSync(path)));
 }
 /**
  * Merge multiple YAML files and write the result to an output file.
