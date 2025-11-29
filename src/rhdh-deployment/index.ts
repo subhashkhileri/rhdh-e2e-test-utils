@@ -18,6 +18,8 @@ const BASE_CONFIG = {
   },
 } as const;
 
+const CHART_URL="oci://quay.io/rhdh/chart";
+
 type DeploymentMethod = "helm" | "operator";
 
 type InstallationInput = {
@@ -71,19 +73,19 @@ export class RHDHDeployment {
 
     test.setTimeout(300_000);
 
-    // // Create namespace first
-    // await $`kubectl create namespace ${this.installation.namespace} || echo "Namespace ${this.installation.namespace} already exists and will be used"`;
+    // Create namespace first
+    await $`kubectl create namespace ${this.installation.namespace} || echo "Namespace ${this.installation.namespace} already exists and will be used"`;
 
-    // await this.applyAppConfig();
-    // await this.applySecrets();
+    await this.applyAppConfig();
+    await this.applySecrets();
 
-    // if (this.installation.method === "helm") {
-    //   await this.deployWithHelm(this.installation.valueFile);
-    // } else {
-    //   await this.applyDynamicPlugins();
-    //   await this.deployWithOperator(this.installation.subscription);
-    // }
-    // await this.waitUntilReady();
+    if (this.installation.method === "helm") {
+      await this.deployWithHelm(this.installation.valueFile);
+    } else {
+      await this.applyDynamicPlugins();
+      await this.deployWithOperator(this.installation.subscription);
+    }
+    await this.waitUntilReady();
   }
 
   private async applyAppConfig(): Promise<void> {
@@ -148,7 +150,7 @@ export class RHDHDeployment {
     );
 
     const helmCommand = await $`
-      helm upgrade redhat-developer-hub -i "${process.env.CHART_URL}" --version "${chartVersion}" \
+      helm upgrade redhat-developer-hub -i "${process.env.CHART_URL || CHART_URL}" --version "${chartVersion}" \
         -f "/tmp/${this.installation.namespace}-value-file.yaml" \
         --set global.clusterRouterBase="${process.env.K8S_CLUSTER_ROUTER_BASE}" \
         --namespace="${this.installation.namespace}"
