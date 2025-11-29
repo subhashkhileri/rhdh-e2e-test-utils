@@ -1,5 +1,5 @@
 import { KubernetesClientHelper } from "../helpers/kubernetes-client.js";
-import { $ } from "zx";
+import { $ } from "../utils/bash.js";
 import yaml from "js-yaml";
 import { test } from "@playwright/test";
 import { mergeYamlFilesIfExists } from "../utils/merge-yamls.js";

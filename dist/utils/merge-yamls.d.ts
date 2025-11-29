@@ -5,14 +5,18 @@ import yaml from "js-yaml";
  * @param paths List of YAML file paths (base first, overlays last)
  * @returns Merged YAML object
  */
-export declare function mergeYamlFiles(paths: string[]): Promise<Record<string, unknown>>;
+export declare function mergeYamlFiles(
+  paths: string[],
+): Promise<Record<string, unknown>>;
 /**
  * Merge multiple YAML files if they exist.
  *
  * @param paths List of YAML file paths
  * @returns Merged YAML object
  */
-export declare function mergeYamlFilesIfExists(paths: string[]): Promise<Record<string, unknown>>;
+export declare function mergeYamlFilesIfExists(
+  paths: string[],
+): Promise<Record<string, unknown>>;
 /**
  * Merge multiple YAML files and write the result to an output file.
  *
@@ -20,5 +24,9 @@ export declare function mergeYamlFilesIfExists(paths: string[]): Promise<Record<
  * @param outputPath Output YAML file path
  * @param options Optional dump formatting
  */
-export declare function mergeYamlFilesToFile(inputPaths: string[], outputPath: string, options?: yaml.DumpOptions): Promise<void>;
+export declare function mergeYamlFilesToFile(
+  inputPaths: string[],
+  outputPath: string,
+  options?: yaml.DumpOptions,
+): Promise<void>;
 //# sourceMappingURL=merge-yamls.d.ts.map

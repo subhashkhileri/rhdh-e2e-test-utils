@@ -1,4 +1,4 @@
-import { $ } from "zx";
+import { $ } from "../utils/bash.js";
 import * as k8s from "@kubernetes/client-node";
 import * as fs from "fs";
 import * as path from "path";

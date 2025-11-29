@@ -39,6 +39,14 @@
     "./rhdh-deployment": {
       "types": "./dist/rhdh-deployment/index.d.ts",
       "default": "./dist/rhdh-deployment/index.js"
+    },
+    "./bash": {
+      "types": "./dist/utils/bash.d.ts",
+      "default": "./dist/utils/bash.js"
+    },
+    "./merge-yamls": {
+      "types": "./dist/utils/merge-yamls.d.ts",
+      "default": "./dist/utils/merge-yamls.js"
     }
   },
   "files": [

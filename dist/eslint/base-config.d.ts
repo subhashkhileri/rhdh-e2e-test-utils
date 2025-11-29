@@ -6,5 +6,7 @@ import type { Linter } from "eslint";
  * @param tsconfigRootDir - The root directory for tsconfig.json resolution
  * @returns ESLint flat config array
  */
-export declare function createEslintConfig(tsconfigRootDir: string): Linter.Config[];
+export declare function createEslintConfig(
+  tsconfigRootDir: string,
+): Linter.Config[];
 //# sourceMappingURL=base-config.d.ts.map

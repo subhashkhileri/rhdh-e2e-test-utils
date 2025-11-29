@@ -10,5 +10,7 @@ export declare const baseConfig: PlaywrightTestConfig;
  * @param overrides - Object containing projects to override
  * @returns Merged Playwright configuration
  */
-export declare function createPlaywrightConfig(overrides?: Pick<PlaywrightTestConfig, "projects">): PlaywrightTestConfig;
+export declare function createPlaywrightConfig(
+  overrides?: Pick<PlaywrightTestConfig, "projects">,
+): PlaywrightTestConfig;
 //# sourceMappingURL=base-config.d.ts.map
