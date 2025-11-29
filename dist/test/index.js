@@ -4,10 +4,10 @@ export const test = base.extend({
     rhdhDeploymentWorker: [
         async ({}, use, workerInfo) => {
             console.log(`Deploying rhdh for plugin ${workerInfo.project.name} in namespace ${workerInfo.project.name}`);
-            require("dotenv").config({
-                path: `workspaces/${workerInfo.project.name}/e2e/.env`,
-                override: true,
-            });
+            // require("dotenv").config({
+            //   path: `workspaces/${workerInfo.project.name}/e2e/.env`,
+            //   override: true,
+            // });
             const rhdhDeployment = new RHDHDeployment({
                 namespace: workerInfo.project.name,
             });
