@@ -14,7 +14,8 @@ export const test = base.extend<
   RHDHDeploymentWorkerFixtures
 >({
   rhdhDeploymentWorker: [
-    async (_fixtures, use, workerInfo) => {
+    // eslint-disable-next-line no-empty-pattern
+    async ({}, use, workerInfo) => {
       console.log(
         `Deploying rhdh for plugin ${workerInfo.project.name} in namespace ${workerInfo.project.name}`,
       );
