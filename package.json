@@ -15,9 +15,9 @@
       "types": "./dist/eslint/base-config.d.ts",
       "default": "./dist/eslint/base-config.js"
     },
-    "./fixtures": {
-      "types": "./dist/fixtures/index.d.ts",
-      "default": "./dist/fixtures/index.js"
+    "./test": {
+      "types": "./dist/test/index.d.ts",
+      "default": "./dist/test/index.js"
     },
     "./global-setup": {
       "types": "./dist/global-setup.d.ts",
