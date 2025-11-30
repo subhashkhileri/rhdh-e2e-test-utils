@@ -35,7 +35,7 @@ export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
         },
       },
       rules: {
-        // TypeScript naming conventions for test files
+        // TypeScript naming conventions
         "@typescript-eslint/naming-convention": [
           "error",
           {
@@ -65,6 +65,17 @@ export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
             selector: "enumMember",
             format: ["PascalCase"],
           },
+          {
+            selector: "memberLike",
+            modifiers: ["private"],
+            format: ["camelCase"],
+            leadingUnderscore: "allow",
+          },
+          {
+            selector: "memberLike",
+            modifiers: ["public"],
+            format: ["camelCase"],
+          },
         ],
         // Promise handling
         "@typescript-eslint/no-floating-promises": "error",
@@ -72,6 +83,10 @@ export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
         "@typescript-eslint/no-misused-promises": "error",
         // Allow any type in tests (for mocking, test data)
         "@typescript-eslint/no-explicit-any": "warn",
+        // Modern import style
+        "@typescript-eslint/consistent-type-imports": "error",
+        // Prefer modern syntax
+        "@typescript-eslint/prefer-optional-chain": "error",
         // Allow unused vars starting with underscore
         "@typescript-eslint/no-unused-vars": [
           "error",
@@ -162,34 +177,16 @@ export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
         ],
       },
     },
-    // Page Object Models and utilities
+    // Page Object Models - require class suffix
     {
-      files: [
-        "**/page-objects/**/*.ts",
-        "**/page/**/*.ts",
-        "**/pages/**/*.ts",
-        "**/utils/**/*.ts",
-        "**/helpers/**/*.ts",
-      ],
+      files: ["**/page-objects/**/*.ts", "**/page/**/*.ts", "**/pages/**/*.ts"],
       rules: {
-        // Allow class-based page objects
         "@typescript-eslint/naming-convention": [
           "error",
           {
             selector: "class",
             format: ["PascalCase"],
-            suffix: ["Page", "Component", "Helper", "Util", "PO"],
-          },
-          {
-            selector: "memberLike",
-            modifiers: ["private"],
-            format: ["camelCase"],
-            leadingUnderscore: "require",
-          },
-          {
-            selector: "memberLike",
-            modifiers: ["public"],
-            format: ["camelCase"],
+            suffix: ["Page", "Component", "PO"],
           },
         ],
       },
@@ -203,7 +200,7 @@ export function createEslintConfig(tsconfigRootDir: string): Linter.Config[] {
     },
     // Config files
     {
-      files: ["playwright.config.ts", "*.config.ts"],
+      files: ["playwright.config.ts", "**/*.config.ts"],
       rules: {
         "@typescript-eslint/naming-convention": "off",
         "check-file/filename-naming-convention": "off",

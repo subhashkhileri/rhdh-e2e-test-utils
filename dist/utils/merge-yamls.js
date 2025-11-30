@@ -6,11 +6,11 @@ import mergeWith from "lodash.mergewith";
  * Arrays are replaced (not concatenated) — this mimics Kustomize-style merging.
  */
 function deepMerge(target, source) {
-  return mergeWith(target, source, (objValue, srcValue) => {
-    if (Array.isArray(objValue) && Array.isArray(srcValue)) {
-      return srcValue; // Replace arrays instead of merging
-    }
-  });
+    return mergeWith(target, source, (objValue, srcValue) => {
+        if (Array.isArray(objValue) && Array.isArray(srcValue)) {
+            return srcValue; // Replace arrays instead of merging
+        }
+    });
 }
 /**
  * Merge multiple YAML files into one object.
@@ -19,13 +19,13 @@ function deepMerge(target, source) {
  * @returns Merged YAML object
  */
 export async function mergeYamlFiles(paths) {
-  let merged = {};
-  for (const path of paths) {
-    const content = await fs.readFile(path, "utf8");
-    const parsed = yaml.load(content) || {};
-    merged = deepMerge(merged, parsed);
-  }
-  return merged;
+    let merged = {};
+    for (const path of paths) {
+        const content = await fs.readFile(path, "utf8");
+        const parsed = (yaml.load(content) || {});
+        merged = deepMerge(merged, parsed);
+    }
+    return merged;
 }
 /**
  * Merge multiple YAML files if they exist.
@@ -34,7 +34,7 @@ export async function mergeYamlFiles(paths) {
  * @returns Merged YAML object
  */
 export async function mergeYamlFilesIfExists(paths) {
-  return await mergeYamlFiles(paths.filter((path) => fs.existsSync(path)));
+    return await mergeYamlFiles(paths.filter((path) => fs.existsSync(path)));
 }
 /**
  * Merge multiple YAML files and write the result to an output file.
@@ -43,13 +43,9 @@ export async function mergeYamlFilesIfExists(paths) {
  * @param outputPath Output YAML file path
  * @param options Optional dump formatting
  */
-export async function mergeYamlFilesToFile(
-  inputPaths,
-  outputPath,
-  options = { lineWidth: -1 },
-) {
-  const merged = await mergeYamlFiles(inputPaths);
-  const yamlString = yaml.dump(merged, options);
-  await fs.outputFile(outputPath, yamlString);
-  console.log(`Merged ${inputPaths.length} YAML files into ${outputPath}`);
+export async function mergeYamlFilesToFile(inputPaths, outputPath, options = { lineWidth: -1 }) {
+    const merged = await mergeYamlFiles(inputPaths);
+    const yamlString = yaml.dump(merged, options);
+    await fs.outputFile(outputPath, yamlString);
+    console.log(`Merged ${inputPaths.length} YAML files into ${outputPath}`);
 }

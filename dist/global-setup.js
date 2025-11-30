@@ -4,12 +4,12 @@
  */
 import { KubernetesClientHelper } from "./helpers/kubernetes-client.js";
 async function setClusterRouterBaseEnv() {
-  const k8sClient = new KubernetesClientHelper();
-  process.env.K8S_CLUSTER_ROUTER_BASE =
-    await k8sClient.getClusterIngressDomain();
-  console.log(`Cluster router base: ${process.env.K8S_CLUSTER_ROUTER_BASE}`);
+    const k8sClient = new KubernetesClientHelper();
+    process.env.K8S_CLUSTER_ROUTER_BASE =
+        await k8sClient.getClusterIngressDomain();
+    console.log(`Cluster router base: ${process.env.K8S_CLUSTER_ROUTER_BASE}`);
 }
 export default async function globalSetup() {
-  console.log("Running global setup...");
-  await setClusterRouterBaseEnv();
+    console.log("Running global setup...");
+    await setClusterRouterBaseEnv();
 }

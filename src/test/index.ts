@@ -34,7 +34,7 @@ export const test = base.extend<
       } finally {
         if (process.env.CI) {
           console.log(`Deleting namespace ${workerInfo.project.name}`);
-          await rhdhDeployment.destroy();
+          await rhdhDeployment.teardown();
         }
       }
     },
@@ -50,7 +50,7 @@ export const test = base.extend<
   ],
   baseURL: [
     async ({ rhdhDeploymentWorker }, use) => {
-      await use(rhdhDeploymentWorker.RHDH_BASE_URL);
+      await use(rhdhDeploymentWorker.rhdhUrl);
     },
     { scope: "test" },
   ] as const,

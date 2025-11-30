@@ -81,6 +81,7 @@ class KubernetesClientHelper {
   async createNamespaceIfNotExists(
     namespace: string,
   ): Promise<k8s.V1Namespace> {
+    if (!namespace?.trim()) throw new Error("Namespace is required");
     try {
       const response = await this._k8sApi.readNamespace({ name: namespace });
       console.log(`✓ Namespace ${namespace} already exists`);

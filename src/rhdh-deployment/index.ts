@@ -10,7 +10,7 @@ import path from "path";
 // Navigate from dist/rhdh-deployment/ to package root
 const PACKAGE_ROOT = path.resolve(import.meta.dirname, "../..");
 
-const BASE_CONFIG = {
+const DEFAULT_CONFIG_PATHS = {
   appConfig: path.join(
     PACKAGE_ROOT,
     "src/rhdh-deployment/config/app-config-rhdh.yaml",
@@ -41,7 +41,7 @@ const CHART_URL = "oci://quay.io/rhdh/chart";
 
 type DeploymentMethod = "helm" | "operator";
 
-type InstallationInput = {
+export type DeploymentOptions = {
   version?: string;
   namespace: string;
   appConfig?: string;
@@ -52,17 +52,17 @@ type InstallationInput = {
   subscription?: string;
 };
 
-type HelmInstallation = {
+type HelmDeploymentConfig = {
   method: "helm";
   valueFile: string;
 };
 
-type OperatorInstallation = {
+type OperatorDeploymentConfig = {
   method: "operator";
   subscription: string;
 };
 
-type InstallationBase = {
+type DeploymentConfigBase = {
   version: string;
   namespace: string;
   appConfig: string;
@@ -70,87 +70,87 @@ type InstallationBase = {
   dynamicPlugins: string;
 };
 
-type Installation = InstallationBase &
-  (HelmInstallation | OperatorInstallation);
+type DeploymentConfig = DeploymentConfigBase &
+  (HelmDeploymentConfig | OperatorDeploymentConfig);
 
 export class RHDHDeployment {
   public k8sClient = new KubernetesClientHelper();
-  public RHDH_BASE_URL: string;
-  public installation: Installation;
+  public rhdhUrl: string;
+  public deploymentConfig: DeploymentConfig;
 
-  constructor(input: InstallationInput) {
-    this.installation = this.normalizeInstallation(input);
-    this.RHDH_BASE_URL = this.buildBaseUrl(this.installation);
-    this.log(
-      `RHDH deployment initialized (namespace: ${this.installation.namespace})`,
+  constructor(deploymentOptions: DeploymentOptions) {
+    this.deploymentConfig = this._buildDeploymentConfig(deploymentOptions);
+    this.rhdhUrl = this._buildBaseUrl(this.deploymentConfig);
+    this._log(
+      `RHDH deployment initialized (namespace: ${this.deploymentConfig.namespace})`,
     );
-    console.table(this.installation);
+    console.table(this.deploymentConfig);
   }
 
   async deploy(): Promise<void> {
-    this.log("Starting RHDH deployment...");
+    this._log("Starting RHDH deployment...");
 
     test.setTimeout(500_000);
 
     // Create namespace first
-    await $`kubectl create namespace ${this.installation.namespace} || echo "Namespace ${this.installation.namespace} already exists and will be used"`;
+    await $`kubectl create namespace ${this.deploymentConfig.namespace} || echo "Namespace ${this.deploymentConfig.namespace} already exists and will be used"`;
 
-    await this.applyAppConfig();
-    await this.applySecrets();
+    await this._applyAppConfig();
+    await this._applySecrets();
 
-    if (this.installation.method === "helm") {
-      await this.deployWithHelm(this.installation.valueFile);
+    if (this.deploymentConfig.method === "helm") {
+      await this._deployWithHelm(this.deploymentConfig.valueFile);
     } else {
-      await this.applyDynamicPlugins();
-      await this.deployWithOperator(this.installation.subscription);
+      await this._applyDynamicPlugins();
+      await this._deployWithOperator(this.deploymentConfig.subscription);
     }
     await this.waitUntilReady();
   }
 
-  private async applyAppConfig(): Promise<void> {
+  private async _applyAppConfig(): Promise<void> {
     const appConfigYaml = await mergeYamlFilesIfExists([
-      BASE_CONFIG.appConfig,
-      this.installation.appConfig,
+      DEFAULT_CONFIG_PATHS.appConfig,
+      this.deploymentConfig.appConfig,
     ]);
 
     await this.k8sClient.applyConfigMapFromObject(
       "app-config-rhdh",
       appConfigYaml,
-      this.installation.namespace,
+      this.deploymentConfig.namespace,
     );
   }
 
-  private async applySecrets(): Promise<void> {
+  private async _applySecrets(): Promise<void> {
     const secretsYaml = await mergeYamlFilesIfExists([
-      BASE_CONFIG.secrets,
-      this.installation.secrets,
+      DEFAULT_CONFIG_PATHS.secrets,
+      this.deploymentConfig.secrets,
     ]);
 
     await this.k8sClient.applySecretFromObject(
       "rhdh-secrets",
       JSON.parse(envsubst(JSON.stringify(secretsYaml))),
-      this.installation.namespace,
+      this.deploymentConfig.namespace,
     );
   }
 
-  private async applyDynamicPlugins(): Promise<void> {
+  private async _applyDynamicPlugins(): Promise<void> {
     const dynamicPluginsYaml = await mergeYamlFilesIfExists([
-      BASE_CONFIG.dynamicPlugins,
-      this.installation.dynamicPlugins,
+      DEFAULT_CONFIG_PATHS.dynamicPlugins,
+      this.deploymentConfig.dynamicPlugins,
     ]);
     await this.k8sClient.applyConfigMapFromObject(
       "dynamic-plugins",
       dynamicPluginsYaml,
-      this.installation.namespace,
+      this.deploymentConfig.namespace,
     );
   }
 
-  private async deployWithHelm(valueFile: string): Promise<void> {
-    const chartVersion = await this.resolveChartVersion(
-      this.installation.version,
+  private async _deployWithHelm(valueFile: string): Promise<void> {
+    const chartVersion = await this._resolveChartVersion(
+      this.deploymentConfig.version,
     );
     const valueFileObject = (await mergeYamlFilesIfExists([
-      BASE_CONFIG.helm.valueFile,
+      DEFAULT_CONFIG_PATHS.helm.valueFile,
       valueFile,
     ])) as Record<string, Record<string, unknown>>;
 
@@ -159,78 +159,78 @@ export class RHDHDeployment {
       valueFileObject.global = {};
     }
     valueFileObject.global.dynamic = await mergeYamlFilesIfExists([
-      BASE_CONFIG.dynamicPlugins,
-      this.installation.dynamicPlugins,
+      DEFAULT_CONFIG_PATHS.dynamicPlugins,
+      this.deploymentConfig.dynamicPlugins,
     ]);
 
     fs.writeFileSync(
-      `/tmp/${this.installation.namespace}-value-file.yaml`,
+      `/tmp/${this.deploymentConfig.namespace}-value-file.yaml`,
       yaml.dump(valueFileObject),
     );
 
     const helmCommand = await $`
       helm upgrade redhat-developer-hub -i "${process.env.CHART_URL || CHART_URL}" --version "${chartVersion}" \
-        -f "/tmp/${this.installation.namespace}-value-file.yaml" \
+        -f "/tmp/${this.deploymentConfig.namespace}-value-file.yaml" \
         --set global.clusterRouterBase="${process.env.K8S_CLUSTER_ROUTER_BASE}" \
-        --namespace="${this.installation.namespace}"
+        --namespace="${this.deploymentConfig.namespace}"
     `;
 
-    this.log(`Helm deployment executed: ${helmCommand.stdout.trim()}`);
+    this._log(`Helm deployment executed: ${helmCommand.stdout.trim()}`);
   }
 
-  private async deployWithOperator(subscription: string): Promise<void> {
+  private async _deployWithOperator(subscription: string): Promise<void> {
     const subscriptionObject = await mergeYamlFilesIfExists([
-      BASE_CONFIG.operator.subscription,
+      DEFAULT_CONFIG_PATHS.operator.subscription,
       subscription,
     ]);
     fs.writeFileSync(
-      `/tmp/${this.installation.namespace}-subscription.yaml`,
+      `/tmp/${this.deploymentConfig.namespace}-subscription.yaml`,
       yaml.dump(subscriptionObject),
     );
     await $`
       set -e;
-      curl -s https://raw.githubusercontent.com/redhat-developer/rhdh-operator/refs/heads/release-${this.installation.version}/.rhdh/scripts/install-rhdh-catalog-source.sh | bash -s -- -v ${this.installation.version} --install-operator rhdh
+      curl -s https://raw.githubusercontent.com/redhat-developer/rhdh-operator/refs/heads/release-${this.deploymentConfig.version}/.rhdh/scripts/install-rhdh-catalog-source.sh | bash -s -- -v ${this.deploymentConfig.version} --install-operator rhdh
 
       timeout 300 bash -c '
-        while ! oc get crd/backstages.rhdh.redhat.com -n "${this.installation.namespace}" >/dev/null 2>&1; do
+        while ! oc get crd/backstages.rhdh.redhat.com -n "${this.deploymentConfig.namespace}" >/dev/null 2>&1; do
           echo "Waiting for Backstage CRD to be created..."
           sleep 20
         done
         echo "Backstage CRD is created."
       ' || echo "Error: Timed out waiting for Backstage CRD creation."
 
-      oc apply -f "/tmp/${this.installation.namespace}-subscription.yaml" -n "${this.installation.namespace}"
+      oc apply -f "/tmp/${this.deploymentConfig.namespace}-subscription.yaml" -n "${this.deploymentConfig.namespace}"
     `;
 
-    this.log("Operator deployment executed successfully.");
+    this._log("Operator deployment executed successfully.");
   }
 
-  async restartRollout(): Promise<void> {
-    this.log(
-      `Restarting RHDH deployment in namespace ${this.installation.namespace}...`,
+  async rolloutRestart(): Promise<void> {
+    this._log(
+      `Restarting RHDH deployment in namespace ${this.deploymentConfig.namespace}...`,
     );
-    await $`oc rollout restart deployment -l app.kubernetes.io/instance=redhat-developer-hub -n ${this.installation.namespace}`;
-    this.log(
-      `RHDH deployment restarted successfully in namespace ${this.installation.namespace}`,
+    await $`oc rollout restart deployment -l app.kubernetes.io/instance=redhat-developer-hub -n ${this.deploymentConfig.namespace}`;
+    this._log(
+      `RHDH deployment restarted successfully in namespace ${this.deploymentConfig.namespace}`,
     );
     await this.waitUntilReady();
   }
 
   async waitUntilReady(timeout: number = 300): Promise<void> {
-    this.log(
-      `Waiting for RHDH deployment to be ready in namespace ${this.installation.namespace}...`,
+    this._log(
+      `Waiting for RHDH deployment to be ready in namespace ${this.deploymentConfig.namespace}...`,
     );
-    await $`oc rollout status deployment -l app.kubernetes.io/instance=redhat-developer-hub -n ${this.installation.namespace} --timeout=${timeout}s`;
-    this.log(
-      `RHDH deployment is ready in namespace ${this.installation.namespace}`,
+    await $`oc rollout status deployment -l app.kubernetes.io/instance=redhat-developer-hub -n ${this.deploymentConfig.namespace} --timeout=${timeout}s`;
+    this._log(
+      `RHDH deployment is ready in namespace ${this.deploymentConfig.namespace}`,
     );
   }
 
-  async destroy(): Promise<void> {
-    await this.k8sClient.deleteNamespace(this.installation.namespace);
+  async teardown(): Promise<void> {
+    await this.k8sClient.deleteNamespace(this.deploymentConfig.namespace);
   }
 
-  private async resolveChartVersion(version: string): Promise<string> {
+  private async _resolveChartVersion(version: string): Promise<string> {
     // Semantic versions (e.g., 1.2)
     if (/^(\d+(\.\d+)?)$/.test(version)) {
       const response = await fetch(
@@ -259,7 +259,7 @@ export class RHDHDeployment {
     throw new Error(`Invalid Helm chart version format: "${version}"`);
   }
 
-  private normalizeInstallation(input: InstallationInput): Installation {
+  private _buildDeploymentConfig(input: DeploymentOptions): DeploymentConfig {
     const version = input.version ?? process.env.RHDH_VERSION;
     const method =
       input.method ?? (process.env.INSTALLATION_METHOD as DeploymentMethod);
@@ -268,7 +268,7 @@ export class RHDHDeployment {
     if (!method)
       throw new Error("Installation method (helm/operator) is required");
 
-    const base: InstallationBase = {
+    const base: DeploymentConfigBase = {
       version,
       namespace: input.namespace,
       appConfig: input.appConfig ?? `config/app-config-rhdh.yaml`,
@@ -293,16 +293,21 @@ export class RHDHDeployment {
     }
   }
 
-  async overrideInstallation(input: InstallationInput): Promise<void> {
-    this.installation = this.normalizeInstallation(input);
-    this.RHDH_BASE_URL = this.buildBaseUrl(this.installation);
-    this.log(
-      `RHDH deployment initialized (namespace: ${this.installation.namespace})`,
+  async configure(deploymentOptions?: DeploymentOptions): Promise<void> {
+    if (deploymentOptions) {
+      this.deploymentConfig = this._buildDeploymentConfig(deploymentOptions);
+      this.rhdhUrl = this._buildBaseUrl(this.deploymentConfig);
+      this._log(
+        `RHDH deployment initialized (namespace: ${this.deploymentConfig.namespace})`,
+      );
+      console.table(this.deploymentConfig);
+    }
+    await this.k8sClient.createNamespaceIfNotExists(
+      this.deploymentConfig.namespace,
     );
-    console.table(this.installation);
   }
 
-  private buildBaseUrl(install: Installation): string {
+  private _buildBaseUrl(install: DeploymentConfig): string {
     const prefix =
       install.method === "helm"
         ? "redhat-developer-hub"
@@ -310,12 +315,7 @@ export class RHDHDeployment {
     return `https://${prefix}-${install.namespace}.${process.env.K8S_CLUSTER_ROUTER_BASE}`;
   }
 
-  private log(...args: unknown[]): void {
+  private _log(...args: unknown[]): void {
     console.log("[RHDHDeployment]", ...args);
-  }
-
-  async saveLogs(): Promise<void> {
-    await $`save_all_pod_logs "${this.installation.namespace}"`;
-    this.log("RHDH logs saved successfully.");
   }
 }

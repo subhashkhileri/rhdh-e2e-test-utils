@@ -1,4 +1,4 @@
-import { PlaywrightTestConfig } from "@playwright/test";
+import type { PlaywrightTestConfig } from "@playwright/test";
 import { resolve } from "path";
 
 /**
