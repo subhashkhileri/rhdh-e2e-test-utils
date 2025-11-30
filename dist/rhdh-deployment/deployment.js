@@ -37,7 +37,11 @@ export class RHDHDeployment {
             DEFAULT_CONFIG_PATHS.appConfig,
             this.deploymentConfig.appConfig,
         ]);
-        console.log(boxen(yaml.dump(appConfigYaml), { title: "App Config", padding: 1 }));
+        console.log(boxen(yaml.dump(appConfigYaml), {
+            title: "App Config",
+            padding: 1,
+            align: "center",
+        }));
         await this.k8sClient.applyConfigMapFromObject("app-config-rhdh", appConfigYaml, this.deploymentConfig.namespace);
     }
     async _applySecrets() {
@@ -52,7 +56,11 @@ export class RHDHDeployment {
             DEFAULT_CONFIG_PATHS.dynamicPlugins,
             this.deploymentConfig.dynamicPlugins,
         ]);
-        console.log(boxen(yaml.dump(dynamicPluginsYaml), { title: "Dynamic Plugins", padding: 1 }));
+        console.log(boxen(yaml.dump(dynamicPluginsYaml), {
+            title: "Dynamic Plugins",
+            padding: 1,
+            align: "center",
+        }));
         await this.k8sClient.applyConfigMapFromObject("dynamic-plugins", dynamicPluginsYaml, this.deploymentConfig.namespace);
     }
     async _deployWithHelm(valueFile) {

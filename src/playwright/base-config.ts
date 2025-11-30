@@ -10,12 +10,12 @@ export const baseConfig: PlaywrightTestConfig = {
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: "50%",
-  outputDir: "test-results",
+  outputDir: "node_modules/.cache/e2e-test-results",
   timeout: 90_000,
   reporter: [
     ["list"],
-    ["html", { outputFolder: "test-results", open: "never" }],
-    ["json", { outputFile: "test-results/results.json" }],
+    ["html", { outputFolder: "playwright-report", open: "on-failure" }],
+    ["json", { outputFile: "playwright-report/results.json" }],
   ],
   use: {
     ignoreHTTPSErrors: true,
