@@ -15,18 +15,14 @@
       "types": "./dist/playwright/fixtures/test.d.ts",
       "default": "./dist/playwright/fixtures/test.js"
     },
-    "./playwright/global-setup": {
-      "types": "./dist/playwright/global-setup.d.ts",
-      "default": "./dist/playwright/global-setup.js"
-    },
     "./playwright-config": {
       "types": "./dist/playwright/base-config.d.ts",
       "default": "./dist/playwright/base-config.js"
     },
     "./tsconfig": "./tsconfig.base.json",
-    "./rhdh-deployment": {
-      "types": "./dist/rhdh-deployment/index.d.ts",
-      "default": "./dist/rhdh-deployment/index.js"
+    "./rhdh": {
+      "types": "./dist/deployment/rhdh/index.d.ts",
+      "default": "./dist/deployment/rhdh/index.js"
     },
     "./utils": {
       "types": "./dist/utils/index.d.ts",
@@ -36,9 +32,9 @@
   "files": [
     "dist",
     "tsconfig.base.json",
-    "src/rhdh-deployment/config",
-    "src/rhdh-deployment/helm",
-    "src/rhdh-deployment/operator"
+    "src/deployment/rhdh/config",
+    "src/deployment/rhdh/helm",
+    "src/deployment/rhdh/operator"
   ],
   "scripts": {
     "build": "npm run clean && tsc -p tsconfig.build.json",

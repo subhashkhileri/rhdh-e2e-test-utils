@@ -1,4 +1,4 @@
-import { RHDHDeployment } from "../../rhdh-deployment/index.js";
+import { RHDHDeployment } from "../../deployment/rhdh/index.js";
 type RHDHDeploymentTestFixtures = {
     rhdh: RHDHDeployment;
 };

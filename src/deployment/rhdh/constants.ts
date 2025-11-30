@@ -1,31 +1,31 @@
 import path from "path";
 
-// Navigate from dist/rhdh-deployment/ to package root
+// Navigate from dist/deployment/rhdh/ to package root
 const PACKAGE_ROOT = path.resolve(import.meta.dirname, "../..");
 
 export const DEFAULT_CONFIG_PATHS = {
   appConfig: path.join(
     PACKAGE_ROOT,
-    "src/rhdh-deployment/config/app-config-rhdh.yaml",
+    "src/deployment/rhdh/config/app-config-rhdh.yaml",
   ),
   secrets: path.join(
     PACKAGE_ROOT,
-    "src/rhdh-deployment/config/rhdh-secrets.yaml",
+    "src/deployment/rhdh/config/rhdh-secrets.yaml",
   ),
   dynamicPlugins: path.join(
     PACKAGE_ROOT,
-    "src/rhdh-deployment/config/dynamic-plugins.yaml",
+    "src/deployment/rhdh/config/dynamic-plugins.yaml",
   ),
   helm: {
     valueFile: path.join(
       PACKAGE_ROOT,
-      "src/rhdh-deployment/helm/value_file.yaml",
+      "src/deployment/rhdh/helm/value_file.yaml",
     ),
   },
   operator: {
     subscription: path.join(
       PACKAGE_ROOT,
-      "src/rhdh-deployment/operator/subscription.yaml",
+      "src/deployment/rhdh/operator/subscription.yaml",
     ),
   },
 };

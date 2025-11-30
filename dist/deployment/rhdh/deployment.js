@@ -1,9 +1,9 @@
-import { KubernetesClientHelper } from "../utils/kubernetes-client.js";
-import { $ } from "../utils/bash.js";
+import { KubernetesClientHelper } from "../../utils/kubernetes-client.js";
+import { $ } from "../../utils/bash.js";
 import yaml from "js-yaml";
 import { test } from "@playwright/test";
-import { mergeYamlFilesIfExists } from "../utils/merge-yamls.js";
-import { envsubst } from "../utils/common.js";
+import { mergeYamlFilesIfExists } from "../../utils/merge-yamls.js";
+import { envsubst } from "../../utils/common.js";
 import fs from "fs-extra";
 import boxen from "boxen";
 import { DEFAULT_CONFIG_PATHS, CHART_URL } from "./constants.js";
@@ -65,10 +65,16 @@ export class RHDHDeployment {
     }
     async _deployWithHelm(valueFile) {
         const chartVersion = await this._resolveChartVersion(this.deploymentConfig.version);
+        this._log(`Helm chart version resolved to: ${chartVersion}`);
         const valueFileObject = (await mergeYamlFilesIfExists([
             DEFAULT_CONFIG_PATHS.helm.valueFile,
             valueFile,
         ]));
+        console.log(boxen(yaml.dump(valueFileObject), {
+            title: "Value File",
+            padding: 1,
+            align: "center",
+        }));
         // Merge dynamic plugins into the values file
         if (!valueFileObject.global) {
             valueFileObject.global = {};
@@ -84,13 +90,18 @@ export class RHDHDeployment {
         --set global.clusterRouterBase="${process.env.K8S_CLUSTER_ROUTER_BASE}" \
         --namespace="${this.deploymentConfig.namespace}"
     `;
-        this._log(`Helm deployment executed`);
+        this._log(`Helm deployment completed successfully`);
     }
     async _deployWithOperator(subscription) {
         const subscriptionObject = await mergeYamlFilesIfExists([
             DEFAULT_CONFIG_PATHS.operator.subscription,
             subscription,
         ]);
+        console.log(boxen(yaml.dump(subscriptionObject), {
+            title: "Subscription",
+            padding: 1,
+            align: "center",
+        }));
         fs.writeFileSync(`/tmp/${this.deploymentConfig.namespace}-subscription.yaml`, yaml.dump(subscriptionObject));
         await $ `
       set -e;
