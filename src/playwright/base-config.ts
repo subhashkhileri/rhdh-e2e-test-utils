@@ -32,7 +32,7 @@ export const baseConfig: PlaywrightTestConfig = {
   expect: {
     timeout: 10_000,
   },
-  globalSetup: resolve(import.meta.dirname, "./global-setup.ts"),
+  globalSetup: resolve(import.meta.dirname, "../playwright/global-setup.js"),
 };
 
 /**
