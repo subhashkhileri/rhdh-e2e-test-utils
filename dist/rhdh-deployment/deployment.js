@@ -13,6 +13,7 @@ export class RHDHDeployment {
     constructor(deploymentOptions) {
         this.deploymentConfig = this._buildDeploymentConfig(deploymentOptions);
         this.rhdhUrl = this._buildBaseUrl();
+        process.env.RHDH_BASE_URL = this.rhdhUrl;
         this._log(`RHDH deployment initialized (namespace: ${this.deploymentConfig.namespace})`);
         console.table(this.deploymentConfig);
     }
@@ -99,13 +100,13 @@ export class RHDHDeployment {
     }
     async rolloutRestart() {
         this._log(`Restarting RHDH deployment in namespace ${this.deploymentConfig.namespace}...`);
-        await $ `oc rollout restart deployment -l app.kubernetes.io/instance=redhat-developer-hub -n ${this.deploymentConfig.namespace}`;
+        await $ `oc rollout restart deployment -l 'app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)' -n ${this.deploymentConfig.namespace}`;
         this._log(`RHDH deployment restarted successfully in namespace ${this.deploymentConfig.namespace}`);
         await this.waitUntilReady();
     }
     async waitUntilReady(timeout = 300) {
         this._log(`Waiting for RHDH deployment to be ready in namespace ${this.deploymentConfig.namespace}...`);
-        await $ `oc rollout status deployment -l app.kubernetes.io/instance=redhat-developer-hub -n ${this.deploymentConfig.namespace} --timeout=${timeout}s`;
+        await $ `oc rollout status deployment -l 'app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)' -n ${this.deploymentConfig.namespace} --timeout=${timeout}s`;
         this._log(`RHDH deployment is ready in namespace ${this.deploymentConfig.namespace}`);
     }
     async teardown() {
@@ -168,6 +169,7 @@ export class RHDHDeployment {
         if (deploymentOptions) {
             this.deploymentConfig = this._buildDeploymentConfig(deploymentOptions);
             this.rhdhUrl = this._buildBaseUrl();
+            process.env.RHDH_BASE_URL = this.rhdhUrl;
             this._log(`RHDH deployment initialized (namespace: ${this.deploymentConfig.namespace})`);
             console.table(this.deploymentConfig);
         }
