@@ -159,10 +159,17 @@ export class RHDHDeployment {
     this._log(
       `Waiting for RHDH deployment to be ready in namespace ${this.deploymentConfig.namespace}...`,
     );
+    try {
     await $`oc rollout status deployment -l 'app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)' -n ${this.deploymentConfig.namespace} --timeout=${timeout}s`;
-    this._log(
-      `RHDH deployment is ready in namespace ${this.deploymentConfig.namespace}`,
-    );
+      this._log(
+        `RHDH deployment is ready in namespace ${this.deploymentConfig.namespace}`,
+      );
+    } catch (error) {
+      this._log(
+        `Error waiting for RHDH deployment to be ready in timeout ${timeout}s in namespace ${this.deploymentConfig.namespace}: ${error}`,
+      );
+      throw error;
+    }
   }
 
   async teardown(): Promise<void> {
