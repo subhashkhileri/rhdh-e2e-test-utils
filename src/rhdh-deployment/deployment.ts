@@ -155,12 +155,12 @@ export class RHDHDeployment {
     await this.waitUntilReady();
   }
 
-  async waitUntilReady(timeout: number = 5): Promise<void> {
+  async waitUntilReady(timeout: number = 300): Promise<void> {
     this._log(
       `Waiting for RHDH deployment to be ready in namespace ${this.deploymentConfig.namespace}...`,
     );
     try {
-    await $`oc rollout status deployment -l 'app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)' -n ${this.deploymentConfig.namespace} --timeout=${timeout}s`;
+      await $`oc rollout status deployment -l 'app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)' -n ${this.deploymentConfig.namespace} --timeout=${timeout}s`;
       this._log(
         `RHDH deployment is ready in namespace ${this.deploymentConfig.namespace}`,
       );

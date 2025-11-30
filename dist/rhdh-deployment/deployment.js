@@ -103,7 +103,7 @@ export class RHDHDeployment {
         this._log(`RHDH deployment restarted successfully in namespace ${this.deploymentConfig.namespace}`);
         await this.waitUntilReady();
     }
-    async waitUntilReady(timeout = 5) {
+    async waitUntilReady(timeout = 300) {
         this._log(`Waiting for RHDH deployment to be ready in namespace ${this.deploymentConfig.namespace}...`);
         try {
             await $ `oc rollout status deployment -l 'app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)' -n ${this.deploymentConfig.namespace} --timeout=${timeout}s`;

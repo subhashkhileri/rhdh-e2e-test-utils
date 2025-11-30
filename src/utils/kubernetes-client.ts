@@ -338,6 +338,53 @@ class KubernetesClientHelper {
       );
     }
   }
+
+  /**
+   * Get the URL/location of an OpenShift Route by name
+   *
+   * @param namespace - The namespace to search in
+   * @param name - The route name
+   * @returns The route URL (e.g., https://myapp.apps.cluster.example.com)
+   */
+  async getRouteLocation(namespace: string, name: string): Promise<string> {
+    try {
+      const route = await this._customObjectsApi.getNamespacedCustomObject({
+        group: "route.openshift.io",
+        version: "v1",
+        namespace,
+        plural: "routes",
+        name,
+      });
+
+      return this._extractRouteUrl(route, name);
+    } catch (error) {
+      throw new Error(
+        `Failed to get route ${name} in namespace ${namespace}: ${error instanceof Error ? error.message : error}`,
+      );
+    }
+  }
+
+  /**
+   * Extract the URL from a route object
+   */
+  private _extractRouteUrl(route: unknown, routeName: string): string {
+    const routeObj = route as {
+      spec?: { host?: string; tls?: unknown };
+      status?: { ingress?: Array<{ host?: string }> };
+    };
+
+    // Try to get host from spec first, then from status
+    const host = routeObj.spec?.host || routeObj.status?.ingress?.[0]?.host;
+
+    if (!host) {
+      throw new Error(`Route ${routeName} does not have a host configured`);
+    }
+
+    // Determine protocol based on TLS configuration
+    const protocol = routeObj.spec?.tls ? "https" : "http";
+
+    return `${protocol}://${host}`;
+  }
 }
 
 export { KubernetesClientHelper };

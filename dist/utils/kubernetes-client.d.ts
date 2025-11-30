@@ -44,6 +44,18 @@ declare class KubernetesClientHelper {
      * Equivalent to: oc get ingresses.config.openshift.io cluster -o jsonpath='{.spec.domain}'
      */
     getClusterIngressDomain(): Promise<string>;
+    /**
+     * Get the URL/location of an OpenShift Route by name
+     *
+     * @param namespace - The namespace to search in
+     * @param name - The route name
+     * @returns The route URL (e.g., https://myapp.apps.cluster.example.com)
+     */
+    getRouteLocation(namespace: string, name: string): Promise<string>;
+    /**
+     * Extract the URL from a route object
+     */
+    private _extractRouteUrl;
 }
 export { KubernetesClientHelper };
 //# sourceMappingURL=kubernetes-client.d.ts.map
