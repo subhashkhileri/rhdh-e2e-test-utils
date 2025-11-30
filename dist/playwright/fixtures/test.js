@@ -5,10 +5,6 @@ export const test = base.extend({
         // eslint-disable-next-line no-empty-pattern
         async ({}, use, workerInfo) => {
             console.log(`Deploying rhdh for plugin ${workerInfo.project.name} in namespace ${workerInfo.project.name}`);
-            // require("dotenv").config({
-            //   path: `workspaces/${workerInfo.project.name}/e2e/.env`,
-            //   override: true,
-            // });
             const rhdhDeployment = new RHDHDeployment({
                 namespace: workerInfo.project.name,
             });
@@ -26,7 +22,6 @@ export const test = base.extend({
     ],
     rhdh: [
         async ({ rhdhDeploymentWorker }, use) => {
-            console.log("rhdh test scoped");
             await use(rhdhDeploymentWorker);
         },
         { auto: true, scope: "test" },

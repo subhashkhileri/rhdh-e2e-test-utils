@@ -67,13 +67,13 @@ export class RHDHDeployment {
             this.deploymentConfig.dynamicPlugins,
         ]);
         fs.writeFileSync(`/tmp/${this.deploymentConfig.namespace}-value-file.yaml`, yaml.dump(valueFileObject));
-        const helmCommand = await $ `
+        await $ `
       helm upgrade redhat-developer-hub -i "${process.env.CHART_URL || CHART_URL}" --version "${chartVersion}" \
         -f "/tmp/${this.deploymentConfig.namespace}-value-file.yaml" \
         --set global.clusterRouterBase="${process.env.K8S_CLUSTER_ROUTER_BASE}" \
         --namespace="${this.deploymentConfig.namespace}"
     `;
-        this._log(`Helm deployment executed: ${helmCommand.stdout.trim()}`);
+        this._log(`Helm deployment executed`);
     }
     async _deployWithOperator(subscription) {
         const subscriptionObject = await mergeYamlFilesIfExists([

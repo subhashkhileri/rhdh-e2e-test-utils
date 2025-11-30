@@ -24,10 +24,6 @@
       "default": "./dist/playwright/base-config.js"
     },
     "./tsconfig": "./tsconfig.base.json",
-    "./ui-helper": {
-      "types": "./dist/helpers/ui-helper.d.ts",
-      "default": "./dist/helpers/ui-helper.js"
-    },
     "./rhdh-deployment": {
       "types": "./dist/rhdh-deployment/index.d.ts",
       "default": "./dist/rhdh-deployment/index.js"
@@ -45,7 +41,7 @@
     "src/rhdh-deployment/operator"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
     "check": "npm run typecheck && npm run lint:check && npm run prettier:check",
     "clean": "rm -rf dist",
     "lint:check": "eslint . --ignore-pattern dist",
