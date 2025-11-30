@@ -5,6 +5,7 @@ import { test } from "@playwright/test";
 import { mergeYamlFilesIfExists } from "../utils/merge-yamls.js";
 import { envsubst } from "../utils/common.js";
 import fs from "fs-extra";
+import boxen from "boxen";
 import { DEFAULT_CONFIG_PATHS, CHART_URL } from "./constants.js";
 export class RHDHDeployment {
     k8sClient = new KubernetesClientHelper();
@@ -20,22 +21,6 @@ export class RHDHDeployment {
         this._log("Starting RHDH deployment...");
         test.setTimeout(500_000);
         await this.k8sClient.createNamespaceIfNotExists(this.deploymentConfig.namespace);
-        await test.step("Attach deployment configs", async () => {
-            await test.info().attach("app-config", {
-                body: Buffer.from(yaml.dump(await mergeYamlFilesIfExists([
-                    DEFAULT_CONFIG_PATHS.appConfig,
-                    this.deploymentConfig.appConfig,
-                ]))),
-                contentType: "text/yaml",
-            });
-            await test.info().attach("dynamic-plugins", {
-                body: Buffer.from(yaml.dump(await mergeYamlFilesIfExists([
-                    DEFAULT_CONFIG_PATHS.dynamicPlugins,
-                    this.deploymentConfig.dynamicPlugins,
-                ]))),
-                contentType: "text/yaml",
-            });
-        });
         await this._applyAppConfig();
         await this._applySecrets();
         if (this.deploymentConfig.method === "helm") {
@@ -52,6 +37,7 @@ export class RHDHDeployment {
             DEFAULT_CONFIG_PATHS.appConfig,
             this.deploymentConfig.appConfig,
         ]);
+        console.log(boxen(yaml.dump(appConfigYaml), { title: "App Config", padding: 1 }));
         await this.k8sClient.applyConfigMapFromObject("app-config-rhdh", appConfigYaml, this.deploymentConfig.namespace);
     }
     async _applySecrets() {
@@ -66,6 +52,7 @@ export class RHDHDeployment {
             DEFAULT_CONFIG_PATHS.dynamicPlugins,
             this.deploymentConfig.dynamicPlugins,
         ]);
+        console.log(boxen(yaml.dump(dynamicPluginsYaml), { title: "Dynamic Plugins", padding: 1 }));
         await this.k8sClient.applyConfigMapFromObject("dynamic-plugins", dynamicPluginsYaml, this.deploymentConfig.namespace);
     }
     async _deployWithHelm(valueFile) {

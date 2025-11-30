@@ -5,6 +5,7 @@ import { test } from "@playwright/test";
 import { mergeYamlFilesIfExists } from "../utils/merge-yamls.js";
 import { envsubst } from "../utils/common.js";
 import fs from "fs-extra";
+import boxen from "boxen";
 import { DEFAULT_CONFIG_PATHS, CHART_URL } from "./constants.js";
 import type {
   DeploymentOptions,
@@ -35,31 +36,6 @@ export class RHDHDeployment {
       this.deploymentConfig.namespace,
     );
 
-    await test.step("Attach deployment configs", async () => {
-      await test.info().attach("app-config", {
-        body: Buffer.from(
-          yaml.dump(
-            await mergeYamlFilesIfExists([
-              DEFAULT_CONFIG_PATHS.appConfig,
-              this.deploymentConfig.appConfig,
-            ]),
-          ),
-        ),
-        contentType: "text/yaml",
-      });
-      await test.info().attach("dynamic-plugins", {
-        body: Buffer.from(
-          yaml.dump(
-            await mergeYamlFilesIfExists([
-              DEFAULT_CONFIG_PATHS.dynamicPlugins,
-              this.deploymentConfig.dynamicPlugins,
-            ]),
-          ),
-        ),
-        contentType: "text/yaml",
-      });
-    });
-
     await this._applyAppConfig();
     await this._applySecrets();
 
@@ -77,6 +53,7 @@ export class RHDHDeployment {
       DEFAULT_CONFIG_PATHS.appConfig,
       this.deploymentConfig.appConfig,
     ]);
+    console.log(boxen(yaml.dump(appConfigYaml), { title: "App Config", padding: 1 }));
 
     await this.k8sClient.applyConfigMapFromObject(
       "app-config-rhdh",
@@ -103,6 +80,7 @@ export class RHDHDeployment {
       DEFAULT_CONFIG_PATHS.dynamicPlugins,
       this.deploymentConfig.dynamicPlugins,
     ]);
+    console.log(boxen(yaml.dump(dynamicPluginsYaml), { title: "Dynamic Plugins", padding: 1 }));
     await this.k8sClient.applyConfigMapFromObject(
       "dynamic-plugins",
       dynamicPluginsYaml,
