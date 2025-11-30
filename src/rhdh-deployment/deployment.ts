@@ -21,7 +21,6 @@ export class RHDHDeployment {
   constructor(deploymentOptions: DeploymentOptions) {
     this.deploymentConfig = this._buildDeploymentConfig(deploymentOptions);
     this.rhdhUrl = this._buildBaseUrl();
-    process.env.RHDH_BASE_URL = this.rhdhUrl;
     this._log(
       `RHDH deployment initialized (namespace: ${this.deploymentConfig.namespace})`,
     );
@@ -156,7 +155,7 @@ export class RHDHDeployment {
     await this.waitUntilReady();
   }
 
-  async waitUntilReady(timeout: number = 300): Promise<void> {
+  async waitUntilReady(timeout: number = 5): Promise<void> {
     this._log(
       `Waiting for RHDH deployment to be ready in namespace ${this.deploymentConfig.namespace}...`,
     );
@@ -237,7 +236,6 @@ export class RHDHDeployment {
     if (deploymentOptions) {
       this.deploymentConfig = this._buildDeploymentConfig(deploymentOptions);
       this.rhdhUrl = this._buildBaseUrl();
-      process.env.RHDH_BASE_URL = this.rhdhUrl;
       this._log(
         `RHDH deployment initialized (namespace: ${this.deploymentConfig.namespace})`,
       );
@@ -253,7 +251,9 @@ export class RHDHDeployment {
       this.deploymentConfig.method === "helm"
         ? "redhat-developer-hub"
         : "backstage-developer-hub";
-    return `https://${prefix}-${this.deploymentConfig.namespace}.${process.env.K8S_CLUSTER_ROUTER_BASE}`;
+    const baseUrl = `https://${prefix}-${this.deploymentConfig.namespace}.${process.env.K8S_CLUSTER_ROUTER_BASE}`;
+    process.env.RHDH_BASE_URL = baseUrl;
+    return baseUrl;
   }
 
   private _log(...args: unknown[]): void {
