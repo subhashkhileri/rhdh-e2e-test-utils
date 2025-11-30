@@ -60,11 +60,11 @@
     "build": "tsc -p tsconfig.build.json",
     "check": "npm run typecheck && npm run lint:check && npm run prettier:check",
     "clean": "rm -rf dist",
-    "lint:check": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint:check": "eslint . --ignore-pattern dist",
+    "lint:fix": "eslint . --fix --ignore-pattern dist",
     "prepublishOnly": "npm run build",
-    "prettier:check": "prettier --check .",
-    "prettier:fix": "prettier --write .",
+    "prettier:check": "prettier --check . '!dist'",
+    "prettier:fix": "prettier --write . '!dist'",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
