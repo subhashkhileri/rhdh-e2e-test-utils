@@ -20,21 +20,21 @@ export class RHDHDeployment {
         this._log("Starting RHDH deployment...");
         test.setTimeout(500_000);
         await this.k8sClient.createNamespaceIfNotExists(this.deploymentConfig.namespace);
-        test.info().attachments.push({
-            name: "app-config",
-            body: Buffer.from(yaml.dump(await mergeYamlFilesIfExists([
-                DEFAULT_CONFIG_PATHS.appConfig,
-                this.deploymentConfig.appConfig,
-            ]))),
-            contentType: "text/yaml",
-        });
-        test.info().attachments.push({
-            name: "dynamic-plugins",
-            body: Buffer.from(yaml.dump(await mergeYamlFilesIfExists([
-                DEFAULT_CONFIG_PATHS.dynamicPlugins,
-                this.deploymentConfig.dynamicPlugins,
-            ]))),
-            contentType: "text/yaml",
+        await test.step("Attach deployment configs", async () => {
+            await test.info().attach("app-config", {
+                body: Buffer.from(yaml.dump(await mergeYamlFilesIfExists([
+                    DEFAULT_CONFIG_PATHS.appConfig,
+                    this.deploymentConfig.appConfig,
+                ]))),
+                contentType: "text/yaml",
+            });
+            await test.info().attach("dynamic-plugins", {
+                body: Buffer.from(yaml.dump(await mergeYamlFilesIfExists([
+                    DEFAULT_CONFIG_PATHS.dynamicPlugins,
+                    this.deploymentConfig.dynamicPlugins,
+                ]))),
+                contentType: "text/yaml",
+            });
         });
         await this._applyAppConfig();
         await this._applySecrets();

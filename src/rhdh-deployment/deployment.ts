@@ -35,29 +35,29 @@ export class RHDHDeployment {
       this.deploymentConfig.namespace,
     );
 
-    test.info().attachments.push({
-      name: "app-config",
-      body: Buffer.from(
-        yaml.dump(
-          await mergeYamlFilesIfExists([
-            DEFAULT_CONFIG_PATHS.appConfig,
-            this.deploymentConfig.appConfig,
-          ]),
+    await test.step("Attach deployment configs", async () => {
+      await test.info().attach("app-config", {
+        body: Buffer.from(
+          yaml.dump(
+            await mergeYamlFilesIfExists([
+              DEFAULT_CONFIG_PATHS.appConfig,
+              this.deploymentConfig.appConfig,
+            ]),
+          ),
         ),
-      ),
-      contentType: "text/yaml",
-    });
-    test.info().attachments.push({
-      name: "dynamic-plugins",
-      body: Buffer.from(
-        yaml.dump(
-          await mergeYamlFilesIfExists([
-            DEFAULT_CONFIG_PATHS.dynamicPlugins,
-            this.deploymentConfig.dynamicPlugins,
-          ]),
+        contentType: "text/yaml",
+      });
+      await test.info().attach("dynamic-plugins", {
+        body: Buffer.from(
+          yaml.dump(
+            await mergeYamlFilesIfExists([
+              DEFAULT_CONFIG_PATHS.dynamicPlugins,
+              this.deploymentConfig.dynamicPlugins,
+            ]),
+          ),
         ),
-      ),
-      contentType: "text/yaml",
+        contentType: "text/yaml",
+      });
     });
 
     await this._applyAppConfig();
