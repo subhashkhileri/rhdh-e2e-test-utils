@@ -7,29 +7,21 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    },
     "./eslint": {
       "types": "./dist/eslint/base.config.d.ts",
       "default": "./dist/eslint/base.config.js"
     },
     "./test": {
-      "types": "./dist/test/index.d.ts",
-      "default": "./dist/test/index.js"
+      "types": "./dist/playwright/fixtures/test.d.ts",
+      "default": "./dist/playwright/fixtures/test.js"
     },
-    "./global-setup": {
-      "types": "./dist/global-setup.d.ts",
-      "default": "./dist/global-setup.js"
-    },
-    "./helpers": {
-      "types": "./dist/helpers/index.d.ts",
-      "default": "./dist/helpers/index.js"
+    "./playwright/global-setup": {
+      "types": "./dist/playwright/global-setup.d.ts",
+      "default": "./dist/playwright/global-setup.js"
     },
     "./playwright-config": {
-      "types": "./dist/playwright-config/base-config.d.ts",
-      "default": "./dist/playwright-config/base-config.js"
+      "types": "./dist/playwright/base-config.d.ts",
+      "default": "./dist/playwright/base-config.js"
     },
     "./tsconfig": "./tsconfig.base.json",
     "./ui-helper": {
@@ -40,13 +32,9 @@
       "types": "./dist/rhdh-deployment/index.d.ts",
       "default": "./dist/rhdh-deployment/index.js"
     },
-    "./bash": {
-      "types": "./dist/utils/bash.d.ts",
-      "default": "./dist/utils/bash.js"
-    },
-    "./merge-yamls": {
-      "types": "./dist/utils/merge-yamls.d.ts",
-      "default": "./dist/utils/merge-yamls.js"
+    "./utils": {
+      "types": "./dist/utils/index.d.ts",
+      "default": "./dist/utils/index.js"
     }
   },
   "files": [

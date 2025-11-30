@@ -1,4 +1,4 @@
-import { RHDHDeployment } from "../rhdh-deployment/index.js";
+import { RHDHDeployment } from "../../rhdh-deployment/index.js";
 import { test as base } from "@playwright/test";
 
 type RHDHDeploymentTestFixtures = {

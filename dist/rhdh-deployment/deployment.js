@@ -1,4 +1,4 @@
-import { KubernetesClientHelper } from "../helpers/kubernetes-client.js";
+import { KubernetesClientHelper } from "../utils/kubernetes-client.js";
 import { $ } from "../utils/bash.js";
 import yaml from "js-yaml";
 import { test } from "@playwright/test";

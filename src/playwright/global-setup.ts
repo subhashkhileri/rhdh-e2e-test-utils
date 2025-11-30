@@ -3,7 +3,7 @@
  * This file runs once before all tests.
  */
 
-import { KubernetesClientHelper } from "./helpers/kubernetes-client.js";
+import { KubernetesClientHelper } from "../utils/kubernetes-client.js";
 
 async function setClusterRouterBaseEnv(): Promise<void> {
   const k8sClient = new KubernetesClientHelper();

@@ -1,4 +1,4 @@
-import { KubernetesClientHelper } from "../helpers/kubernetes-client.js";
+import { KubernetesClientHelper } from "../utils/kubernetes-client.js";
 import type { DeploymentOptions, DeploymentConfig } from "./types.js";
 export declare class RHDHDeployment {
     k8sClient: KubernetesClientHelper;
