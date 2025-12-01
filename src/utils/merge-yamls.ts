@@ -46,7 +46,13 @@ export async function mergeYamlFiles(
 export async function mergeYamlFilesIfExists(
   paths: string[],
 ): Promise<Record<string, unknown>> {
-  return await mergeYamlFiles(paths.filter((path) => fs.existsSync(path)));
+  return await mergeYamlFiles(
+    paths.filter((path) => {
+      const exists = fs.existsSync(path);
+      if (!exists) console.log(`YAML file ${path} does not exist`);
+      return exists;
+    }),
+  );
 }
 
 /**

@@ -34,7 +34,12 @@ export async function mergeYamlFiles(paths) {
  * @returns Merged YAML object
  */
 export async function mergeYamlFilesIfExists(paths) {
-    return await mergeYamlFiles(paths.filter((path) => fs.existsSync(path)));
+    return await mergeYamlFiles(paths.filter((path) => {
+        const exists = fs.existsSync(path);
+        if (!exists)
+            console.log(`YAML file ${path} does not exist`);
+        return exists;
+    }));
 }
 /**
  * Merge multiple YAML files and write the result to an output file.

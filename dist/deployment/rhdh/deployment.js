@@ -40,7 +40,7 @@ export class RHDHDeployment {
         console.log(boxen(yaml.dump(appConfigYaml), {
             title: "App Config",
             padding: 1,
-            align: "center",
+            align: "left",
         }));
         await this.k8sClient.applyConfigMapFromObject("app-config-rhdh", appConfigYaml, this.deploymentConfig.namespace);
     }
@@ -59,7 +59,7 @@ export class RHDHDeployment {
         console.log(boxen(yaml.dump(dynamicPluginsYaml), {
             title: "Dynamic Plugins",
             padding: 1,
-            align: "center",
+            align: "left",
         }));
         await this.k8sClient.applyConfigMapFromObject("dynamic-plugins", dynamicPluginsYaml, this.deploymentConfig.namespace);
     }
@@ -73,7 +73,7 @@ export class RHDHDeployment {
         console.log(boxen(yaml.dump(valueFileObject), {
             title: "Value File",
             padding: 1,
-            align: "center",
+            align: "left",
         }));
         // Merge dynamic plugins into the values file
         if (!valueFileObject.global) {
@@ -100,7 +100,7 @@ export class RHDHDeployment {
         console.log(boxen(yaml.dump(subscriptionObject), {
             title: "Subscription",
             padding: 1,
-            align: "center",
+            align: "left",
         }));
         fs.writeFileSync(`/tmp/${this.deploymentConfig.namespace}-subscription.yaml`, yaml.dump(subscriptionObject));
         await $ `

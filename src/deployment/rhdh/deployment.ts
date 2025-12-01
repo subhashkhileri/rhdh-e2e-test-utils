@@ -57,7 +57,7 @@ export class RHDHDeployment {
       boxen(yaml.dump(appConfigYaml), {
         title: "App Config",
         padding: 1,
-        align: "center",
+        align: "left",
       }),
     );
 
@@ -90,7 +90,7 @@ export class RHDHDeployment {
       boxen(yaml.dump(dynamicPluginsYaml), {
         title: "Dynamic Plugins",
         padding: 1,
-        align: "center",
+        align: "left",
       }),
     );
     await this.k8sClient.applyConfigMapFromObject(
@@ -114,7 +114,7 @@ export class RHDHDeployment {
       boxen(yaml.dump(valueFileObject), {
         title: "Value File",
         padding: 1,
-        align: "center",
+        align: "left",
       }),
     );
 
@@ -151,7 +151,7 @@ export class RHDHDeployment {
       boxen(yaml.dump(subscriptionObject), {
         title: "Subscription",
         padding: 1,
-        align: "center",
+        align: "left",
       }),
     );
     fs.writeFileSync(
