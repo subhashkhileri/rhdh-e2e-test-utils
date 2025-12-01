@@ -1,7 +1,7 @@
 import path from "path";
 
 // Navigate from dist/deployment/rhdh/ to package root
-const PACKAGE_ROOT = path.resolve(import.meta.dirname, "../..");
+const PACKAGE_ROOT = path.resolve(import.meta.dirname, "../../..");
 
 export const DEFAULT_CONFIG_PATHS = {
   appConfig: path.join(
