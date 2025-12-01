@@ -247,8 +247,8 @@ const deployment = new RHDHDeployment({
   appConfig: "config/app-config-rhdh.yaml",    // Optional
   secrets: "config/rhdh-secrets.yaml",         // Optional
   dynamicPlugins: "config/dynamic-plugins.yaml", // Optional
-  valueFile: "config/value_file.yaml",         // Helm only
-  subscription: "config/subscription.yaml",    // Operator only
+  valueFile: "config/value_file.yaml",         // Optional & Helm only
+  subscription: "config/subscription.yaml",    // Optional & Operator only
 });
 ```
 
