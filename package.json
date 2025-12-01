@@ -40,11 +40,11 @@
     "build": "npm run clean && tsc -p tsconfig.build.json",
     "check": "npm run typecheck && npm run lint:check && npm run prettier:check",
     "clean": "rm -rf dist",
-    "lint:check": "eslint . --ignore-pattern dist",
-    "lint:fix": "eslint . --fix --ignore-pattern dist",
+    "lint:check": "eslint . --ignore-pattern dist --ignore-pattern README.md",
+    "lint:fix": "eslint . --fix --ignore-pattern dist --ignore-pattern README.md",
     "prepublishOnly": "npm run build",
-    "prettier:check": "prettier --check . '!dist'",
-    "prettier:fix": "prettier --write . '!dist'",
+    "prettier:check": "prettier --check . '!dist' '!README.md'",
+    "prettier:fix": "prettier --write . '!dist' '!README.md'",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
