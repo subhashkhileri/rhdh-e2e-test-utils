@@ -164,8 +164,7 @@ import { test, expect } from "rhdh-e2e-test-utils/test";
 
 | Fixture | Scope | Description |
 |---------|-------|-------------|
-| `rhdh` | test | RHDHDeployment instance for the current test |
-| `rhdhDeploymentWorker` | worker | Shared RHDHDeployment across all tests in a worker |
+| `rhdh` | worker | Shared RHDHDeployment across all tests in a worker |
 | `baseURL` | test | Automatically set to the RHDH instance URL |
 
 #### Fixture Behavior
@@ -175,8 +174,9 @@ import { test, expect } from "rhdh-e2e-test-utils/test";
 - **Shared Deployment**: All tests in a worker share the same RHDH deployment
 
 ```typescript
+import { test, expect } from "rhdh-e2e-test-utils/test";
 test.beforeAll(async ({ rhdh }) => {
-  // Configure RHDH (creates namespace, applies configs)
+  // Configure RHDH (creates namespace, and optional DeploymentOptions)
   await rhdh.configure();
 
   // Perform any pre-deployment setup
@@ -193,6 +193,11 @@ test("example test", async ({ page, rhdh }) => {
   // Access deployment info
   console.log(`Namespace: ${rhdh.deploymentConfig.namespace}`);
   console.log(`URL: ${rhdh.rhdhUrl}`);
+
+  // Perform any deployment/config update
+  // ...
+  await rhdh.rolloutRestart();
+  // ...
 });
 ```
 
