@@ -468,6 +468,8 @@ plugins:
 
 #### rhdh-secrets.yaml
 
+Secrets support environment variable substitution (`$VAR` or `${VAR}` syntax).
+
 ```yaml
 apiVersion: v1
 kind: Secret
@@ -478,6 +480,10 @@ stringData:
   GITHUB_TOKEN: $GITHUB_TOKEN
   MY_API_KEY: $MY_API_KEY
 ```
+
+- **Local development**: Define secrets in a `.env` file at your project root
+- **CI**: Set environment variables directly in your CI pipeline
+- **Runtime secrets**: Set `process.env.MY_SECRET` before calling `rhdh.deploy()`
 
 ## Environment Variables
 
