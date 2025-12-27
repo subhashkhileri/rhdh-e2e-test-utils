@@ -1,8 +1,10 @@
 export type DeploymentMethod = "helm" | "operator";
+export type AuthProvider = "guest" | "keycloak";
 
 export type DeploymentOptions = {
   version?: string;
-  namespace: string;
+  namespace?: string;
+  auth?: AuthProvider;
   appConfig?: string;
   secrets?: string;
   dynamicPlugins?: string;
@@ -24,6 +26,7 @@ export type OperatorDeploymentConfig = {
 export type DeploymentConfigBase = {
   version: string;
   namespace: string;
+  auth: AuthProvider;
   appConfig: string;
   secrets: string;
   dynamicPlugins: string;

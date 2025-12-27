@@ -12,6 +12,8 @@ type RHDHDeploymentWorkerFixtures = {
   rhdhDeploymentWorker: RHDHDeployment;
 };
 
+export * from "@playwright/test";
+
 export const test = base.extend<
   RHDHDeploymentTestFixtures,
   RHDHDeploymentWorkerFixtures
@@ -23,11 +25,10 @@ export const test = base.extend<
         `Deploying rhdh for plugin ${workerInfo.project.name} in namespace ${workerInfo.project.name}`,
       );
 
-      const rhdhDeployment = new RHDHDeployment({
-        namespace: workerInfo.project.name,
-      });
+      const rhdhDeployment = new RHDHDeployment(workerInfo.project.name);
 
       try {
+        await rhdhDeployment.configure();
         await use(rhdhDeployment);
       } finally {
         if (process.env.CI) {
@@ -64,5 +65,3 @@ export const test = base.extend<
     { scope: "test" },
   ] as const,
 });
-
-export { expect } from "@playwright/test";
