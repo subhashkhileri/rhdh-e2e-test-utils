@@ -6,7 +6,7 @@ import { mergeYamlFilesIfExists } from "../../utils/merge-yamls.js";
 import { envsubst } from "../../utils/common.js";
 import fs from "fs-extra";
 import boxen from "boxen";
-import { DEFAULT_CONFIG_PATHS, CHART_URL } from "./constants.js";
+import { DEFAULT_CONFIG_PATHS, AUTH_CONFIG_PATHS, CHART_URL } from "./constants.js";
 import type {
   DeploymentOptions,
   DeploymentConfig,
@@ -19,12 +19,13 @@ export class RHDHDeployment {
   public rhdhUrl: string;
   public deploymentConfig: DeploymentConfig;
 
-  constructor(deploymentOptions: DeploymentOptions) {
-    this.deploymentConfig = this._buildDeploymentConfig(deploymentOptions);
+  constructor(namespace: string) {
+    this.deploymentConfig = this._buildDeploymentConfig({ namespace });
     this.rhdhUrl = this._buildBaseUrl();
     this._log(
       `RHDH deployment initialized (namespace: ${this.deploymentConfig.namespace})`,
     );
+    this._log("RHDH Base URL: " + this.rhdhUrl);
     console.table(this.deploymentConfig);
   }
 
@@ -50,8 +51,10 @@ export class RHDHDeployment {
   }
 
   private async _applyAppConfig(): Promise<void> {
+    const authConfig = AUTH_CONFIG_PATHS[this.deploymentConfig.auth];
     const appConfigYaml = await mergeYamlFilesIfExists([
       DEFAULT_CONFIG_PATHS.appConfig,
+      authConfig.appConfig,
       this.deploymentConfig.appConfig,
     ]);
     this._logBoxen("App Config", appConfigYaml);
@@ -64,8 +67,10 @@ export class RHDHDeployment {
   }
 
   private async _applySecrets(): Promise<void> {
+    const authConfig = AUTH_CONFIG_PATHS[this.deploymentConfig.auth];
     const secretsYaml = await mergeYamlFilesIfExists([
       DEFAULT_CONFIG_PATHS.secrets,
+      authConfig.secrets,
       this.deploymentConfig.secrets,
     ]);
 
@@ -77,10 +82,12 @@ export class RHDHDeployment {
   }
 
   private async _applyDynamicPlugins(): Promise<void> {
+    const authConfig = AUTH_CONFIG_PATHS[this.deploymentConfig.auth];
     const dynamicPluginsYaml = await mergeYamlFilesIfExists([
       DEFAULT_CONFIG_PATHS.dynamicPlugins,
+      authConfig.dynamicPlugins,
       this.deploymentConfig.dynamicPlugins,
-    ]);
+    ], { arrayMergeStrategy: { byKey: "package" } });
     this._logBoxen("Dynamic Plugins", dynamicPluginsYaml);
     await this.k8sClient.applyConfigMapFromObject(
       "dynamic-plugins",
@@ -101,14 +108,16 @@ export class RHDHDeployment {
 
     this._logBoxen("Value File", valueFileObject);
 
-    // Merge dynamic plugins into the values file
+    // Merge dynamic plugins into the values file (including auth-specific plugins)
+    const authConfig = AUTH_CONFIG_PATHS[this.deploymentConfig.auth];
     if (!valueFileObject.global) {
       valueFileObject.global = {};
     }
     valueFileObject.global.dynamic = await mergeYamlFilesIfExists([
       DEFAULT_CONFIG_PATHS.dynamicPlugins,
+      authConfig.dynamicPlugins,
       this.deploymentConfig.dynamicPlugins,
-    ]);
+    ], { arrayMergeStrategy: { byKey: "package" } });
 
     this._logBoxen("Dynamic Plugins", valueFileObject.global.dynamic);
 
@@ -188,10 +197,13 @@ export class RHDHDeployment {
         `RHDH deployment is ready in namespace ${this.deploymentConfig.namespace}`,
       );
     } catch (error) {
-      this._log(
+      console.log("----------------------------------------------------------------");
+      console.log("Deployment Failed Logs");
+      console.log("----------------------------------------------------------------");
+      await $`oc logs -l 'app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)' -n ${this.deploymentConfig.namespace} --tail=100`
+      throw new Error(
         `Error waiting for RHDH deployment to be ready in timeout ${timeout}s in namespace ${this.deploymentConfig.namespace}: ${error}`,
       );
-      throw error;
     }
   }
 
@@ -239,7 +251,8 @@ export class RHDHDeployment {
 
     const base: DeploymentConfigBase = {
       version,
-      namespace: input.namespace,
+      namespace: input.namespace ?? this.deploymentConfig.namespace,
+      auth: input.auth ?? "keycloak",
       appConfig: input.appConfig ?? `tests/config/app-config-rhdh.yaml`,
       secrets: input.secrets ?? `tests/config/rhdh-secrets.yaml`,
       dynamicPlugins:

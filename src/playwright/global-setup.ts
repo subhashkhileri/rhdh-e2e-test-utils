@@ -9,6 +9,7 @@ import { KeycloakHelper } from "../deployment/keycloak/index.js";
 import {
   DEFAULT_KEYCLOAK_CONFIG,
   DEFAULT_RHDH_CLIENT,
+  DEFAULT_USERS,
 } from "../deployment/keycloak/constants.js";
 
 const REQUIRED_BINARIES = ["oc", "kubectl", "helm"] as const;
@@ -39,10 +40,13 @@ async function setClusterRouterBaseEnv(): Promise<void> {
 }
 
 async function deployKeycloak(): Promise<void> {
-  if (process.env.SKIP_KEYCLOAK_DEPLOYMENT) {
+  if (process.env.SKIP_KEYCLOAK_DEPLOYMENT === "true") {
     console.log("Skipping Keycloak deployment");
     return;
   }
+  console.log(
+    "Set SKIP_KEYCLOAK_DEPLOYMENT=true if test doesn't require keycloak/oidc as auth provider",
+  );
 
   const keycloak = new KeycloakHelper({ namespace: "rhdh-keycloak" });
 
@@ -67,8 +71,8 @@ async function deployKeycloak(): Promise<void> {
     keycloakURL: keycloak.keycloakUrl,
     adminUser: keycloak.deploymentConfig.adminUser,
     adminPassword: keycloak.deploymentConfig.adminPassword,
-    testUsername: "test1",
-    testPassword: "test1@123",
+    testUsername: DEFAULT_USERS[0].username,
+    testPassword: DEFAULT_USERS[0].password,
   });
 }
 
