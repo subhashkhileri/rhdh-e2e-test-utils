@@ -875,7 +875,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"chalk@npm:^5.3.0, chalk@npm:^5.6.2":
+"chalk@npm:^5.3.0":
   version: 5.6.2
   resolution: "chalk@npm:5.6.2"
   checksum: 4ee2d47a626d79ca27cb5299ecdcce840ef5755e287412536522344db0fc51ca0f6d6433202332c29e2288c6a90a2b31f3bd626bc8c14743b6b6ee28abd3b796
@@ -893,22 +893,6 @@ __metadata:
   version: 3.0.0
   resolution: "cli-boxes@npm:3.0.0"
   checksum: 637d84419d293a9eac40a1c8c96a2859e7d98b24a1a317788e13c8f441be052fc899480c6acab3acc82eaf1bccda6b7542d7cdcf5c9c3cc39227175dc098d5b2
-  languageName: node
-  linkType: hard
-
-"cli-cursor@npm:^5.0.0":
-  version: 5.0.0
-  resolution: "cli-cursor@npm:5.0.0"
-  dependencies:
-    restore-cursor: ^5.0.0
-  checksum: 1eb9a3f878b31addfe8d82c6d915ec2330cec8447ab1f117f4aa34f0137fbb3137ec3466e1c9a65bcb7557f6e486d343f2da57f253a2f668d691372dfa15c090
-  languageName: node
-  linkType: hard
-
-"cli-spinners@npm:^3.2.0":
-  version: 3.3.0
-  resolution: "cli-spinners@npm:3.3.0"
-  checksum: c3b9c31d96c9158f4d7140557fffb8c1caea2169d7b895374dd3c2f159267aa0db3b72f36bfcc3bbe3532a7ed162d07dc5c0dc3117e1c0dfe4d387e1d723d616
   languageName: node
   linkType: hard
 
@@ -1393,7 +1377,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"get-east-asian-width@npm:^1.0.0, get-east-asian-width@npm:^1.3.0":
+"get-east-asian-width@npm:^1.0.0":
   version: 1.4.0
   resolution: "get-east-asian-width@npm:1.4.0"
   checksum: 1d9a81a8004f4217ebef5d461875047d269e4b57e039558fd65130877cd4da8e3f61e1c4eada0c8b10e2816c7baf7d5fddb7006f561da13bc6f6dd19c1e964a4
@@ -1615,24 +1599,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-interactive@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "is-interactive@npm:2.0.0"
-  checksum: e8d52ad490bed7ae665032c7675ec07732bbfe25808b0efbc4d5a76b1a1f01c165f332775c63e25e9a03d319ebb6b24f571a9e902669fc1e40b0a60b5be6e26c
-  languageName: node
-  linkType: hard
-
 "is-number@npm:^7.0.0":
   version: 7.0.0
   resolution: "is-number@npm:7.0.0"
   checksum: 456ac6f8e0f3111ed34668a624e45315201dff921e5ac181f8ec24923b99e9f32ca1a194912dc79d539c97d33dba17dc635202ff0b2cf98326f608323276d27a
-  languageName: node
-  linkType: hard
-
-"is-unicode-supported@npm:^2.0.0, is-unicode-supported@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "is-unicode-supported@npm:2.1.0"
-  checksum: f254e3da6b0ab1a57a94f7273a7798dd35d1d45b227759f600d0fa9d5649f9c07fa8d3c8a6360b0e376adf916d151ec24fc9a50c5295c58bae7ca54a76a063f9
   languageName: node
   linkType: hard
 
@@ -1788,16 +1758,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"log-symbols@npm:^7.0.1":
-  version: 7.0.1
-  resolution: "log-symbols@npm:7.0.1"
-  dependencies:
-    is-unicode-supported: ^2.0.0
-    yoctocolors: ^2.1.1
-  checksum: 0862313d84826b551582e39659b8586c56b65130c5f4f976420e2c23985228334f2a26fc4251ac22bf0a5b415d9430e86bf332557d934c10b036f9a549d63a09
-  languageName: node
-  linkType: hard
-
 "lru-cache@npm:^11.0.0, lru-cache@npm:^11.1.0, lru-cache@npm:^11.2.1":
   version: 11.2.4
   resolution: "lru-cache@npm:11.2.4"
@@ -1854,13 +1814,6 @@ __metadata:
   dependencies:
     mime-db: 1.52.0
   checksum: 89a5b7f1def9f3af5dad6496c5ed50191ae4331cc5389d7c521c8ad28d5fdad2d06fd81baf38fed813dc4e46bb55c8145bb0ff406330818c9cf712fb2e9b3836
-  languageName: node
-  linkType: hard
-
-"mimic-function@npm:^5.0.0":
-  version: 5.0.1
-  resolution: "mimic-function@npm:5.0.1"
-  checksum: eb5893c99e902ccebbc267c6c6b83092966af84682957f79313311edb95e8bb5f39fb048d77132b700474d1c86d90ccc211e99bae0935447a4834eb4c882982c
   languageName: node
   linkType: hard
 
@@ -2049,15 +2002,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"onetime@npm:^7.0.0":
-  version: 7.0.0
-  resolution: "onetime@npm:7.0.0"
-  dependencies:
-    mimic-function: ^5.0.0
-  checksum: eb08d2da9339819e2f9d52cab9caf2557d80e9af8c7d1ae86e1a0fef027d00a88e9f5bd67494d350df360f7c559fbb44e800b32f310fb989c860214eacbb561c
-  languageName: node
-  linkType: hard
-
 "openid-client@npm:^6.1.3":
   version: 6.8.1
   resolution: "openid-client@npm:6.8.1"
@@ -2079,23 +2023,6 @@ __metadata:
     type-check: ^0.4.0
     word-wrap: ^1.2.5
   checksum: ecbd010e3dc73e05d239976422d9ef54a82a13f37c11ca5911dff41c98a6c7f0f163b27f922c37e7f8340af9d36febd3b6e9cef508f3339d4c393d7276d716bb
-  languageName: node
-  linkType: hard
-
-"ora@npm:^9.0.0":
-  version: 9.0.0
-  resolution: "ora@npm:9.0.0"
-  dependencies:
-    chalk: ^5.6.2
-    cli-cursor: ^5.0.0
-    cli-spinners: ^3.2.0
-    is-interactive: ^2.0.0
-    is-unicode-supported: ^2.1.0
-    log-symbols: ^7.0.1
-    stdin-discarder: ^0.2.2
-    string-width: ^8.1.0
-    strip-ansi: ^7.1.2
-  checksum: 4efc9c3caa45b552bae4c9755c586eb4f39b824e456d77ec380539529439ca95f3acf9626119131f1ca76618c176088996023e257f5b82e1b86a509990f4545a
   languageName: node
   linkType: hard
 
@@ -2270,16 +2197,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"restore-cursor@npm:^5.0.0":
-  version: 5.1.0
-  resolution: "restore-cursor@npm:5.1.0"
-  dependencies:
-    onetime: ^7.0.0
-    signal-exit: ^4.1.0
-  checksum: 838dd54e458d89cfbc1a923b343c1b0f170a04100b4ce1733e97531842d7b440463967e521216e8ab6c6f8e89df877acc7b7f4c18ec76e99fb9bf5a60d358d2c
-  languageName: node
-  linkType: hard
-
 "retry@npm:^0.12.0":
   version: 0.12.0
   resolution: "retry@npm:0.12.0"
@@ -2315,7 +2232,6 @@ __metadata:
     fs-extra: ^11.3.2
     js-yaml: ^4.1.1
     lodash.mergewith: ^4.6.2
-    ora: ^9.0.0
     otplib: 12.0.1
     prettier: ^3.7.4
     typescript: ^5.9.3
@@ -2367,13 +2283,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"signal-exit@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "signal-exit@npm:4.1.0"
-  checksum: 64c757b498cb8629ffa5f75485340594d2f8189e9b08700e69199069c8e3070fb3e255f7ab873c05dc0b3cec412aea7402e10a5990cb6a050bd33ba062a6c549
-  languageName: node
-  linkType: hard
-
 "smart-buffer@npm:^4.2.0":
   version: 4.2.0
   resolution: "smart-buffer@npm:4.2.0"
@@ -2408,13 +2317,6 @@ __metadata:
   dependencies:
     minipass: ^7.0.3
   checksum: 9705dff9e686b11f3035fb4c3d44ce690359a15a54adcd6a18951f2763f670877321178dc72c37a2b804dba3287ecaa48726dbd0cff79b2715b1cc24521b3af3
-  languageName: node
-  linkType: hard
-
-"stdin-discarder@npm:^0.2.2":
-  version: 0.2.2
-  resolution: "stdin-discarder@npm:0.2.2"
-  checksum: 642ffd05bd5b100819d6b24a613d83c6e3857c6de74eb02fc51506fa61dc1b0034665163831873868157c4538d71e31762bcf319be86cea04c3aba5336470478
   languageName: node
   linkType: hard
 
@@ -2458,16 +2360,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"string-width@npm:^8.1.0":
-  version: 8.1.0
-  resolution: "string-width@npm:8.1.0"
-  dependencies:
-    get-east-asian-width: ^1.3.0
-    strip-ansi: ^7.1.0
-  checksum: 51ee97c4ffee7b94f8a2ee785fac14f81ec9809b9fcec9a4db44e25c717c263af0cc4387c111aef76195c0718dc43766f3678c07fb542294fb0244f7bfbde883
-  languageName: node
-  linkType: hard
-
 "strip-ansi@npm:^6.0.1":
   version: 6.0.1
   resolution: "strip-ansi@npm:6.0.1"
@@ -2477,7 +2369,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"strip-ansi@npm:^7.1.0, strip-ansi@npm:^7.1.2":
+"strip-ansi@npm:^7.1.0":
   version: 7.1.2
   resolution: "strip-ansi@npm:7.1.2"
   dependencies:
@@ -2806,13 +2698,6 @@ __metadata:
   version: 0.1.0
   resolution: "yocto-queue@npm:0.1.0"
   checksum: f77b3d8d00310def622123df93d4ee654fc6a0096182af8bd60679ddcdfb3474c56c6c7190817c84a2785648cdee9d721c0154eb45698c62176c322fb46fc700
-  languageName: node
-  linkType: hard
-
-"yoctocolors@npm:^2.1.1":
-  version: 2.1.2
-  resolution: "yoctocolors@npm:2.1.2"
-  checksum: 6ee42d665a4cc161c7de3f015b2a65d6c65d2808bfe3b99e228bd2b1b784ef1e54d1907415c025fc12b400f26f372bfc1b71966c6c738d998325ca422eb39363
   languageName: node
   linkType: hard
 
