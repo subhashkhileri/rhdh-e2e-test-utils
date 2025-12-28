@@ -13,7 +13,9 @@ A comprehensive test utility package for Red Hat Developer Hub (RHDH) end-to-end
 - [Detailed Usage](#detailed-usage)
   - [Playwright Test Fixtures](#playwright-test-fixtures)
   - [Playwright Configuration](#playwright-configuration)
+  - [Global Setup](#global-setup)
   - [RHDH Deployment](#rhdh-deployment)
+  - [Keycloak Deployment](#keycloak-deployment)
   - [Utilities](#utilities)
   - [Helpers](#helpers)
   - [Page Objects](#page-objects)
@@ -30,6 +32,8 @@ A comprehensive test utility package for Red Hat Developer Hub (RHDH) end-to-end
 `rhdh-e2e-test-utils` simplifies end-to-end testing for RHDH plugins by providing:
 
 - **Automated RHDH Deployment**: Deploy RHDH instances via Helm or the RHDH Operator
+- **Keycloak Integration**: Deploy and configure Keycloak for OIDC authentication testing
+- **Modular Auth Configuration**: Switch between guest and Keycloak authentication with a single option
 - **Playwright Integration**: Custom test fixtures that manage deployment lifecycle
 - **Kubernetes Utilities**: Helper functions for managing namespaces, ConfigMaps, Secrets, and Routes
 - **Configuration Merging**: YAML merging with environment variable substitution
@@ -38,6 +42,8 @@ A comprehensive test utility package for Red Hat Developer Hub (RHDH) end-to-end
 ## Features
 
 - Deploy RHDH using Helm charts or the RHDH Operator
+- Deploy Keycloak for authentication testing with automatic realm, client, and user configuration
+- Modular authentication configuration (guest, Keycloak)
 - Automatic namespace creation and cleanup
 - Dynamic plugin configuration
 - Helpers for UI, API and common Utils
@@ -82,6 +88,7 @@ The package provides multiple entry points for different use cases:
 | `rhdh-e2e-test-utils/test` | Playwright test fixtures with RHDH deployment |
 | `rhdh-e2e-test-utils/playwright-config` | Base Playwright configuration |
 | `rhdh-e2e-test-utils/rhdh` | RHDH deployment class and types |
+| `rhdh-e2e-test-utils/keycloak` | Keycloak deployment helper for authentication testing |
 | `rhdh-e2e-test-utils/utils` | Utility functions (bash, YAML, Kubernetes) |
 | `rhdh-e2e-test-utils/helpers` | UI, API, and login helper classes |
 | `rhdh-e2e-test-utils/pages` | Page object classes for common RHDH pages |
@@ -102,18 +109,15 @@ yarn add @playwright/test rhdh-e2e-test-utils
 
 ```typescript
 // playwright.config.ts
-import { defineConfig } from "@playwright/test";
-import { createPlaywrightConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
 
-export default defineConfig(
-  createPlaywrightConfig({
-    projects: [
-      {
-        name: "my-plugin",
-      },
-    ],
-  })
-);
+export default defineConfig({
+  projects: [
+    {
+      name: "my-plugin",
+    },
+  ],
+});
 ```
 
 ### 3. Create Your Test
@@ -219,24 +223,22 @@ test("example test", async ({ page, rhdh, uiHelper, loginHelper }) => {
 
 ### Playwright Configuration
 
-Use `createPlaywrightConfig` for sensible defaults:
+Use `defineConfig` for sensible defaults:
 
 ```typescript
-import { defineConfig } from "@playwright/test";
-import { createPlaywrightConfig } from "rhdh-e2e-test-utils/playwright-config";
+// playwright.config.ts
+import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
 
-export default defineConfig(
-  createPlaywrightConfig({
-    projects: [
-      {
-        name: "tech-radar",  // Also used as namespace
-      },
-      {
-        name: "catalog",
-      },
-    ],
-  })
-);
+export default defineConfig({
+  projects: [
+    {
+      name: "tech-radar",  // Also used as namespace
+    },
+    {
+      name: "catalog",
+    },
+  ],
+});
 ```
 
 #### Base Configuration Defaults
@@ -252,6 +254,41 @@ export default defineConfig(
 | `trace` | Retain on failure |
 | `screenshot` | Only on failure |
 
+#### Global Setup
+
+The package includes a global setup function that runs once before all tests. It performs the following:
+
+1. **Binary Check**: Verifies that required binaries (`oc`, `kubectl`, `helm`) are installed
+2. **Cluster Router Base**: Fetches the OpenShift ingress domain and sets `K8S_CLUSTER_ROUTER_BASE`
+3. **Keycloak Deployment**: Automatically deploys and configures Keycloak for OIDC authentication
+
+```typescript
+// playwright.config.ts
+import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+
+export default defineConfig({
+  // Global setup is automatically included
+  projects: [{ name: "my-plugin" }],
+});
+```
+
+**Keycloak Auto-Deployment Behavior:**
+
+- Keycloak is deployed to the `rhdh-keycloak` namespace
+- If Keycloak is already running, deployment is skipped
+- All Keycloak environment variables are automatically set after deployment
+- The following test credentials are created:
+  - Username: `test1`, Password: `test1@123`
+  - Username: `test2`, Password: `test2@123`
+
+**Skip Keycloak Deployment:**
+
+If your tests don't require Keycloak/OIDC authentication, set the environment variable:
+
+```bash
+SKIP_KEYCLOAK_DEPLOYMENT=true yarn playwright test
+```
+
 ### RHDH Deployment
 
 #### RHDHDeployment Class
@@ -261,25 +298,33 @@ The core class for managing RHDH deployments:
 ```typescript
 import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
 
-const deployment = new RHDHDeployment({
-  namespace: "my-test-namespace",
+// Create deployment with namespace (required)
+const deployment = new RHDHDeployment("my-test-namespace");
+
+// Configure with options (call before deploy)
+await deployment.configure({
   version: "1.5",                              // Optional, uses RHDH_VERSION env
   method: "helm",                              // Optional, uses INSTALLATION_METHOD env
+  auth: "keycloak",                            // Optional, defaults to "keycloak"
   appConfig: "config/app-config-rhdh.yaml",    // Optional
   secrets: "config/rhdh-secrets.yaml",         // Optional
   dynamicPlugins: "config/dynamic-plugins.yaml", // Optional
   valueFile: "config/value_file.yaml",         // Optional & Helm only
   subscription: "config/subscription.yaml",    // Optional & Operator only
 });
+
+// Deploy RHDH
+await deployment.deploy();
 ```
 
 #### Deployment Options
 
 ```typescript
 type DeploymentOptions = {
-  namespace: string;              // Required: Kubernetes namespace
+  namespace?: string;             // Kubernetes namespace (set via constructor)
   version?: string;               // RHDH version (e.g., "1.5", "1.5.1-CI")
   method?: "helm" | "operator";   // Installation method
+  auth?: "guest" | "keycloak";    // Authentication provider (default: "keycloak")
   appConfig?: string;             // Path to app-config YAML
   secrets?: string;               // Path to secrets YAML
   dynamicPlugins?: string;        // Path to dynamic-plugins YAML
@@ -287,6 +332,17 @@ type DeploymentOptions = {
   subscription?: string;          // Backstage CR file (operator only)
 };
 ```
+
+#### Authentication Providers
+
+The package supports modular authentication configuration. Set the `auth` option to automatically include the appropriate auth-specific configurations:
+
+| Provider | Description |
+|----------|-------------|
+| `guest` | Guest authentication for development/testing |
+| `keycloak` | OIDC authentication via Keycloak (default) |
+
+Auth-specific configurations are automatically merged with your project configurations. For Keycloak authentication, see [Keycloak Deployment](#keycloak-deployment).
 
 #### Deployment Methods
 
@@ -331,6 +387,162 @@ await rhdh.deploy();
 | `rhdhUrl` | `string` | The RHDH instance URL |
 | `deploymentConfig` | `DeploymentConfig` | Current deployment configuration |
 | `k8sClient` | `KubernetesClientHelper` | Kubernetes client instance |
+
+### Keycloak Deployment
+
+The package provides a `KeycloakHelper` class for deploying and configuring Keycloak in OpenShift, enabling OIDC authentication testing with RHDH.
+
+#### KeycloakHelper Class
+
+```typescript
+import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+
+const keycloak = new KeycloakHelper({
+  namespace: "rhdh-keycloak",     // Optional, defaults to "rhdh-keycloak"
+  releaseName: "keycloak",        // Optional, defaults to "keycloak"
+  adminUser: "admin",             // Optional, defaults to "admin"
+  adminPassword: "admin123",      // Optional, defaults to "admin123"
+});
+
+// Deploy Keycloak using Bitnami Helm chart
+await keycloak.deploy();
+
+// Configure realm, client, groups, and users for RHDH
+await keycloak.configureForRHDH();
+```
+
+#### Deployment Options
+
+```typescript
+type KeycloakDeploymentOptions = {
+  namespace?: string;       // Kubernetes namespace (default: "rhdh-keycloak")
+  releaseName?: string;     // Helm release name (default: "keycloak")
+  valuesFile?: string;      // Custom Helm values file
+  adminUser?: string;       // Admin username (default: "admin")
+  adminPassword?: string;   // Admin password (default: "admin123")
+};
+```
+
+#### KeycloakHelper API
+
+| Method | Description |
+|--------|-------------|
+| `deploy()` | Deploy Keycloak using Helm and wait for it to be ready |
+| `configureForRHDH(options?)` | Configure realm, client, groups, and users for RHDH |
+| `isRunning()` | Check if Keycloak is accessible |
+| `connect(config)` | Connect to an existing Keycloak instance |
+| `createRealm(config)` | Create a new realm |
+| `createClient(realm, config)` | Create a client in a realm |
+| `createGroup(realm, config)` | Create a group in a realm |
+| `createUser(realm, config)` | Create a user with optional group membership |
+| `getUsers(realm)` | Get all users in a realm |
+| `getGroups(realm)` | Get all groups in a realm |
+| `deleteUser(realm, username)` | Delete a user |
+| `deleteGroup(realm, groupName)` | Delete a group |
+| `deleteRealm(realm)` | Delete a realm |
+| `teardown()` | Delete the Keycloak namespace |
+| `waitUntilReady(timeout?)` | Wait for Keycloak StatefulSet to be ready |
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `keycloakUrl` | `string` | The Keycloak instance URL |
+| `realm` | `string` | Configured realm name |
+| `clientId` | `string` | Configured client ID |
+| `clientSecret` | `string` | Configured client secret |
+| `deploymentConfig` | `KeycloakDeploymentConfig` | Current deployment configuration |
+| `k8sClient` | `KubernetesClientHelper` | Kubernetes client instance |
+
+#### Default Configuration
+
+When using `configureForRHDH()`, the following defaults are applied:
+
+**Default Realm**: `rhdh`
+
+**Default Client** (`rhdh-client`):
+- Client secret: `rhdh-client-secret`
+- Standard flow, implicit flow, direct access grants enabled
+- Service accounts enabled with realm-management roles
+
+**Default Groups**:
+- `developers`
+- `admins`
+- `viewers`
+
+**Default Users**:
+| Username | Password | Groups |
+|----------|----------|--------|
+| `test1` | `test1@123` | developers |
+| `test2` | `test2@123` | developers |
+
+#### Example: Full RHDH + Keycloak Setup
+
+```typescript
+import { test } from "rhdh-e2e-test-utils/test";
+import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+
+let keycloak: KeycloakHelper;
+
+test.beforeAll(async ({ rhdh }) => {
+  // Deploy Keycloak
+  keycloak = new KeycloakHelper({ namespace: "rhdh-keycloak" });
+  await keycloak.deploy();
+  await keycloak.configureForRHDH();
+
+  // Set environment variables for RHDH
+  process.env.KEYCLOAK_BASE_URL = keycloak.keycloakUrl;
+  process.env.KEYCLOAK_REALM = keycloak.realm;
+  process.env.KEYCLOAK_CLIENT_ID = keycloak.clientId;
+  process.env.KEYCLOAK_CLIENT_SECRET = keycloak.clientSecret;
+  process.env.KEYCLOAK_METADATA_URL = `${keycloak.keycloakUrl}/realms/${keycloak.realm}/.well-known/openid-configuration`;
+  process.env.KEYCLOAK_LOGIN_REALM = keycloak.realm;
+
+  // Deploy RHDH with Keycloak authentication
+  await rhdh.configure({ auth: "keycloak" });
+  await rhdh.deploy();
+});
+
+test("login with Keycloak user", async ({ page, loginHelper }) => {
+  await page.goto("/");
+  await loginHelper.loginAsKeycloakUser("test1", "test1@123");
+  // ... test assertions
+});
+
+test.afterAll(async () => {
+  await keycloak.teardown();
+});
+```
+
+#### Connect to Existing Keycloak
+
+```typescript
+import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+
+const keycloak = new KeycloakHelper();
+
+// Connect with admin credentials
+await keycloak.connect({
+  baseUrl: "https://keycloak.example.com",
+  username: "admin",
+  password: "admin-password",
+});
+
+// Or connect with client credentials
+await keycloak.connect({
+  baseUrl: "https://keycloak.example.com",
+  realm: "my-realm",
+  clientId: "admin-client",
+  clientSecret: "client-secret",
+});
+
+// Now you can manage users, groups, etc.
+await keycloak.createUser("my-realm", {
+  username: "newuser",
+  password: "password123",
+  groups: ["developers"],
+});
+```
 
 ### Utilities
 
@@ -645,19 +857,36 @@ Extend the base tsconfig:
 
 ### Default Configuration Structure
 
-The package includes default configurations that are merged with your project configs:
+The package includes default configurations organized in a modular structure:
 
 ```
-src/deployment/rhdh/
-├── config/
-│   ├── app-config-rhdh.yaml    # Base app configuration
-│   ├── dynamic-plugins.yaml     # Default dynamic plugins
-│   └── rhdh-secrets.yaml        # Base secrets template
+src/deployment/rhdh/config/
+├── common/                       # Base configurations (always applied)
+│   ├── app-config-rhdh.yaml      # Base app configuration
+│   ├── dynamic-plugins.yaml      # Default dynamic plugins
+│   └── rhdh-secrets.yaml         # Base secrets template
+├── auth/                         # Auth-specific configurations
+│   ├── guest/
+│   │   └── app-config.yaml       # Guest auth configuration
+│   └── keycloak/
+│       ├── app-config.yaml       # Keycloak OIDC configuration
+│       ├── dynamic-plugins.yaml  # Keycloak-specific plugins
+│       └── secrets.yaml          # Keycloak secrets template
 ├── helm/
-│   └── value_file.yaml          # Default Helm values
+│   └── value_file.yaml           # Default Helm values
 └── operator/
-    └── subscription.yaml        # Default Backstage CR
+    └── subscription.yaml         # Default Backstage CR
 ```
+
+### Configuration Merging
+
+Configurations are merged in the following order (later overrides earlier):
+
+1. **Common configs** (`config/common/`) - Base configurations
+2. **Auth configs** (`config/auth/{provider}/`) - Auth-provider-specific configurations
+3. **Project configs** (`tests/config/`) - Your project's custom configurations
+
+This allows you to use built-in defaults while only overriding what you need.
 
 ### Project Configuration
 
@@ -674,15 +903,12 @@ backend:
     allow:
       - host: ${MY_BACKEND_HOST}
 
-auth:
-  environment: development
-  providers:
-    guest:
-      dangerouslyAllowOutsideDevelopment: true
-
 # Plugin-specific config
 techRadar:
   url: "http://${DATA_SOURCE_URL}/tech-radar"
+
+# Note: Auth configuration is automatically included based on the 'auth' option
+# You only need to add auth config here if you want to override the defaults
 ```
 
 #### dynamic-plugins.yaml
@@ -739,6 +965,22 @@ stringData:
 |----------|-------------|
 | `CI` | If set, namespaces are auto-deleted after tests |
 | `CHART_URL` | Custom Helm chart URL (default: `oci://quay.io/rhdh/chart`) |
+| `SKIP_KEYCLOAK_DEPLOYMENT` | Set to `true` to skip automatic Keycloak deployment in global setup |
+
+### Keycloak Environment Variables (for `auth: "keycloak"`)
+
+When using Keycloak authentication, these environment variables are required:
+
+| Variable | Description |
+|----------|-------------|
+| `KEYCLOAK_BASE_URL` | Keycloak instance URL |
+| `KEYCLOAK_METADATA_URL` | OIDC metadata URL (e.g., `{KEYCLOAK_BASE_URL}/realms/{realm}/.well-known/openid-configuration`) |
+| `KEYCLOAK_CLIENT_ID` | OIDC client ID |
+| `KEYCLOAK_CLIENT_SECRET` | OIDC client secret |
+| `KEYCLOAK_REALM` | Keycloak realm name |
+| `KEYCLOAK_LOGIN_REALM` | Login realm (usually same as `KEYCLOAK_REALM`) |
+
+These are automatically set when using `KeycloakHelper.configureForRHDH()`. See [Keycloak Deployment](#keycloak-deployment) for details.
 
 
 ## Examples
@@ -746,13 +988,13 @@ stringData:
 ### Custom Deployment Configuration
 
 ```typescript
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
+import { test } from "rhdh-e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
-  rhdh.configure({
-    namespace: "custom-test-ns",
+  await rhdh.configure({
     version: "1.5",
     method: "helm",
+    auth: "keycloak",  // or "guest" for development
     appConfig: "tests/config/app-config.yaml",
     secrets: "tests/config/secrets.yaml",
     dynamicPlugins: "tests/config/plugins.yaml",
@@ -760,6 +1002,23 @@ test.beforeAll(async ({ rhdh }) => {
   });
 
   await rhdh.deploy();
+});
+```
+
+### Guest Authentication (Development)
+
+```typescript
+import { test } from "rhdh-e2e-test-utils/test";
+
+test.beforeAll(async ({ rhdh }) => {
+  await rhdh.configure({ auth: "guest" });
+  await rhdh.deploy();
+});
+
+test("test with guest login", async ({ page, loginHelper }) => {
+  await page.goto("/");
+  await loginHelper.loginAsGuest();
+  // ... test assertions
 });
 ```
 
