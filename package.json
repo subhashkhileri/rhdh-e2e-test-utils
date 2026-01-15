@@ -52,8 +52,8 @@
     "lint:check": "eslint . --ignore-pattern dist --ignore-pattern README.md --ignore-pattern docs",
     "lint:fix": "eslint . --fix --ignore-pattern dist --ignore-pattern README.md --ignore-pattern docs",
     "prepublishOnly": "yarn build",
-    "prettier:check": "prettier --check . '!dist' '!README.md' '!docs'",
-    "prettier:fix": "prettier --write . '!dist' '!README.md' '!docs'",
+    "prettier:check": "prettier --check . '!dist' '!README.md' '!docs' '!.github/workflows/deploy-docs.yml'",
+    "prettier:fix": "prettier --write . '!dist' '!README.md' '!docs' '!.github/workflows/deploy-docs.yml'",
     "typecheck": "tsc --noEmit"
   },
   "keywords": [
