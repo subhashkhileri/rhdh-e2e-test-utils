@@ -19,6 +19,29 @@ The CI system automatically:
 - Runs the E2E tests
 - Reports results on the PR
 
+## e2e-ocp-helm Job
+
+The `e2e-ocp-helm` job runs Helm-based E2E tests on an OpenShift cluster.
+
+### When It Runs
+
+- Automatically after `/publish` completes successfully (and the workspace contains `e2e-tests`)
+- Manually via PR comment:
+
+```
+/test e2e-ocp-helm
+```
+
+### Where to Find the Playwright Report
+
+1. Open the **ci/prow/e2e-ocp-helm** check on the PR
+2. Navigate to the Prow job page
+3. Open:
+
+```
+artifacts/e2e-ocp-helm/redhat-developer-rhdh-plugin-export-overlays-ocp-helm/artifacts/playwright-report/index.html
+```
+
 ## PR OCI Image Builds
 
 When testing a PR, the plugins need to be built into OCI images that RHDH can use. This is handled through the `/publish` command.
@@ -54,6 +77,8 @@ export GIT_PR_NUMBER=1845
 yarn test
 ```
 
+See [Local OCI Testing](/overlay/reference/local-oci-testing) for the full local workflow and required files.
+
 ### What You Don't Need to Do
 
 The OCI URL replacement is **automatic**. You don't need to:
@@ -76,140 +101,12 @@ In CI, these are generated automatically. For local testing with `GIT_PR_NUMBER`
 OCI URL generation is strict - deployment will fail if required files are missing or version fetching fails. This prevents builds from silently falling back to local paths.
 :::
 
-## Vault Secrets
+## Secrets in CI
 
-Secrets are managed through [HashiCorp Vault](https://vault.ci.openshift.org) and automatically exported as environment variables during CI execution.
-
-### Secret Naming Convention
-
-All secrets **must** start with the `VAULT_` prefix:
-
-```
-VAULT_MY_SECRET_NAME
-VAULT_GITHUB_TOKEN
-VAULT_API_KEY
-```
-
-This prefix differentiates secrets from Vault and ensures they are automatically exported during CI execution.
-
-### Global Secrets
-
-Global secrets are available to **all** workspace tests. Use these for common secrets shared across multiple plugins.
-
-**Vault Path:** [Global Secrets](https://vault.ci.openshift.org/ui/vault/secrets/kv/kv/selfservice%2Frhdh-plugin-export-overlays%2Fglobal/details)
-
-### Workspace-Specific Secrets
-
-Secrets that are only needed for a specific plugin workspace should be stored in the workspace-specific path.
-
-**Example for tech-radar workspace:** [Tech Radar Secrets](https://vault.ci.openshift.org/ui/vault/secrets/kv/kv/selfservice%2Frhdh-plugin-export-overlays%2Fworkspaces%2Ftech-radar/details)
-
-**Pattern:**
-```
-selfservice/rhdh-plugin-export-overlays/workspaces/<workspace-name>
-```
-
-### Required Vault Annotations
-
-Each workspace-specific secret path must include these annotations for OpenShift CI to automatically import the secrets:
-
-```json
-{
-  "secretsync/target-name": "rhdh-plugin-export-overlays",
-  "secretsync/target-namespace": "test-credentials"
-}
-```
-
-### Requesting Vault Access
-
-If you don't have access to the Vault, reach out in the team-rhdh channel to request access.
-
-## Using Vault Secrets
-
-There are two ways to use Vault secrets, depending on where you need them:
-
-### In Test Code (Direct Access)
-
-For use in test code (`*.spec.ts`), access secrets directly via `process.env`:
-
-```typescript
-test.beforeAll(async ({ rhdh }) => {
-  // Direct access - no rhdh-secrets.yaml needed
-  const apiKey = process.env.VAULT_API_KEY;
-
-  if (!apiKey) {
-    throw new Error("VAULT_API_KEY is not set");
-  }
-
-  await rhdh.configure({ auth: "keycloak" });
-  await rhdh.deploy();
-});
-```
-
-### In RHDH Configuration Files
-
-To use Vault secrets in `app-config-rhdh.yaml` or `dynamic-plugins.yaml`, you must first add them to `rhdh-secrets.yaml`:
-
-#### Step 1: Add to rhdh-secrets.yaml
-
-**tests/config/rhdh-secrets.yaml:**
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: rhdh-secrets
-type: Opaque
-stringData:
-  # Left side: name to use in app-config
-  # Right side: reference to Vault secret (with $)
-  EXTERNAL_HOST: $VAULT_EXTERNAL_HOST
-  MY_PLUGIN_API_KEY: $VAULT_MY_PLUGIN_API_KEY
-```
-
-#### Step 2: Use in app-config-rhdh.yaml
-
-**tests/config/app-config-rhdh.yaml:**
-```yaml
-backend:
-  reading:
-    allow:
-      - host: ${EXTERNAL_HOST}
-myPlugin:
-  apiKey: ${MY_PLUGIN_API_KEY}
-```
-
-### Summary
-
-| Where you need it | How to access |
-|-------------------|---------------|
-| Test code (`*.spec.ts`) | `process.env.VAULT_*` directly |
-| RHDH configs | Add to `rhdh-secrets.yaml` first |
+Vault setup and usage details are documented here: [Using Secrets](/overlay/tutorials/using-secrets).
 
 See [Configuration Files - rhdh-secrets.yaml](/overlay/test-structure/configuration-files#rhdh-secrets-yaml-optional) for more details on the secrets flow.
 
-## Adding a New Workspace to CI
-
-When adding E2E tests to a new workspace:
-
-1. **Create workspace-specific secret path in Vault:**
-   ```
-   selfservice/rhdh-plugin-export-overlays/workspaces/<your-workspace>
-   ```
-
-2. **Add required annotations:**
-   ```json
-   {
-     "secretsync/target-name": "rhdh-plugin-export-overlays",
-     "secretsync/target-namespace": "test-credentials"
-   }
-   ```
-
-3. **Add secrets with `VAULT_` prefix:**
-   ```
-   VAULT_YOUR_SECRET: <value>
-   ```
-
-4. **Reference secrets in your configuration files**
 
 ## CI Environment Variables
 

@@ -41,74 +41,10 @@ import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
 
 ## Project Setup
 
-### 1. Create E2E Test Directory
+For full project scaffolding (config files, folder structure, and first test), follow:
 
-```bash
-mkdir e2e-tests && cd e2e-tests
-yarn init -y
-```
-
-### 2. Install Dependencies
-
-```bash
-yarn add @playwright/test rhdh-e2e-test-utils typescript
-```
-
-### 3. Create Configuration Files
-
-Create the following files in your project:
-
-**playwright.config.ts**
-```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
-
-export default defineConfig({
-  projects: [
-    {
-      name: "my-plugin",
-    },
-  ],
-});
-```
-
-**tsconfig.json**
-```json
-{
-  "extends": "rhdh-e2e-test-utils/tsconfig",
-  "include": ["tests/**/*.ts"]
-}
-```
-
-**eslint.config.js**
-```javascript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
-
-export default createEslintConfig(import.meta.dirname);
-```
-
-### 4. Create Test Directory Structure
-
-```bash
-mkdir -p tests/config tests/specs
-```
-
-Your project structure should look like:
-
-```
-e2e-tests/
-├── package.json
-├── playwright.config.ts
-├── tsconfig.json
-├── eslint.config.js
-├── .env                          # Environment variables
-└── tests/
-    ├── config/
-    │   ├── app-config-rhdh.yaml  # RHDH app configuration
-    │   ├── dynamic-plugins.yaml  # Plugin configuration
-    │   └── rhdh-secrets.yaml     # Secrets template
-    └── specs/
-        └── my-plugin.spec.ts     # Test files
-```
+- [Quick Start](/guide/quick-start) - complete setup walkthrough
+- [Your First Test](/tutorials/first-test) - step-by-step with explanations
 
 ## Next Steps
 

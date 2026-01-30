@@ -76,7 +76,7 @@ E2E tests are kept separate from plugin source code because:
 ## Configuration Files Location
 
 ::: tip All Configuration Files Are Optional
-The `tests/config/` directory can be empty or omitted entirely. The package provides sensible defaults and auto-generates plugin configuration from metadata. Only create files when you need to override defaults.
+The `tests/config/` directory can be empty or omitted entirely. The package provides sensible defaults and auto-generates plugin configuration from metadata. Only create files when you need to override or extend defaults.
 :::
 
 Configuration files in `tests/config/` are merged with package defaults:

@@ -25,9 +25,9 @@ This import replaces the standard Playwright import and provides additional fixt
 
 The `rhdh` fixture is worker-scoped, meaning:
 
-- One deployment is shared across all tests in a worker
-- Deployment happens once per worker, not per test
-- All tests in the same worker share the same RHDH instance
+- One deployment object is shared across all tests in a worker
+- You control *when* deployment happens (usually in `test.beforeAll`)
+- All tests in the same worker can share the same RHDH instance
 
 ```typescript
 test.beforeAll(async ({ rhdh }) => {
@@ -164,6 +164,47 @@ In CI environments (when `CI` environment variable is set):
 For local development:
 - Namespaces are preserved for debugging
 - Manual cleanup may be required
+
+## Best Practices for Projects and Spec Files
+
+Each Playwright project name creates a **separate namespace**. The fixture creates one `RHDHDeployment` per worker, and you typically call `rhdh.deploy()` once in `beforeAll`.
+
+**Recommended for overlay workspaces:**
+
+- Use **one Playwright project** named after the workspace.
+- Keep **one spec file** per workspace unless you have a strong reason to split.
+
+This keeps deployment cost low and avoids multiple namespaces unless required.
+
+## When You Need Multiple Projects or Spec Files
+
+If requirements differ (different auth, configs, or namespaces), you can:
+
+1. **Use multiple projects** with different names and config overrides.
+2. **Manually manage deployments** using `RHDHDeployment` for advanced flows.
+
+Example using multiple projects:
+
+```typescript
+export default defineConfig({
+  projects: [
+    { name: "workspace-default" },
+    { name: "workspace-guest" },
+  ],
+});
+```
+
+Example with manual deployment:
+
+```typescript
+import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
+
+test.beforeAll(async () => {
+  const rhdh = new RHDHDeployment("custom-namespace");
+  await rhdh.configure({ auth: "guest" });
+  await rhdh.deploy();
+});
+```
 
 ## Example: Complete Test Setup
 

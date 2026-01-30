@@ -18,26 +18,23 @@ hero:
 
 features:
   - icon: 🚀
-    title: Automated RHDH Deployment
-    details: Deploy RHDH instances via Helm or the RHDH Operator with automatic namespace management and cleanup.
+    title: Deploy RHDH in Tests
+    details: Deploy via Helm or Operator with automatic namespace management and cleanup.
+  - icon: 🧪
+    title: Playwright Fixtures & Config
+    details: Fixtures manage deployment lifecycle with rhdh, uiHelper, loginHelper, and baseURL.
   - icon: 🔑
-    title: Keycloak Integration
-    details: Deploy and configure Keycloak for OIDC authentication testing with pre-configured realms, clients, and users.
-  - icon: 🧩
-    title: Playwright Integration
-    details: Custom test fixtures that manage deployment lifecycle with rhdh, uiHelper, loginHelper, and baseURL fixtures.
-  - icon: 📦
-    title: Helper Classes
-    details: UIhelper for Material-UI interactions, LoginHelper for multi-provider auth, APIHelper for GitHub and Backstage APIs.
-  - icon: 📄
-    title: Page Objects
-    details: Pre-built page objects for CatalogPage, HomePage, CatalogImportPage, ExtensionsPage, and NotificationPage.
+    title: Keycloak OIDC Testing
+    details: Deploy and configure Keycloak for auth testing with pre-configured realms, clients, and users.
   - icon: ⚙️
-    title: Configuration Tools
-    details: ESLint configuration factory with Playwright best practices and TypeScript base configuration.
-  - icon: 🔧
-    title: Overlay Repository Support
-    details: Dedicated documentation for writing E2E tests in the rhdh-plugin-export-overlays repository.
+    title: Metadata Auto‑Config
+    details: Generate dynamic plugin configuration from metadata with sensible defaults.
+  - icon: 📦
+    title: Helpers & Page Objects
+    details: UIhelper, LoginHelper, APIHelper, and page objects for common RHDH workflows.
+  - icon: 🧩
+    title: Utilities & Tooling
+    details: Kubernetes helpers, YAML merging, env substitution, ESLint, and TS config.
 ---
 
 ## Quick Example
@@ -69,6 +66,13 @@ test("verify catalog", async ({ uiHelper }) => {
   await uiHelper.verifyHeading("My Catalog");
 });
 ```
+
+## Choose Your Path
+
+::: tip Overlay or Package?
+If you're working in `rhdh-plugin-export-overlays`, start with [Overlay Testing](/overlay/).
+Otherwise, start with the [Guide](/guide/).
+:::
 
 ## What is rhdh-e2e-test-utils?
 

@@ -55,6 +55,26 @@ When testing PRs, the `/publish` command builds OCI images that RHDH uses automa
 
 See [CI Pipeline](./tutorials/ci-pipeline#pr-oci-image-builds) for details.
 
+## Visual Flows
+
+### Metadata → Config → Deploy
+
+```text
+metadata/*.yaml
+  -> auto-generate plugin config
+  -> merge with defaults + auth config (if exists)
+  -> deploy RHDH
+```
+
+### Vault → Secrets → Config
+
+```text
+Vault / .env
+  -> rhdh-secrets.yaml
+  -> app-config-rhdh.yaml
+  -> deploy RHDH
+```
+
 ## Quick Start
 
 1. Navigate to your plugin workspace in the overlay repository
@@ -64,6 +84,13 @@ See [CI Pipeline](./tutorials/ci-pipeline#pr-oci-image-builds) for details.
 5. Run tests locally or via CI
 
 See [Getting Started](./getting-started) for a step-by-step walkthrough.
+
+## Common Tasks
+
+- [Add tests to a new workspace](./tutorials/new-workspace)
+- [Run tests locally](./tutorials/running-locally)
+- [Run in CI / OpenShift pipeline](./tutorials/ci-pipeline)
+- [Trigger PR OCI build (`/publish`)](./tutorials/ci-pipeline#pr-oci-image-builds)
 
 ## Documentation Structure
 

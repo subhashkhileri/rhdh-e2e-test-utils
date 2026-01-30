@@ -25,25 +25,28 @@ The `defineConfig` function extends your configuration with sensible defaults fo
 |---------|-------|-------------|
 | `testDir` | `./tests` | Test files location |
 | `timeout` | 90,000ms | Test timeout |
-| `expect.timeout` | 30,000ms | Assertion timeout |
+| `expect.timeout` | 10,000ms | Assertion timeout |
 | `retries` | 2 (CI), 0 (local) | Test retries |
 | `workers` | 50% of CPUs | Parallel workers |
-| `fullyParallel` | `true` | Parallel test execution |
+| `outputDir` | `node_modules/.cache/e2e-test-results` | Playwright artifacts |
 
 ### Reporter Settings
 
 | Setting | Value |
 |---------|-------|
-| `reporter` | `[["list"], ["html"]]` |
+| `reporter` | `[["list"], ["html"], ["json"]]` |
 
 ### Browser Settings
 
 | Setting | Value |
 |---------|-------|
-| `viewport` | `{ width: 1920, height: 1080 }` |
-| `video` | `"on"` |
+| `ignoreHTTPSErrors` | `true` |
 | `trace` | `"retain-on-failure"` |
 | `screenshot` | `"only-on-failure"` |
+| `viewport` | `{ width: 1920, height: 1080 }` |
+| `video` | `"on"` |
+| `actionTimeout` | 10,000ms |
+| `navigationTimeout` | 50,000ms |
 
 ## Global Setup
 
@@ -55,22 +58,12 @@ The base configuration includes a global setup that runs before all tests:
 
 ## Customizing Configuration
 
-You can override any setting by passing it to `defineConfig`:
+`defineConfig` only accepts `projects` overrides. To change other settings, use `baseConfig` with Playwright's `defineConfig`.
 
 ```typescript
 import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
 
 export default defineConfig({
-  // Override timeout
-  timeout: 120000,
-
-  // Override retries
-  retries: 3,
-
-  // Override workers
-  workers: 2,
-
-  // Add projects
   projects: [
     {
       name: "my-plugin",
@@ -81,9 +74,6 @@ export default defineConfig({
       testMatch: "**/another-*.spec.ts",
     },
   ],
-
-  // Add custom reporter
-  reporter: [["list"], ["html"], ["json", { outputFile: "results.json" }]],
 });
 ```
 
@@ -179,12 +169,14 @@ GITHUB_TOKEN=ghp_xxxxx
 ## Example: Full Configuration
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@playwright/test";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `${import.meta.dirname}/.env` });
 
 export default defineConfig({
+  ...baseConfig,
   // Test settings
   timeout: 120000,
   retries: process.env.CI ? 3 : 0,

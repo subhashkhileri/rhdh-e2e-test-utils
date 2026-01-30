@@ -2,12 +2,14 @@
 
 Complete reference of all environment variables used by the package.
 
-## Required Variables
+## Recommended Variables
 
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `RHDH_VERSION` | RHDH version to deploy | `"1.5"` |
-| `INSTALLATION_METHOD` | Deployment method | `"helm"` or `"operator"` |
+These are optional but commonly set to control deployment behavior:
+
+| Variable | Description | Example | Default |
+|----------|-------------|---------|---------|
+| `RHDH_VERSION` | RHDH version to deploy | `"1.5"` | `"next"` |
+| `INSTALLATION_METHOD` | Deployment method | `"helm"` or `"operator"` | `"helm"` |
 
 ## Auto-Generated Variables
 

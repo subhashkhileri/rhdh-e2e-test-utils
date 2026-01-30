@@ -38,7 +38,7 @@ export default defineConfig({
 });
 ```
 
-## Step 3: Create Configuration Files
+## Step 3: Create Configuration Files (Optional)
 
 Create `tests/config/app-config-rhdh.yaml`:
 
@@ -49,7 +49,7 @@ app:
 # Add plugin-specific configuration here
 ```
 
-Create `tests/config/dynamic-plugins.yaml`:
+Create `tests/config/dynamic-plugins.yaml` only if you need to override plugin defaults or you do not have metadata files:
 
 ```yaml
 includes:
@@ -62,7 +62,7 @@ plugins:
     disabled: false
 ```
 
-Create `tests/config/rhdh-secrets.yaml`:
+Create `tests/config/rhdh-secrets.yaml` only if you need to pass secrets into RHDH config:
 
 ```yaml
 apiVersion: v1
@@ -82,6 +82,8 @@ For PR builds in CI (when `GIT_PR_NUMBER` is set), the package also automaticall
 
 See [Plugin Metadata Injection](/guide/configuration/config-files#plugin-metadata-injection) for details.
 :::
+
+All files in `tests/config/` are optional; only create what you need. For merge order and file behavior, see [Configuration Files](/guide/configuration/config-files).
 
 ## Step 4: Create Environment File
 

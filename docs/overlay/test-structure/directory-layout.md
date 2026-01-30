@@ -140,7 +140,7 @@ Optional file for environment variables. Can contain:
 Contains YAML configuration files that are merged with defaults when deploying RHDH.
 
 ::: tip All Files Are Optional
-**All configuration files in this directory are optional.** The package provides sensible defaults. Only create files when you need to override defaults or add plugin-specific configuration.
+**All configuration files in this directory are optional.** The package provides sensible defaults. Only create files when you need to override or extend defaults.
 :::
 
 | File | Purpose | When to Create |

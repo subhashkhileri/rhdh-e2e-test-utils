@@ -87,7 +87,7 @@ oc auth can-i create configmap
 
 | Component | Description |
 |-----------|-------------|
-| RHDH Version | Set via `RHDH_VERSION` environment variable (e.g., "1.5") |
+| RHDH Version | Set via `RHDH_VERSION` environment variable (default: `next`) |
 | Helm Chart | Default: `oci://quay.io/rhdh/chart` (customizable via `CHART_URL`) |
 
 ## Keycloak Requirements (Optional)
@@ -124,7 +124,7 @@ Minimum cluster resources for running tests:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `RHDH_VERSION` | RHDH version to deploy | `"1.5"` |
+| `RHDH_VERSION` | RHDH version to deploy (default: `next`) | `"1.5"` |
 | `INSTALLATION_METHOD` | Deployment method | `"helm"` or `"operator"` |
 
 ### Optional

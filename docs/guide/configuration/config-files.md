@@ -2,6 +2,8 @@
 
 RHDH deployment uses YAML configuration files for app config, plugins, and secrets.
 
+If you are working inside the overlay repository, see [Overlay Configuration Files](/overlay/test-structure/configuration-files) for overlay-specific behavior and CI integration details.
+
 ## File Structure
 
 Create configuration files in `tests/config/`:
@@ -137,6 +139,21 @@ When you deploy RHDH, configurations are merged:
 
 Later files override earlier files. You only need to specify what's different from defaults.
 
+## Verify the Final Merged Config
+
+If you need to confirm the final merged configuration:
+
+1. Run a test once so RHDH is deployed.
+2. Inspect the ConfigMaps in the test namespace:
+
+```bash
+oc get configmap -n <namespace>
+oc get configmap app-config-rhdh -n <namespace> -o yaml
+oc get configmap dynamic-plugins -n <namespace> -o yaml
+```
+
+This shows the exact content after defaults, auth config, and your overrides are merged.
+
 ## Plugin Metadata Injection
 
 During deployment, the package automatically handles plugin configurations from metadata files. The behavior depends on whether your [`dynamic-plugins.yaml`](#dynamic-plugins-yaml) file exists:
@@ -218,6 +235,31 @@ When `GIT_PR_NUMBER` is set (by OpenShift CI), local plugin paths are automatica
 ```
 
 This allows E2E tests to run against the actual OCI images built for the PR.
+
+### Local Reproduction (Optional)
+
+If you want to reproduce OCI URL replacement locally, create the required files at the workspace root:
+
+**source.json**
+```json
+{
+  "repo": "https://github.com/redhat-developer/rhdh-plugin-export-overlays",
+  "repo-ref": "abc123def4567890"
+}
+```
+
+**plugins-list.yaml**
+```yaml
+plugins/tech-radar:
+plugins/my-plugin:
+```
+
+Then set `GIT_PR_NUMBER` and run tests:
+
+```bash
+export GIT_PR_NUMBER=1845
+yarn test
+```
 
 ::: warning
 For PR builds, OCI URL generation is required. Deployment will fail if `source.json` or `plugins-list.yaml` doesn't exist, or if version fetching fails.
