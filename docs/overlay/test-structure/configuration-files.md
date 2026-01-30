@@ -7,13 +7,12 @@ For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
 
 This page explains the YAML configuration files used in overlay E2E tests.
 
+If you're looking for the general file formats and examples, see [Configuration Files (Guide)](/guide/configuration/config-files). This page focuses on overlay-specific behavior such as metadata auto-generation and OCI URL replacement.
+
 ## All Configuration Files Are Optional
 
 ::: warning Key Concept
-**All configuration files in `tests/config/` are optional.** The package provides sensible defaults for everything. Only create a configuration file when you need to:
-- Override a default value
-- Add plugin-specific configuration
-- Configure external service URLs
+**All configuration files in `tests/config/` are optional.** The package provides sensible defaults. Only create a configuration file when you need to **override** or **extend** the defaults (i.e., when the default config does not already cover your use case).
 :::
 
 If your plugin works with the package defaults and metadata-based configuration, you may not need any configuration files at all.
@@ -31,17 +30,15 @@ tests/config/
 └── subscription.yaml       # Operator subscription (optional, Operator only)
 ```
 
-**All of these files are optional.** Only create them when you need to override defaults or add additional configuration.
+**All of these files are optional.** Only create them when you need to override or extend defaults.
 
 ## app-config-rhdh.yaml (Optional)
 
 The main RHDH configuration file. This file is merged with default configurations from `rhdh-e2e-test-utils`.
 
 **Only create this file when you need to:**
-- Set plugin-specific configuration values (e.g., `techRadar.url`)
-- Allow external hosts for backend reading
-- Customize the RHDH instance title
-- Override any default RHDH configuration
+- Override a default value in the RHDH app config
+- Add config keys that are not provided by the defaults
 
 ### Purpose
 
@@ -105,7 +102,7 @@ techRadar:
 
 A Kubernetes Secret manifest that bridges environment variables to the RHDH deployment.
 
-**Only create this file when you need to use environment variables in RHDH configuration files.**
+**Only create this file when you need to pass environment variables into RHDH configuration files.**
 
 ### Environment Variable Substitution
 
@@ -327,6 +324,8 @@ oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/{plugin-name}:pr_{PR_
 export GIT_PR_NUMBER=1845
 yarn test
 ```
+
+For a full local workflow, see [Local OCI Testing](../reference/local-oci-testing).
 
 ### What You Don't Need to Do
 

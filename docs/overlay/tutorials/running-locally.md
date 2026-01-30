@@ -153,7 +153,7 @@ SKIP_KEYCLOAK_DEPLOYMENT=false
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `RHDH_VERSION` | RHDH version to deploy | Latest |
+| `RHDH_VERSION` | RHDH version to deploy | `next` (latest) |
 | `INSTALLATION_METHOD` | `helm` or `operator` | `helm` |
 | `SKIP_KEYCLOAK_DEPLOYMENT` | Skip Keycloak deployment entirely (for guest auth) | `false` |
 

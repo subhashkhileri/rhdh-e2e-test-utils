@@ -26,7 +26,7 @@ export default defineConfig({
 });
 ```
 
-The package provides all Playwright settings, timeouts, and reporter configuration. You just specify your project name.
+The package provides Playwright settings, timeouts, and reporter configuration. You just specify your project name. If your setup takes longer (e.g., external services or slow clusters), increase the timeout in `beforeAll` as shown in [Common Patterns](/overlay/reference/patterns#long-running-setup-and-deployments).
 
 ## The Test
 
@@ -104,11 +104,7 @@ workspaces/my-plugin/
 
 ## When You Need Configuration
 
-Only create configuration files if your plugin needs:
-
-- **External service URLs** → Create `app-config-rhdh.yaml`
-- **Secrets in RHDH configs** → Create `rhdh-secrets.yaml`
-- **Custom plugin settings** → Override with `dynamic-plugins.yaml`
+Only create configuration files if you need to override or extend defaults. If the defaults already include the config keys you need, you can often just provide secrets without adding new config files.
 
 See [Configuration Files](./test-structure/configuration-files) for details.
 

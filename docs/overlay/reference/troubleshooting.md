@@ -103,7 +103,14 @@ oc login --token=<token> --server=<server>
   ```bash
   oc logs -f deployment/rhdh -n <namespace>
   ```
-- Increase timeout in config
+- Increase timeout in setup:
+  ```typescript
+  test.beforeAll(async ({ rhdh }) => {
+    test.setTimeout(10 * 60 * 1000);
+    await rhdh.configure({ auth: "keycloak" });
+    await rhdh.deploy();
+  });
+  ```
 
 ### "ImagePullBackOff"
 
@@ -209,6 +216,16 @@ oc login --token=<token> --server=<server>
 - Verify envsubst is being applied
 
 ## OpenShift CI Issues
+
+### OCI and Metadata Errors
+
+**"source.json not found" or "plugins-list.yaml not found"**
+- These files are required when `GIT_PR_NUMBER` is set.
+- In CI they are generated automatically; for local runs, copy them from a CI job or create them manually.
+
+**"metadata directory not found" or "no valid metadata files"**
+- Ensure `workspaces/<plugin>/metadata/` exists and contains valid Package CRD YAML files.
+- If you intentionally want to skip metadata injection, set `RHDH_SKIP_PLUGIN_METADATA_INJECTION=true`.
 
 ### "Tests pass locally but fail in CI"
 

@@ -24,6 +24,15 @@ test.describe("Plugin tests", () => {
 });
 ```
 
+## Project and Spec Best Practices
+
+Each Playwright project name creates a **separate namespace**. To keep deployments fast and predictable:
+
+- Use **one project** named after the workspace.
+- Keep **one spec file** per workspace unless your requirements differ.
+
+If you need different auth/configs or separate namespaces, use multiple projects or manage deployments directly with `RHDHDeployment`.
+
 ### Guest Authentication Setup
 
 ```typescript
@@ -207,6 +216,39 @@ await page.locator('text="Content"').waitFor({ state: "visible" });
 ```typescript
 await page.waitForSelector('[data-testid="loaded"]');
 ```
+
+## Long-Running Setup and Deployments (Timeouts)
+
+If `beforeAll` performs slow setup (deployment, external services), increase the timeout explicitly.
+
+### Which Timeout Are You Increasing?
+
+- `test.setTimeout(...)` inside `beforeAll` increases the **timeout for that hook**.
+- `test.setTimeout(...)` inside a test increases the **timeout for that test**.
+- The Playwright config `timeout` is the **default per-test timeout**.
+
+### Increase `beforeAll` Timeout
+
+```typescript
+test.beforeAll(async ({ rhdh }) => {
+  test.setTimeout(10 * 60 * 1000); // 10 minutes
+  await rhdh.configure({ auth: "keycloak" });
+  await rhdh.deploy();
+});
+```
+
+### Extend RHDH Readiness Wait
+
+```typescript
+test.beforeAll(async ({ rhdh }) => {
+  test.setTimeout(10 * 60 * 1000);
+  await rhdh.configure({ auth: "keycloak" });
+  await rhdh.deploy();
+  await rhdh.waitUntilReady(600); // seconds
+});
+```
+
+Note: `rhdh.deploy()` already increases the test timeout (500s). If your setup does more work before deploy, set a higher timeout in `beforeAll`.
 
 ## Error Handling Patterns
 

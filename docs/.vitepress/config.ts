@@ -354,6 +354,10 @@ export default defineConfig({
               link: "/overlay/tutorials/custom-deployment",
             },
             {
+              text: "Using Secrets",
+              link: "/overlay/tutorials/using-secrets",
+            },
+            {
               text: "Running Tests Locally",
               link: "/overlay/tutorials/running-locally",
             },
@@ -376,11 +380,15 @@ export default defineConfig({
         },
         {
           text: "Reference",
-          collapsed: true,
+          collapsed: false,
           items: [
             {
               text: "Environment Variables",
               link: "/overlay/reference/environment-variables",
+            },
+            {
+              text: "Local OCI Testing",
+              link: "/overlay/reference/local-oci-testing",
             },
             {
               text: "Package.json Scripts",

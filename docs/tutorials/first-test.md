@@ -13,84 +13,9 @@ For a faster setup, see the [Quick Start Guide](/guide/quick-start.md). This tut
 - OpenShift cluster access
 - `oc`, `kubectl`, `helm` installed
 
-## Step 1: Create Project
+Before continuing, complete the project scaffolding in [Quick Start](/guide/quick-start). This tutorial focuses on *why* each step matters and how to debug effectively.
 
-```bash
-mkdir my-plugin-e2e
-cd my-plugin-e2e
-yarn init -y
-```
-
-## Step 2: Install Dependencies
-
-```bash
-yarn add @playwright/test rhdh-e2e-test-utils typescript dotenv
-```
-
-## Step 3: Create Configuration Files
-
-**playwright.config.ts:**
-```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
-import dotenv from "dotenv";
-
-dotenv.config({ path: `${import.meta.dirname}/.env` });
-
-export default defineConfig({
-  projects: [
-    {
-      name: "my-plugin",
-    },
-  ],
-});
-```
-
-**tsconfig.json:**
-```json
-{
-  "extends": "rhdh-e2e-test-utils/tsconfig",
-  "include": ["tests/**/*.ts", "playwright.config.ts"]
-}
-```
-
-**.env:**
-```bash
-RHDH_VERSION="1.5"
-INSTALLATION_METHOD="helm"
-SKIP_KEYCLOAK_DEPLOYMENT=true
-```
-
-## Step 4: Create Test Directory
-
-```bash
-mkdir -p tests/config tests/specs
-```
-
-## Step 5: Create Config Files
-
-**tests/config/app-config-rhdh.yaml:**
-```yaml
-app:
-  title: My First Test Instance
-```
-
-**tests/config/dynamic-plugins.yaml:**
-```yaml
-includes:
-  - dynamic-plugins.default.yaml
-```
-
-**tests/config/rhdh-secrets.yaml:**
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: rhdh-secrets
-type: Opaque
-stringData: {}
-```
-
-## Step 6: Write Your Test
+## Step 1: Write Your Test
 
 **tests/specs/first-test.spec.ts:**
 ```typescript
@@ -120,13 +45,13 @@ test.describe("My First Test Suite", () => {
 });
 ```
 
-## Step 7: Login to OpenShift
+## Step 2: Login to OpenShift
 
 ```bash
 oc login --server=https://api.your-cluster.com:6443 --token=your-token
 ```
 
-## Step 8: Run Tests
+## Step 3: Run Tests
 
 ```bash
 yarn playwright test

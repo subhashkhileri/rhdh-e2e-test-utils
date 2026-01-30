@@ -48,9 +48,9 @@ test("example", async ({ rhdh }) => {
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `version` | `string` | RHDH version (e.g., "1.5"). Defaults to `RHDH_VERSION` env var |
+| `version` | `string` | RHDH version (e.g., "1.5"). Defaults to `RHDH_VERSION` or `"next"` |
 | `namespace` | `string` | Kubernetes namespace. Set via constructor |
-| `method` | `"helm" \| "operator"` | Installation method. Defaults to `INSTALLATION_METHOD` env var |
+| `method` | `"helm" \| "operator"` | Installation method. Defaults to `INSTALLATION_METHOD` or `"helm"` |
 | `auth` | `"guest" \| "keycloak"` | Authentication provider. Defaults to `"keycloak"` |
 | `appConfig` | `string` | Path to app-config YAML |
 | `secrets` | `string` | Path to secrets YAML |
@@ -101,6 +101,26 @@ This method:
 5. Installs RHDH via Helm or Operator
 6. Waits for the deployment to be ready
 7. Sets `RHDH_BASE_URL` environment variable
+
+#### Base URL format
+
+The base URL prefix depends on the installation method:
+
+- Helm: `https://redhat-developer-hub-<namespace>.<cluster>`
+- Operator: `https://backstage-developer-hub-<namespace>.<cluster>`
+
+#### Helm behavior
+
+Helm deployments perform a scale-down and restart after applying configs to avoid migration locks.
+
+#### Operator version constraints
+
+Operator deployments accept only:
+
+- Semantic versions like `1.5`
+- `"next"`
+
+Any other value will throw an error during deployment.
 
 ### `waitUntilReady(timeout?)`
 

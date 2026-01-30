@@ -78,6 +78,8 @@ stringData:
 
 When deployed, environment variables are substituted automatically.
 
+If you are writing tests in the overlay repository, see [Overlay Configuration Files](/overlay/test-structure/configuration-files) for how secrets and substitution are applied in CI.
+
 ## Complete Example
 
 ```typescript
