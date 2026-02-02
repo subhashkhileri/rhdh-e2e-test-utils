@@ -311,27 +311,23 @@ class KubernetesClientHelper {
   }
 
   /**
-   * Delete a namespace
+   * Delete a namespace and wait for it to be fully terminated
    */
-  async deleteNamespace(namespace: string): Promise<void> {
+  async deleteNamespace(
+    namespace: string,
+    waitForDeletion: boolean = true,
+    timeoutSeconds: number = 180,
+  ): Promise<void> {
     try {
       await this._k8sApi.deleteNamespace({ name: namespace });
-      console.log(`✓ Deleted namespace ${namespace}`);
+      console.log(`[K8sHelper] Deleting namespace ${namespace}...`);
     } catch (error) {
       // Ignore if namespace doesn't exist (already deleted), but throw other errors
-      const err = error as {
-        body?: { code?: number };
-        response?: { statusCode?: number };
-        statusCode?: number;
-      };
-      if (
-        err.body?.code === 404 ||
-        err.response?.statusCode === 404 ||
-        err.statusCode === 404
-      ) {
+      if (this._isNotFoundError(error)) {
         console.log(
           `✓ Namespace ${namespace} already deleted or doesn't exist`,
         );
+        return;
       } else {
         console.error(
           `✗ Failed to delete namespace ${namespace}:`,
@@ -340,6 +336,82 @@ class KubernetesClientHelper {
         throw error;
       }
     }
+
+    if (waitForDeletion) {
+      await this._waitForNamespaceDeletion(namespace, timeoutSeconds);
+    }
+  }
+
+  /**
+   * Wait for a namespace to be fully deleted
+   */
+  private async _waitForNamespaceDeletion(
+    namespace: string,
+    timeoutSeconds: number = 180,
+  ): Promise<void> {
+    const startTime = Date.now();
+    const timeoutMs = timeoutSeconds * 1000;
+    const pollIntervalMs = 3000;
+
+    while (Date.now() - startTime < timeoutMs) {
+      try {
+        const ns = await this._k8sApi.readNamespace({ name: namespace });
+        const phase = ns.status?.phase;
+        // Namespace still exists, wait and retry
+        if (phase === "Terminating") {
+          // Only log occasionally to avoid spam
+          const elapsed = Math.round((Date.now() - startTime) / 1000);
+          if (elapsed % 10 === 0) {
+            console.log(
+              `[K8sHelper] Namespace ${namespace} still terminating (${elapsed}s)...`,
+            );
+          }
+        }
+        await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+      } catch (error) {
+        // Check for 404 in various error formats from different k8s client versions
+        if (this._isNotFoundError(error)) {
+          console.log(`✓ Namespace ${namespace} fully deleted`);
+          return;
+        }
+        throw error;
+      }
+    }
+
+    throw new Error(
+      `Timeout waiting for namespace ${namespace} to be deleted after ${timeoutSeconds}s`,
+    );
+  }
+
+  /**
+   * Check if an error is a "not found" (404) error.
+   * Handles different error formats from various k8s client versions.
+   */
+  private _isNotFoundError(error: unknown): boolean {
+    if (!error) return false;
+
+    // Check error message for "404" or "not found"
+    if (error instanceof Error) {
+      const msg = error.message.toLowerCase();
+      if (msg.includes("404") || msg.includes("not found")) {
+        return true;
+      }
+    }
+
+    // Check various object properties for 404 status codes
+    const err = error as {
+      body?: { code?: number };
+      response?: { statusCode?: number };
+      statusCode?: number;
+      code?: number;
+    };
+
+    return (
+      err.body?.code === 404 ||
+      err.response?.statusCode === 404 ||
+      err.statusCode === 404 ||
+      err.code === 404
+    );
   }
 
   /**
@@ -482,7 +554,7 @@ class KubernetesClientHelper {
   async waitForPodsWithFailureDetection(
     namespace: string,
     labelSelector: string,
-    timeoutSeconds: number = 300,
+    timeoutSeconds: number = 500,
     pollIntervalMs: number = 5000,
   ): Promise<void> {
     const startTime = Date.now();
@@ -541,8 +613,37 @@ class KubernetesClientHelper {
         return;
       }
 
+      // Log pod status every 20 seconds
+      const elapsedSec = Math.floor((Date.now() - startTime) / 1000);
+      if (elapsedSec > 0 && elapsedSec % 20 === 0) {
+        try {
+          await $`oc get pods -n ${namespace} -l ${labelSelector}`;
+        } catch {
+          // Ignore errors
+        }
+      }
+
       await new Promise((r) => setTimeout(r, pollIntervalMs));
     }
+
+    // Timeout reached - collect diagnostic info before throwing
+    console.log(`\n[K8sHelper] ═══ Pod Diagnostics (timeout reached) ═══`);
+    try {
+      console.log(`\n[K8sHelper] ─── Pod Status ───`);
+      await $`oc get pods -n ${namespace} -l ${labelSelector} -o wide`;
+
+      console.log(`\n[K8sHelper] ─── Pod Details ───`);
+      await $`oc describe pods -n ${namespace} -l ${labelSelector}`;
+
+      console.log(`\n[K8sHelper] ─── Namespace Events ───`);
+      await $`oc get events -n ${namespace} --sort-by='.lastTimestamp'`;
+
+      console.log(`\n[K8sHelper] ─── Pod Logs ───`);
+      await $`oc logs -n ${namespace} -l ${labelSelector} --all-containers --tail=100 2>&1 || true`;
+    } catch {
+      // Ignore errors from diagnostic commands
+    }
+    console.log(`\n[K8sHelper] ═══ End Pod Diagnostics ═══\n`);
 
     throw new Error(
       `Timeout waiting for pods (${labelSelector}) after ${timeoutSeconds}s`,

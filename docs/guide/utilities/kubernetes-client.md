@@ -105,7 +105,7 @@ Wait for pods to be ready with early failure detection. Unlike `oc rollout statu
 await k8sClient.waitForPodsWithFailureDetection(
   "my-namespace",
   "app.kubernetes.io/instance=my-app",
-  300,  // timeout in seconds (default: 300)
+  500,  // timeout in seconds (default: 500)
   5000  // poll interval in ms (default: 5000)
 );
 ```
