@@ -2,15 +2,24 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.7] - Current
+## [1.1.8] - Current
+
+### Fixed
+- Fixed namespace deletion race condition during test retries
+- Improved 404 error detection for different Kubernetes client versions
+
+### Changed
+- Increased default timeouts (300s → 500s) and test timeout (600s)
+- Reduced CI retries from 2 to 1
+- Added pod diagnostics logging on timeout and periodic status updates
+
+## [1.1.7]
 
 ### Fixed
 - **Secrets with control characters**: Fixed `SyntaxError: Bad control character in string literal` when secrets contain newlines or special characters (e.g., GitHub App private keys)
-  - Replaced `JSON.parse(envsubst(JSON.stringify(obj)))` approach with `lodash.clonedeepwith` for safe environment variable substitution
-  - Now correctly handles private keys, tabs, carriage returns, and other control characters in secret values
 
 ### Dependencies
-- Added `lodash.clonedeepwith@^4.5.0` for safe deep object traversal with custom value substitution
+- Added `lodash.clonedeepwith@^4.5.0` for safe environment variable substitution
 
 ## [1.1.6]
 

@@ -94,10 +94,10 @@ Wait for RHDH deployment to be ready.
 
 | Parameter | Type | Default | Description |
 |-----------|------|---------|-------------|
-| `timeout` | `number` | `300000` | Timeout in milliseconds |
+| `timeout` | `number` | `500` | Timeout in seconds |
 
 ```typescript
-await rhdh.waitUntilReady(600000); // 10 minutes
+await rhdh.waitUntilReady(600); // 10 minutes
 ```
 
 ### `rolloutRestart()`

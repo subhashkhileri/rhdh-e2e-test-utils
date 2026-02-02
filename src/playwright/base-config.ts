@@ -11,7 +11,7 @@ import { resolve } from "path";
 export const baseConfig: PlaywrightTestConfig = {
   testDir: "./tests",
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   workers: "50%",
   outputDir: "node_modules/.cache/e2e-test-results",
   timeout: 90_000,

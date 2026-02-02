@@ -96,7 +96,7 @@ oc create token e2e-tests -n default --duration=8760h
 The `CI` environment variable enables:
 
 - Auto-cleanup of namespaces
-- Increased retries (2 instead of 0)
+- Increased retries (1 instead of 0)
 - Non-interactive mode
 
 ## Parallel Jobs

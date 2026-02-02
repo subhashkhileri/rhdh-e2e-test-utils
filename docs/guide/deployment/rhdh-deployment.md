@@ -127,11 +127,11 @@ Any other value will throw an error during deployment.
 Wait for the RHDH deployment to be ready:
 
 ```typescript
-// Default timeout: 300000ms (5 minutes)
+// Default timeout: 500 seconds (~8 minutes)
 await deployment.waitUntilReady();
 
 // Custom timeout
-await deployment.waitUntilReady(600000); // 10 minutes
+await deployment.waitUntilReady(600); // 10 minutes
 ```
 
 ### `rolloutRestart()`
