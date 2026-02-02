@@ -353,7 +353,7 @@ export class KeycloakHelper {
   /**
    * Wait for Keycloak to be ready
    */
-  async waitUntilReady(timeout: number = 300): Promise<void> {
+  async waitUntilReady(timeout: number = 500): Promise<void> {
     this._log(`Waiting for Keycloak to be ready...`);
     const labelSelector = `app.kubernetes.io/instance=${this.deploymentConfig.releaseName}`;
     await this.k8sClient.waitForPodsWithFailureDetection(
@@ -423,7 +423,7 @@ spec:
   private async _waitForKeycloak(): Promise<void> {
     this._log("Waiting for Keycloak API to be ready...");
 
-    const timeout = 300;
+    const timeout = 500;
     const startTime = Date.now();
 
     while (true) {
@@ -432,7 +432,7 @@ spec:
       }
 
       if ((Date.now() - startTime) / 1000 >= timeout) {
-        throw new Error("Keycloak API not ready after 5 minutes");
+        throw new Error(`Keycloak API not ready after ${timeout} seconds`);
       }
 
       await new Promise((resolve) => setTimeout(resolve, 5000));

@@ -39,7 +39,7 @@ export class RHDHDeployment {
 
   async deploy(): Promise<void> {
     this._log("Starting RHDH deployment...");
-    test.setTimeout(500_000);
+    test.setTimeout(600_000);
 
     await this.k8sClient.createNamespaceIfNotExists(
       this.deploymentConfig.namespace,
@@ -256,7 +256,7 @@ export class RHDHDeployment {
     await $`oc scale deployment -l 'app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)' --replicas=1 -n ${namespace}`;
   }
 
-  async waitUntilReady(timeout: number = 300): Promise<void> {
+  async waitUntilReady(timeout: number = 500): Promise<void> {
     this._log(
       `Waiting for RHDH deployment to be ready in namespace ${this.deploymentConfig.namespace}...`,
     );

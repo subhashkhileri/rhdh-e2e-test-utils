@@ -26,7 +26,7 @@ The `defineConfig` function extends your configuration with sensible defaults fo
 | `testDir` | `./tests` | Test files location |
 | `timeout` | 90,000ms | Test timeout |
 | `expect.timeout` | 10,000ms | Assertion timeout |
-| `retries` | 2 (CI), 0 (local) | Test retries |
+| `retries` | 1 (CI), 0 (local) | Test retries |
 | `workers` | 50% of CPUs | Parallel workers |
 | `outputDir` | `node_modules/.cache/e2e-test-results` | Playwright artifacts |
 

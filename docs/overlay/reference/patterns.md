@@ -248,7 +248,7 @@ test.beforeAll(async ({ rhdh }) => {
 });
 ```
 
-Note: `rhdh.deploy()` already increases the test timeout (500s). If your setup does more work before deploy, set a higher timeout in `beforeAll`.
+Note: `rhdh.deploy()` already increases the test timeout (600s / 10 minutes). If your setup does more work before deploy, set a higher timeout in `beforeAll`.
 
 ## Error Handling Patterns
 

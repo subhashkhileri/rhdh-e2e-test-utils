@@ -210,7 +210,7 @@ await keycloak.teardown();
 Wait for Keycloak to be ready:
 
 ```typescript
-await keycloak.waitUntilReady(300000); // 5 minutes
+await keycloak.waitUntilReady(500); // default: 500 seconds (~8 minutes)
 ```
 
 ## Properties

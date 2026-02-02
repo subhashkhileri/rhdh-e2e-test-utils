@@ -57,7 +57,7 @@ Raw base configuration object. Use for advanced customization.
   },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: process.env.CI ? 1 : 0,
   workers: "50%",
   reporter: [["list"], ["html"]],
   use: {
@@ -91,7 +91,7 @@ export default playwrightDefineConfig({
 | `timeout` | `90000` |
 | `expect.timeout` | `30000` |
 | `fullyParallel` | `true` |
-| `retries` | `2` (CI), `0` (local) |
+| `retries` | `1` (CI), `0` (local) |
 | `workers` | `"50%"` |
 | `viewport` | `1920x1080` |
 | `video` | `"on"` |
