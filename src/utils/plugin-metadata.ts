@@ -251,8 +251,6 @@ export async function parseMetadataFile(
     );
   }
 
-  console.log(`[PluginMetadata] Loaded metadata for: ${packagePath}`);
-
   return {
     packagePath,
     pluginConfig: pluginConfig || {},
