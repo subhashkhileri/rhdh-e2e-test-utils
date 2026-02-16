@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This page documents common testing patterns used in overlay E2E tests.
@@ -51,7 +51,7 @@ test.describe("Plugin tests", () => {
 ### Setup with External Service
 
 ```typescript
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 import path from "path";
 
 const setupScript = path.join(import.meta.dirname, "deploy-service.sh");
@@ -351,7 +351,7 @@ See [Page Objects Guide](/guide/page-objects/) for usage and available methods.
 For programmatic catalog or GitHub API operations, use `APIHelper`:
 
 ```typescript
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test("verify catalog", async ({ rhdh }) => {
   const apiHelper = new APIHelper();

@@ -1,5 +1,5 @@
 import { defineConfig } from "@playwright/test";
-import { baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   ...baseConfig,

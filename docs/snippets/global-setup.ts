@@ -1,4 +1,4 @@
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
 
 async function globalSetup() {
   const deployment = new RHDHDeployment({

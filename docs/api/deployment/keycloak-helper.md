@@ -5,7 +5,7 @@ Class for deploying and managing Keycloak in OpenShift.
 ## Import
 
 ```typescript
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 ```
 
 ## Constructor
@@ -193,7 +193,7 @@ Wait for Keycloak StatefulSet to be ready.
 ## Example
 
 ```typescript
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 
 const keycloak = new KeycloakHelper({
   namespace: "rhdh-keycloak",

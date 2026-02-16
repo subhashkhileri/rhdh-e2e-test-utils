@@ -5,7 +5,7 @@ Page object for the RHDH software catalog (`/catalog` page).
 ## Import
 
 ```typescript
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 ```
 
 ## Constructor
@@ -109,7 +109,7 @@ await row.click();
 
 ```typescript
 import { test, expect } from "@playwright/test";
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("search and navigate catalog", async ({ page }) => {
   const catalogPage = new CatalogPage(page);

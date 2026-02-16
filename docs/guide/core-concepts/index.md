@@ -1,13 +1,13 @@
 # Core Concepts
 
-This section covers the fundamental concepts you need to understand when using `rhdh-e2e-test-utils`.
+This section covers the fundamental concepts you need to understand when using `@red-hat-developer-hub/e2e-test-utils`.
 
 ## Package Architecture
 
 The package is organized into several modules, each with a specific purpose:
 
 ```
-rhdh-e2e-test-utils
+@red-hat-developer-hub/e2e-test-utils
 ├── /test           → Playwright fixtures
 ├── /playwright-config → Base Playwright configuration
 ├── /rhdh           → RHDH deployment class

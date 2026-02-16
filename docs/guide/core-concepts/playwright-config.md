@@ -6,7 +6,7 @@ The package provides a pre-configured Playwright setup optimized for RHDH testin
 
 ```typescript
 // playwright.config.ts
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   projects: [
@@ -61,7 +61,7 @@ The base configuration includes a global setup that runs before all tests:
 `defineConfig` only accepts `projects` overrides. To change other settings, use `baseConfig` with Playwright's `defineConfig`.
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   projects: [
@@ -133,7 +133,7 @@ PLAYWRIGHT_WORKERS=4
 For advanced customization, you can access the raw base config:
 
 ```typescript
-import { baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import { defineConfig as playwrightDefineConfig } from "@playwright/test";
 
 export default playwrightDefineConfig({
@@ -149,7 +149,7 @@ export default playwrightDefineConfig({
 Use `dotenv` to load environment variables from a `.env` file:
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import dotenv from "dotenv";
 
 // Load .env file
@@ -172,7 +172,7 @@ GITHUB_TOKEN=ghp_xxxxx
 ## Example: Full Configuration
 
 ```typescript
-import { baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import { defineConfig } from "@playwright/test";
 import dotenv from "dotenv";
 

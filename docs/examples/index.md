@@ -19,7 +19,7 @@ Copy-paste ready code examples for common scenarios.
 ### Minimal Test
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   await rhdh.deploy();
@@ -34,7 +34,7 @@ test("example", async ({ page }) => {
 ### With Login
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   await rhdh.configure({ auth: "keycloak" });
@@ -53,8 +53,8 @@ test("logged in test", async ({ uiHelper }) => {
 ### With Page Object
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("catalog test", async ({ page, loginHelper }) => {
   await loginHelper.loginAsKeycloakUser();

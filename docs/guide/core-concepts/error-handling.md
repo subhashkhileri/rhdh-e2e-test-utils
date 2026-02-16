@@ -15,7 +15,7 @@ E2E tests interact with real systems that can fail. Proper error handling:
 ### 1. Element Not Found
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("handle missing element gracefully", async ({ uiHelper, page }) => {
   // Bad: Will fail with generic timeout error
@@ -203,7 +203,7 @@ test("complex workflow with steps", async ({ uiHelper, loginHelper }) => {
 ```typescript
 // playwright.config.ts
 import { defineConfig } from "@playwright/test";
-import { baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   ...baseConfig,

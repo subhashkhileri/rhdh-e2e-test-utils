@@ -5,7 +5,7 @@ The `KeycloakHelper` class provides Keycloak deployment and management capabilit
 ## Basic Usage
 
 ```typescript
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 
 const keycloak = new KeycloakHelper({
   namespace: "rhdh-keycloak",
@@ -256,8 +256,8 @@ await keycloak.waitUntilReady(500); // default: 500 seconds (~8 minutes)
 ## Full Example: RHDH + Keycloak Setup
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 
 let keycloak: KeycloakHelper;
 

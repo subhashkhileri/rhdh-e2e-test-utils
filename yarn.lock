@@ -322,6 +322,38 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@red-hat-developer-hub/e2e-test-utils@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@red-hat-developer-hub/e2e-test-utils@workspace:."
+  dependencies:
+    "@axe-core/playwright": ^4.11.0
+    "@backstage/catalog-model": 1.7.5
+    "@eslint/js": ^9.39.1
+    "@keycloak/keycloak-admin-client": ^26.0.0
+    "@kubernetes/client-node": ^1.4.0
+    "@playwright/test": ^1.57.0
+    "@types/fs-extra": ^11.0.4
+    "@types/js-yaml": ^4.0.9
+    "@types/lodash.clonedeepwith": ^4.5.9
+    "@types/lodash.mergewith": ^4.6.9
+    "@types/node": ^24.10.1
+    eslint: ^9.39.1
+    eslint-plugin-check-file: ^3.3.1
+    eslint-plugin-playwright: ^2.4.0
+    fs-extra: ^11.3.2
+    js-yaml: ^4.1.1
+    lodash.clonedeepwith: ^4.5.0
+    lodash.mergewith: ^4.6.2
+    otplib: 12.0.1
+    prettier: ^3.7.4
+    typescript: ^5.9.3
+    typescript-eslint: ^8.48.1
+    zx: ^8.8.5
+  peerDependencies:
+    "@playwright/test": ^1.57.0
+  languageName: unknown
+  linkType: soft
+
 "@types/estree@npm:^1.0.6":
   version: 1.0.8
   resolution: "@types/estree@npm:1.0.8"
@@ -2131,38 +2163,6 @@ __metadata:
   checksum: 4bfd555f16b8ed1bceb3cf4d79242cf3253a2600de51f45ac19549f366b4b8edc0d9b8feaae778059c137f1d10ebd87e125fc839636f6267a7b6badaa95a9f00
   languageName: node
   linkType: hard
-
-"rhdh-e2e-test-utils@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "rhdh-e2e-test-utils@workspace:."
-  dependencies:
-    "@axe-core/playwright": ^4.11.0
-    "@backstage/catalog-model": 1.7.5
-    "@eslint/js": ^9.39.1
-    "@keycloak/keycloak-admin-client": ^26.0.0
-    "@kubernetes/client-node": ^1.4.0
-    "@playwright/test": ^1.57.0
-    "@types/fs-extra": ^11.0.4
-    "@types/js-yaml": ^4.0.9
-    "@types/lodash.clonedeepwith": ^4.5.9
-    "@types/lodash.mergewith": ^4.6.9
-    "@types/node": ^24.10.1
-    eslint: ^9.39.1
-    eslint-plugin-check-file: ^3.3.1
-    eslint-plugin-playwright: ^2.4.0
-    fs-extra: ^11.3.2
-    js-yaml: ^4.1.1
-    lodash.clonedeepwith: ^4.5.0
-    lodash.mergewith: ^4.6.2
-    otplib: 12.0.1
-    prettier: ^3.7.4
-    typescript: ^5.9.3
-    typescript-eslint: ^8.48.1
-    zx: ^8.8.5
-  peerDependencies:
-    "@playwright/test": ^1.57.0
-  languageName: unknown
-  linkType: soft
 
 "safer-buffer@npm:>= 2.1.2 < 3.0.0":
   version: 2.1.2

@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This page covers common issues and solutions for overlay E2E tests.
@@ -36,7 +36,7 @@ corepack enable
 npm install -g yarn
 ```
 
-### "Cannot find module 'rhdh-e2e-test-utils'"
+### "Cannot find module '@red-hat-developer-hub/e2e-test-utils'"
 
 **Problem:** Dependencies not installed.
 
@@ -318,7 +318,7 @@ page.on("pageerror", err => console.log(err));
 If you're still stuck:
 
 1. Check the [Playwright documentation](https://playwright.dev/docs/intro)
-2. Review [rhdh-e2e-test-utils documentation](/guide/)
+2. Review [@red-hat-developer-hub/e2e-test-utils documentation](/guide/)
 3. Check the overlay repository issues
 4. Ask in the team chat
 

@@ -5,7 +5,7 @@ The `CatalogPage` class provides methods for interacting with the RHDH software 
 ## Usage
 
 ```typescript
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 const catalogPage = new CatalogPage(page);
 ```
@@ -76,8 +76,8 @@ await catalogPage.clearFilters();
 ## Complete Example
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("browse catalog", async ({ page, loginHelper, uiHelper }) => {
   await loginHelper.loginAsKeycloakUser();

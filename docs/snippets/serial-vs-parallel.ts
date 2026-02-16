@@ -5,7 +5,7 @@
 // Tests run independently and can run concurrently
 // Best for: Independent tests, faster execution
 
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Parallel Tests", () => {
   test.beforeEach(async ({ loginHelper }) => {
@@ -29,7 +29,7 @@ test.describe("Parallel Tests", () => {
 // Tests run sequentially in order
 // Best for: Workflow tests, resource efficiency
 
-import { setupBrowser, UIhelper, LoginHelper } from "rhdh-e2e-test-utils/helpers";
+import { setupBrowser, UIhelper, LoginHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test.describe.configure({ mode: "serial" });
 

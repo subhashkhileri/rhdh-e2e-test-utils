@@ -5,7 +5,7 @@ The package extends Playwright's test framework with custom fixtures designed fo
 ## Importing Fixtures
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 ```
 
 This import replaces the standard Playwright import and provides additional fixtures.
@@ -197,7 +197,7 @@ export default defineConfig({
 Example with manual deployment:
 
 ```typescript
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
 
 test.beforeAll(async () => {
   const rhdh = new RHDHDeployment("custom-namespace");
@@ -209,7 +209,7 @@ test.beforeAll(async () => {
 ## Example: Complete Test Setup
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("My Plugin Tests", () => {
   test.beforeAll(async ({ rhdh }) => {

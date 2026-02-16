@@ -21,7 +21,7 @@ import {
   CatalogImportPage,
   ExtensionsPage,
   NotificationPage,
-} from "rhdh-e2e-test-utils/pages";
+} from "@red-hat-developer-hub/e2e-test-utils/pages";
 ```
 
 ## Usage Pattern
@@ -29,8 +29,8 @@ import {
 Page objects are instantiated with a Playwright `Page` object:
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("catalog test", async ({ page, loginHelper }) => {
   await loginHelper.loginAsKeycloakUser();
@@ -97,7 +97,7 @@ export class MyPluginPage {
 Usage:
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 import { MyPluginPage } from "./pages/my-plugin-page";
 
 test("my plugin test", async ({ page }) => {

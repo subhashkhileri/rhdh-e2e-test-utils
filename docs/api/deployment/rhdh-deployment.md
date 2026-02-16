@@ -5,7 +5,7 @@ Class for managing RHDH deployments in OpenShift.
 ## Import
 
 ```typescript
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
 ```
 
 ## Constructor
@@ -139,7 +139,7 @@ await rhdh.teardown();
 ## Example
 
 ```typescript
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
 
 const rhdh = new RHDHDeployment("my-namespace");
 

@@ -5,7 +5,7 @@ Utilities for GitHub and Backstage API interactions.
 ## Import
 
 ```typescript
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 ```
 
 ## Static Methods (GitHub)
@@ -127,7 +127,7 @@ async deleteEntityFromCatalog(
 ## Example
 
 ```typescript
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 // GitHub operations
 await APIHelper.createGitHubRepo("my-org", "test-repo");

@@ -5,7 +5,7 @@ Playwright configuration utilities for RHDH testing.
 ## Import
 
 ```typescript
-import { defineConfig, baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig, baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 ```
 
 ## `defineConfig()`
@@ -29,7 +29,7 @@ Creates a Playwright configuration with RHDH defaults.
 ### Example
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   projects: [
@@ -75,7 +75,7 @@ Raw base configuration object. Use for advanced customization.
 ### Example
 
 ```typescript
-import { baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import { defineConfig as playwrightDefineConfig } from "@playwright/test";
 
 export default playwrightDefineConfig({

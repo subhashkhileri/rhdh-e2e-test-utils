@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This tutorial covers the local development workflow for overlay E2E tests.
@@ -96,7 +96,7 @@ Reports are saved to `playwright-report/`:
 Create or modify `tests/specs/<plugin>.spec.ts`:
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Test <plugin>", () => {
   test.beforeAll(async ({ rhdh }) => {

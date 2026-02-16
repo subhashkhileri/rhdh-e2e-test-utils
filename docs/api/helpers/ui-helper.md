@@ -5,7 +5,7 @@ UI interaction helper for Material-UI components.
 ## Import
 
 ```typescript
-import { UIhelper } from "rhdh-e2e-test-utils/helpers";
+import { UIhelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 ```
 
 ## Constructor

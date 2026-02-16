@@ -79,7 +79,7 @@ For more details, see [Keycloak Deployment](./keycloak-deployment.md#default-con
 ### Creating Custom Users
 
 ```typescript
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 
 test.beforeAll(async ({ rhdh }) => {
   const keycloak = new KeycloakHelper();

@@ -5,7 +5,7 @@ The `CatalogImportPage` class provides methods for registering components in the
 ## Usage
 
 ```typescript
-import { CatalogImportPage } from "rhdh-e2e-test-utils/pages";
+import { CatalogImportPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 const catalogImportPage = new CatalogImportPage(page);
 ```
@@ -66,8 +66,8 @@ await catalogImportPage.go();
 ## Complete Example
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { CatalogImportPage } from "rhdh-e2e-test-utils/pages";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { CatalogImportPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("register component", async ({ page, loginHelper, uiHelper }) => {
   await loginHelper.loginAsKeycloakUser();

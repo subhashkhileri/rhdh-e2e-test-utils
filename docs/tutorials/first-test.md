@@ -1,6 +1,6 @@
 # Your First Test
 
-Create your first E2E test for RHDH using `rhdh-e2e-test-utils`.
+Create your first E2E test for RHDH using `@red-hat-developer-hub/e2e-test-utils`.
 
 ::: tip Quick Start Available
 For a faster setup, see the [Quick Start Guide](/guide/quick-start.md). This tutorial provides more detailed explanations for each step.
@@ -19,7 +19,7 @@ Before continuing, complete the project scaffolding in [Quick Start](/guide/quic
 
 **tests/specs/first-test.spec.ts:**
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("My First Test Suite", () => {
   test.beforeAll(async ({ rhdh }) => {

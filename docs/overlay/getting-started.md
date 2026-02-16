@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This guide shows how to write E2E tests for plugins in the overlay repository.
@@ -12,7 +12,7 @@ This guide shows how to write E2E tests for plugins in the overlay repository.
 Create `playwright.config.ts`:
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `${import.meta.dirname}/.env` });
@@ -33,7 +33,7 @@ The package provides Playwright settings, timeouts, and reporter configuration. 
 Create `tests/specs/my-plugin.spec.ts`:
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Test my-plugin", () => {
   test.beforeAll(async ({ rhdh }) => {

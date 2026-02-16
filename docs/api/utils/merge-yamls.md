@@ -5,7 +5,7 @@ Utilities for merging YAML files.
 ## Import
 
 ```typescript
-import { mergeYamlFiles, mergeYamlFilesToFile } from "rhdh-e2e-test-utils/utils";
+import { mergeYamlFiles, mergeYamlFilesToFile } from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 ## `mergeYamlFiles()`
@@ -38,7 +38,7 @@ Merge YAML files and write to file.
 ## Example
 
 ```typescript
-import { mergeYamlFiles, mergeYamlFilesToFile } from "rhdh-e2e-test-utils/utils";
+import { mergeYamlFiles, mergeYamlFilesToFile } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 // Get merged content
 const content = mergeYamlFiles([

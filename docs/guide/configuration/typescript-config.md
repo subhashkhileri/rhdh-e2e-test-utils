@@ -8,7 +8,7 @@ Create `tsconfig.json` in your project:
 
 ```json
 {
-  "extends": "rhdh-e2e-test-utils/tsconfig",
+  "extends": "@red-hat-developer-hub/e2e-test-utils/tsconfig",
   "include": ["tests/**/*.ts", "playwright.config.ts"]
 }
 ```
@@ -48,7 +48,7 @@ Override settings in your `tsconfig.json`:
 
 ```json
 {
-  "extends": "rhdh-e2e-test-utils/tsconfig",
+  "extends": "@red-hat-developer-hub/e2e-test-utils/tsconfig",
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./tests"
@@ -65,7 +65,7 @@ For complex projects, create multiple configs:
 **tsconfig.json** (development):
 ```json
 {
-  "extends": "rhdh-e2e-test-utils/tsconfig",
+  "extends": "@red-hat-developer-hub/e2e-test-utils/tsconfig",
   "include": ["tests/**/*.ts", "playwright.config.ts"]
 }
 ```
@@ -88,7 +88,7 @@ Add path aliases for cleaner imports:
 
 ```json
 {
-  "extends": "rhdh-e2e-test-utils/tsconfig",
+  "extends": "@red-hat-developer-hub/e2e-test-utils/tsconfig",
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This tutorial walks you through adding E2E tests to a new plugin workspace in the overlay repository.
@@ -63,7 +63,7 @@ Create `package.json` with the following content:
     "eslint-plugin-check-file": "^3.3.1",
     "eslint-plugin-playwright": "^2.4.0",
     "prettier": "^3.7.4",
-    "rhdh-e2e-test-utils": "<latest-version>",
+    "@red-hat-developer-hub/e2e-test-utils": "<latest-version>",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.50.0"
   }
@@ -78,7 +78,7 @@ Replate `<latest-version>` with the latest available version of this library.
 ### playwright.config.ts
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `${import.meta.dirname}/.env` });
@@ -96,7 +96,7 @@ export default defineConfig({
 
 ```json
 {
-  "extends": "rhdh-e2e-test-utils/tsconfig",
+  "extends": "@red-hat-developer-hub/e2e-test-utils/tsconfig",
   "include": ["**/*.ts"]
 }
 ```
@@ -104,7 +104,7 @@ export default defineConfig({
 ### eslint.config.js
 
 ```javascript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 
 export default createEslintConfig(import.meta.dirname);
 ```
@@ -128,7 +128,7 @@ touch .env
 Create `tests/specs/<your-plugin>.spec.ts`:
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Test <your-plugin>", () => {
   test.beforeAll(async ({ rhdh }) => {

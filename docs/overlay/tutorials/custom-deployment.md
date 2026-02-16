@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 Some plugins require external services or dependencies to be running before RHDH starts. This page explains how to handle such pre-requisites.
@@ -45,7 +45,7 @@ test.beforeAll(async ({ rhdh }) => {
 You can deploy pre-requisites directly in TypeScript using the Kubernetes client:
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   const project = rhdh.deploymentConfig.namespace;
@@ -76,8 +76,8 @@ test.beforeAll(async ({ rhdh }) => {
 For OpenShift-specific operations, use the `$` utility:
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 test.beforeAll(async ({ rhdh }) => {
   const project = rhdh.deploymentConfig.namespace;
@@ -103,7 +103,7 @@ test.beforeAll(async ({ rhdh }) => {
 For complex deployments, you can use a separate script file:
 
 ```typescript
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 import path from "path";
 
 const setupScript = path.join(import.meta.dirname, "deploy-service.sh");

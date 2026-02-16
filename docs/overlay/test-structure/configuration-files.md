@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This page explains the YAML configuration files used in overlay E2E tests.
@@ -34,7 +34,7 @@ tests/config/
 
 ## app-config-rhdh.yaml (Optional)
 
-The main RHDH configuration file. This file is merged with default configurations from `rhdh-e2e-test-utils`.
+The main RHDH configuration file. This file is merged with default configurations from `@red-hat-developer-hub/e2e-test-utils`.
 
 **Only create this file when you need to:**
 - Override a default value in the RHDH app config
@@ -51,7 +51,7 @@ The main RHDH configuration file. This file is merged with default configuration
 
 ```yaml
 # RHDH app config file
-# This file merges with the default values from rhdh-e2e-test-utils
+# This file merges with the default values from @red-hat-developer-hub/e2e-test-utils
 
 app:
   title: RHDH <Plugin Name> Test Instance
@@ -353,11 +353,11 @@ OCI URL generation is strict - deployment will fail if required files are missin
 
 ## Configuration Merging
 
-`rhdh-e2e-test-utils` merges your configuration with defaults in this order:
+`@red-hat-developer-hub/e2e-test-utils` merges your configuration with defaults in this order:
 
-1. **Base defaults** from `rhdh-e2e-test-utils/config/common/`
-2. **Auth-specific** from `rhdh-e2e-test-utils/config/auth/{guest,keycloak}/`
-3. **Deployment method** from `rhdh-e2e-test-utils/config/{helm,operator}/`
+1. **Base defaults** from `@red-hat-developer-hub/e2e-test-utils/config/common/`
+2. **Auth-specific** from `@red-hat-developer-hub/e2e-test-utils/config/auth/{guest,keycloak}/`
+3. **Deployment method** from `@red-hat-developer-hub/e2e-test-utils/config/{helm,operator}/`
 4. **Your custom config** from `tests/config/`
 
 Later files override earlier ones using deep merge.

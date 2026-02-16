@@ -125,7 +125,7 @@ If Keycloak is already running in the `rhdh-keycloak` namespace:
 The global setup is automatically included when using `defineConfig`. To skip it entirely:
 
 ```typescript
-import { baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({

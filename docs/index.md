@@ -41,7 +41,7 @@ features:
 
 ```typescript
 // playwright.config.ts
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   projects: [{ name: "my-plugin" }],
@@ -50,7 +50,7 @@ export default defineConfig({
 
 ```typescript
 // tests/my-plugin.spec.ts
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   await rhdh.configure({ auth: "keycloak" });
@@ -74,9 +74,9 @@ If you're working in `rhdh-plugin-export-overlays`, start with [Overlay Testing]
 Otherwise, start with the [Guide](/guide/).
 :::
 
-## What is rhdh-e2e-test-utils?
+## What is @red-hat-developer-hub/e2e-test-utils?
 
-`rhdh-e2e-test-utils` is a comprehensive test utility package for Red Hat Developer Hub (RHDH) end-to-end testing. It provides a unified framework for:
+`@red-hat-developer-hub/e2e-test-utils` is a comprehensive test utility package for Red Hat Developer Hub (RHDH) end-to-end testing. It provides a unified framework for:
 
 - **Deploying RHDH instances** to OpenShift clusters via Helm or the RHDH Operator
 - **Managing Keycloak** for OIDC authentication testing

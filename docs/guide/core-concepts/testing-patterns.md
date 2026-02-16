@@ -30,7 +30,7 @@ By default, Playwright runs tests in parallel with isolated browser contexts.
 ### Example
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 // Each test runs independently with its own browser context
 test.describe("Catalog Tests", () => {
@@ -61,7 +61,7 @@ test.describe("Catalog Tests", () => {
 ```typescript
 // playwright.config.ts
 import { defineConfig } from "@playwright/test";
-import { baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   ...baseConfig,
@@ -92,7 +92,7 @@ Serial tests share a browser context and run in sequence.
 
 ```typescript
 import { test } from "@playwright/test";
-import { setupBrowser, UIhelper, LoginHelper } from "rhdh-e2e-test-utils/helpers";
+import { setupBrowser, UIhelper, LoginHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 // Configure as serial
 test.describe.configure({ mode: "serial" });
@@ -153,8 +153,8 @@ test.describe("Entity Creation Workflow", () => {
 You can mix parallel and serial within the same test file:
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { setupBrowser, UIhelper, LoginHelper } from "rhdh-e2e-test-utils/helpers";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { setupBrowser, UIhelper, LoginHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 // Parallel tests (use fixtures)
 test.describe("Parallel Catalog Tests", () => {

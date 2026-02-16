@@ -58,7 +58,7 @@ test.beforeEach(async ({ page, loginHelper }) => {
 ## Creating Custom Users
 
 ```typescript
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 
 test.beforeAll(async ({ rhdh }) => {
   const keycloak = new KeycloakHelper();
@@ -154,7 +154,7 @@ test("should handle expired session", async ({ page, loginHelper }) => {
 ## Cleanup
 
 ```typescript
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 
 test.afterAll(async () => {
   const keycloak = new KeycloakHelper();
