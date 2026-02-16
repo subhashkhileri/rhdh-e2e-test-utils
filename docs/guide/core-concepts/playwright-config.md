@@ -26,8 +26,8 @@ The `defineConfig` function extends your configuration with sensible defaults fo
 | `testDir` | `./tests` | Test files location |
 | `timeout` | 90,000ms | Test timeout |
 | `expect.timeout` | 10,000ms | Assertion timeout |
-| `retries` | 1 (CI), 0 (local) | Test retries |
-| `workers` | 50% of CPUs | Parallel workers |
+| `retries` | `0` (configurable via `PLAYWRIGHT_RETRIES`) | Test retries |
+| `workers` | `"50%"` (configurable via `PLAYWRIGHT_WORKERS`) | Parallel workers |
 | `outputDir` | `node_modules/.cache/e2e-test-results` | Playwright artifacts |
 
 ### Reporter Settings
@@ -44,7 +44,7 @@ The `defineConfig` function extends your configuration with sensible defaults fo
 | `trace` | `"retain-on-failure"` |
 | `screenshot` | `"only-on-failure"` |
 | `viewport` | `{ width: 1920, height: 1080 }` |
-| `video` | `"on"` |
+| `video` | `"retain-on-failure"` at `1280x720` |
 | `actionTimeout` | 10,000ms |
 | `navigationTimeout` | 50,000ms |
 
@@ -118,11 +118,14 @@ export default defineConfig({
 ## Environment Variables for Configuration
 
 ```bash
-# Affects retries (2 in CI, 0 locally)
+# Enables forbidOnly and auto-cleanup
 CI=true
 
-# Custom test directory
-# (set via defineConfig, not env var)
+# Configure retries (default: 0)
+PLAYWRIGHT_RETRIES=2
+
+# Configure parallel workers (default: "50%")
+PLAYWRIGHT_WORKERS=4
 ```
 
 ## Using Base Config Directly
@@ -204,7 +207,7 @@ export default defineConfig({
   // Browser settings
   use: {
     viewport: { width: 1920, height: 1080 },
-    video: "on",
+    video: { mode: "retain-on-failure", size: { width: 1280, height: 720 } },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

@@ -20,6 +20,13 @@ These are set automatically during deployment:
 | `K8S_CLUSTER_ROUTER_BASE` | OpenShift ingress domain | Global setup |
 | `RHDH_BASE_URL` | Full RHDH URL | RHDHDeployment |
 
+## Playwright Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `PLAYWRIGHT_WORKERS` | Number of parallel workers (e.g., `"4"`, `"50%"`) | `"50%"` |
+| `PLAYWRIGHT_RETRIES` | Number of test retries on failure | `0` |
+
 ## Optional Variables
 
 | Variable | Description | Default |

@@ -56,13 +56,20 @@ async function getOCIUrlsForPR(
   }
   const ownerRepo = match[1];
 
-  // Read plugins list
-  const pluginsList = await fs.readFile(pluginsListPath, "utf-8");
-  const pluginPaths = pluginsList
-    .trim()
-    .split("\n")
-    .map((l: string) => l.replace(/:$/, "").trim())
-    .filter(Boolean);
+  // Parse plugins-list.yaml as YAML and extract keys (plugin paths)
+  const pluginsListContent = await fs.readFile(pluginsListPath, "utf-8");
+  const pluginsListData = yaml.load(pluginsListContent) as Record<
+    string,
+    unknown
+  > | null;
+
+  if (!pluginsListData || typeof pluginsListData !== "object") {
+    throw new Error(
+      `[PluginMetadata] plugins-list.yaml is empty or invalid: ${pluginsListPath}`,
+    );
+  }
+
+  const pluginPaths = Object.keys(pluginsListData);
 
   const workspaceName = path.basename(workspacePath);
 

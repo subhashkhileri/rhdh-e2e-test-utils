@@ -53,20 +53,22 @@ Raw base configuration object. Use for advanced customization.
   testDir: "./tests",
   timeout: 90000,
   expect: {
-    timeout: 30000,
+    timeout: 10000,
   },
-  fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
-  workers: "50%",
-  reporter: [["list"], ["html"]],
+  retries: Number(process.env.PLAYWRIGHT_RETRIES ?? 0),
+  workers: process.env.PLAYWRIGHT_WORKERS || "50%",
+  outputDir: "node_modules/.cache/e2e-test-results",
+  reporter: [["list"], ["html"], ["json"]],
   use: {
     viewport: { width: 1920, height: 1080 },
-    video: "on",
+    video: { mode: "retain-on-failure", size: { width: 1280, height: 720 } },
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
+    actionTimeout: 10000,
+    navigationTimeout: 50000,
   },
-  globalSetup: require.resolve("./global-setup"),
+  globalSetup: resolve(import.meta.dirname, "../playwright/global-setup.js"),
 }
 ```
 
@@ -89,14 +91,16 @@ export default playwrightDefineConfig({
 |---------|-------|
 | `testDir` | `"./tests"` |
 | `timeout` | `90000` |
-| `expect.timeout` | `30000` |
-| `fullyParallel` | `true` |
-| `retries` | `1` (CI), `0` (local) |
-| `workers` | `"50%"` |
+| `expect.timeout` | `10000` |
+| `retries` | `0` (configurable via `PLAYWRIGHT_RETRIES`) |
+| `workers` | `"50%"` (configurable via `PLAYWRIGHT_WORKERS`) |
+| `outputDir` | `"node_modules/.cache/e2e-test-results"` |
 | `viewport` | `1920x1080` |
-| `video` | `"on"` |
+| `video` | `"retain-on-failure"` at `1280x720` |
 | `trace` | `"retain-on-failure"` |
 | `screenshot` | `"only-on-failure"` |
+| `actionTimeout` | `10000` |
+| `navigationTimeout` | `50000` |
 
 ## Customization Examples
 
