@@ -13,7 +13,7 @@ import {
   injectMetadataConfig,
   generateDynamicPluginsConfigFromMetadata,
   loadAndInjectPluginMetadata,
-} from "rhdh-e2e-test-utils/utils";
+} from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 ## Functions

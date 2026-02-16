@@ -5,7 +5,7 @@ The package exports `$` from the `zx` library for executing shell commands.
 ## Usage
 
 ```typescript
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 ## Basic Commands
@@ -44,8 +44,8 @@ try {
 ## Complete Example
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 test.beforeAll(async ({ rhdh }) => {
   const namespace = rhdh.deploymentConfig.namespace;

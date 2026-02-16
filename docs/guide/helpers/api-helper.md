@@ -5,7 +5,7 @@ The `APIHelper` class provides utilities for API interactions with both GitHub a
 ## Importing
 
 ```typescript
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 ```
 
 ## GitHub API Operations
@@ -149,8 +149,8 @@ await apiHelper.deleteEntityFromCatalog("component", "default", "my-component");
 ### GitHub Repository Lifecycle
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test.describe("GitHub operations", () => {
   const owner = "my-org";
@@ -176,8 +176,8 @@ test.describe("GitHub operations", () => {
 ### Catalog Verification
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test("verify catalog entities", async ({ rhdh }) => {
   const apiHelper = new APIHelper();
@@ -205,8 +205,8 @@ test("verify catalog entities", async ({ rhdh }) => {
 ### Entity Refresh
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test("refresh entity", async ({ rhdh }) => {
   const apiHelper = new APIHelper();
@@ -242,7 +242,7 @@ test("refresh entity", async ({ rhdh }) => {
 ## Error Handling
 
 ```typescript
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 try {
   await APIHelper.createGitHubRepo("my-org", "repo-name");

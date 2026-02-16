@@ -5,7 +5,7 @@ The `KubernetesClientHelper` class provides a simplified wrapper around the Kube
 ## Usage
 
 ```typescript
-import { KubernetesClientHelper } from "rhdh-e2e-test-utils/utils";
+import { KubernetesClientHelper } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 const k8sClient = new KubernetesClientHelper();
 ```
@@ -142,7 +142,7 @@ await k8sClient.restartDeployment("my-namespace", "backstage");
 ## Complete Example
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("kubernetes operations", async ({ rhdh }) => {
   const k8s = rhdh.k8sClient;

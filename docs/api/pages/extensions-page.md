@@ -5,7 +5,7 @@ Page object for the RHDH extensions/plugins marketplace page.
 ## Import
 
 ```typescript
-import { ExtensionsPage } from "rhdh-e2e-test-utils/pages";
+import { ExtensionsPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 ```
 
 ## Constructor
@@ -181,8 +181,8 @@ Verify a key-value row in a table.
 
 ```typescript
 import { test, expect } from "@playwright/test";
-import { ExtensionsPage } from "rhdh-e2e-test-utils/pages";
-import { UIhelper } from "rhdh-e2e-test-utils/helpers";
+import { ExtensionsPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
+import { UIhelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test("browse and filter extensions", async ({ page }) => {
   const uiHelper = new UIhelper(page);

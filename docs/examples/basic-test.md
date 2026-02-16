@@ -7,7 +7,7 @@ Minimal working test example.
 ### playwright.config.ts
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `${import.meta.dirname}/.env` });
@@ -57,7 +57,7 @@ stringData: {}
 ### tests/specs/basic.spec.ts
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Basic Tests", () => {
   test.beforeAll(async ({ rhdh }) => {

@@ -5,7 +5,7 @@ Page object for the RHDH notifications page.
 ## Import
 
 ```typescript
-import { NotificationPage } from "rhdh-e2e-test-utils/pages";
+import { NotificationPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 ```
 
 ## Constructor
@@ -202,7 +202,7 @@ Sort notifications with newest first (default).
 
 ```typescript
 import { test, expect } from "@playwright/test";
-import { NotificationPage } from "rhdh-e2e-test-utils/pages";
+import { NotificationPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("manage notifications", async ({ page }) => {
   const notificationPage = new NotificationPage(page);

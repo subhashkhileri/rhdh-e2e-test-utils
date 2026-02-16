@@ -13,7 +13,7 @@ Configure multiple Playwright projects for different test scenarios.
 
 **playwright.config.ts:**
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `${import.meta.dirname}/.env` });
@@ -78,7 +78,7 @@ Each project gets its own namespace derived from the project name:
 
 **tests/tech-radar/specs/tech-radar.spec.ts:**
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   await rhdh.configure({

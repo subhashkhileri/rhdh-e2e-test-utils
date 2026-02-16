@@ -13,7 +13,7 @@ Example using shared browser session across tests.
 
 ```typescript
 import { test } from "@playwright/test";
-import { setupBrowser, LoginHelper, UIhelper } from "rhdh-e2e-test-utils/helpers";
+import { setupBrowser, LoginHelper, UIhelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 import type { Page, BrowserContext } from "@playwright/test";
 
 // Configure serial mode
@@ -69,8 +69,8 @@ test("step 4: navigate tabs", async () => {
 
 ```typescript
 import { test, expect } from "@playwright/test";
-import { setupBrowser, LoginHelper, UIhelper } from "rhdh-e2e-test-utils/helpers";
-import { CatalogImportPage } from "rhdh-e2e-test-utils/pages";
+import { setupBrowser, LoginHelper, UIhelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
+import { CatalogImportPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 import type { Page, BrowserContext } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
@@ -120,8 +120,8 @@ test("check dependencies tab", async () => {
 
 ```typescript
 import { test as base } from "@playwright/test";
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
-import { setupBrowser, LoginHelper, UIhelper } from "rhdh-e2e-test-utils/helpers";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
+import { setupBrowser, LoginHelper, UIhelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 import type { Page, BrowserContext } from "@playwright/test";
 
 // Create custom test with deployment

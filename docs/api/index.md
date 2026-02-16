@@ -1,6 +1,6 @@
 # API Reference
 
-Complete API documentation for all exports from `rhdh-e2e-test-utils`.
+Complete API documentation for all exports from `@red-hat-developer-hub/e2e-test-utils`.
 
 ## Exports Overview
 

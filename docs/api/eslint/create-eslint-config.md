@@ -5,7 +5,7 @@ ESLint configuration factory.
 ## Import
 
 ```typescript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 ```
 
 ## `createEslintConfig()`
@@ -26,7 +26,7 @@ Create ESLint flat config with Playwright and TypeScript rules.
 
 ```javascript
 // eslint.config.js
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 
 export default createEslintConfig(import.meta.dirname);
 ```
@@ -42,7 +42,7 @@ export default createEslintConfig(import.meta.dirname);
 ## Extending
 
 ```javascript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 
 const baseConfig = createEslintConfig(import.meta.dirname);
 

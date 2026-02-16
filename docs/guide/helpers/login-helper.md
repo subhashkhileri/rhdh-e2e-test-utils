@@ -6,14 +6,14 @@ The `LoginHelper` class handles authentication flows for different providers in 
 
 ```typescript
 // Via fixture (recommended)
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("example", async ({ loginHelper }) => {
   await loginHelper.loginAsKeycloakUser();
 });
 
 // Direct instantiation
-import { LoginHelper } from "rhdh-e2e-test-utils/helpers";
+import { LoginHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 const loginHelper = new LoginHelper(page);
 ```
@@ -87,7 +87,7 @@ This navigates to the user menu and clicks sign out.
 ### Login Before Each Test
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeEach(async ({ loginHelper }) => {
   await loginHelper.loginAsKeycloakUser();
@@ -106,7 +106,7 @@ test("test 2", async ({ page }) => {
 
 ```typescript
 import { test } from "@playwright/test";
-import { setupBrowser, LoginHelper } from "rhdh-e2e-test-utils/helpers";
+import { setupBrowser, LoginHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 import type { Page, BrowserContext } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });
@@ -140,7 +140,7 @@ test("test 2", async () => {
 ### Different Users in Different Tests
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("as developer", async ({ page, loginHelper, uiHelper }) => {
   await page.goto("/");

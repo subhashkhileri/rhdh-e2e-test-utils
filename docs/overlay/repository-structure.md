@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This page explains the structure of the rhdh-plugin-export-overlays repository and where E2E tests fit within it.
@@ -60,7 +60,7 @@ workspaces/<plugin-name>/
 The `e2e-tests/` directory is a standalone package within the workspace. It:
 
 - Has its own `package.json` and dependencies
-- Uses `rhdh-e2e-test-utils` as the primary testing framework
+- Uses `@red-hat-developer-hub/e2e-test-utils` as the primary testing framework
 - Is independent from the plugin source code
 - Can be run locally or in CI
 
@@ -111,9 +111,9 @@ Deployment scripts (`.sh` files) can be placed anywhere in the `e2e-tests/` dire
 
 The location doesn't matter as long as you reference the correct path in your test code.
 
-## Relationship with rhdh-e2e-test-utils
+## Relationship with @red-hat-developer-hub/e2e-test-utils
 
-The overlay E2E tests consume `rhdh-e2e-test-utils` as a dependency:
+The overlay E2E tests consume `@red-hat-developer-hub/e2e-test-utils` as a dependency:
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -125,7 +125,7 @@ The overlay E2E tests consume `rhdh-e2e-test-utils` as a dependency:
 │  │  │                    │                    │    │    │
 │  │  │                imports                  │    │    │
 │  │  │                    ▼                    │    │    │
-│  │  │           rhdh-e2e-test-utils           │    │    │
+│  │  │           @red-hat-developer-hub/e2e-test-utils           │    │    │
 │  │  │    ┌───────────────────────────────┐    │    │    │
 │  │  │    │ • test fixtures               │    │    │    │
 │  │  │    │ • playwright config           │    │    │    │

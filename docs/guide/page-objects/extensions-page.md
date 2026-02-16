@@ -5,7 +5,7 @@ The `ExtensionsPage` class provides methods for interacting with the RHDH extens
 ## Usage
 
 ```typescript
-import { ExtensionsPage } from "rhdh-e2e-test-utils/pages";
+import { ExtensionsPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 const extensionsPage = new ExtensionsPage(page);
 ```
@@ -61,8 +61,8 @@ await extensionsPage.go();
 ## Complete Example
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { ExtensionsPage } from "rhdh-e2e-test-utils/pages";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { ExtensionsPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("browse extensions", async ({ page, loginHelper, uiHelper }) => {
   await loginHelper.loginAsKeycloakUser();

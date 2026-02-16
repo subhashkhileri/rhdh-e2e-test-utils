@@ -16,7 +16,7 @@ Before starting, ensure you have:
 ```bash
 mkdir my-plugin-e2e && cd my-plugin-e2e
 yarn init -y
-yarn add @playwright/test rhdh-e2e-test-utils typescript
+yarn add @playwright/test @red-hat-developer-hub/e2e-test-utils typescript
 ```
 
 ## Step 2: Create Playwright Configuration
@@ -24,7 +24,7 @@ yarn add @playwright/test rhdh-e2e-test-utils typescript
 Create `playwright.config.ts`:
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `${import.meta.dirname}/.env` });
@@ -101,7 +101,7 @@ SKIP_KEYCLOAK_DEPLOYMENT=false
 Create `tests/specs/my-plugin.spec.ts`:
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("My Plugin Tests", () => {
   test.beforeAll(async ({ rhdh }) => {

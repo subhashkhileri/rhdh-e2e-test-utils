@@ -6,22 +6,22 @@ The package provides multiple entry points for different use cases. Each export 
 
 | Export Path | Description |
 |-------------|-------------|
-| `rhdh-e2e-test-utils/test` | Playwright test fixtures with RHDH deployment |
-| `rhdh-e2e-test-utils/playwright-config` | Base Playwright configuration |
-| `rhdh-e2e-test-utils/rhdh` | RHDH deployment class and types |
-| `rhdh-e2e-test-utils/keycloak` | Keycloak deployment helper |
-| `rhdh-e2e-test-utils/utils` | Utility functions (bash, YAML, Kubernetes) |
-| `rhdh-e2e-test-utils/helpers` | UI, API, and login helper classes |
-| `rhdh-e2e-test-utils/pages` | Page object classes for common RHDH pages |
-| `rhdh-e2e-test-utils/eslint` | ESLint configuration factory |
-| `rhdh-e2e-test-utils/tsconfig` | Base TypeScript configuration |
+| `@red-hat-developer-hub/e2e-test-utils/test` | Playwright test fixtures with RHDH deployment |
+| `@red-hat-developer-hub/e2e-test-utils/playwright-config` | Base Playwright configuration |
+| `@red-hat-developer-hub/e2e-test-utils/rhdh` | RHDH deployment class and types |
+| `@red-hat-developer-hub/e2e-test-utils/keycloak` | Keycloak deployment helper |
+| `@red-hat-developer-hub/e2e-test-utils/utils` | Utility functions (bash, YAML, Kubernetes) |
+| `@red-hat-developer-hub/e2e-test-utils/helpers` | UI, API, and login helper classes |
+| `@red-hat-developer-hub/e2e-test-utils/pages` | Page object classes for common RHDH pages |
+| `@red-hat-developer-hub/e2e-test-utils/eslint` | ESLint configuration factory |
+| `@red-hat-developer-hub/e2e-test-utils/tsconfig` | Base TypeScript configuration |
 
 ## Detailed Exports
 
 ### Test Fixtures (`/test`)
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 ```
 
 Provides extended Playwright test with RHDH-specific fixtures:
@@ -33,7 +33,7 @@ Provides extended Playwright test with RHDH-specific fixtures:
 ### Playwright Configuration (`/playwright-config`)
 
 ```typescript
-import { defineConfig, baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig, baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 ```
 
 - `defineConfig(options)` - Create Playwright config with defaults
@@ -42,8 +42,8 @@ import { defineConfig, baseConfig } from "rhdh-e2e-test-utils/playwright-config"
 ### RHDH Deployment (`/rhdh`)
 
 ```typescript
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
-import type { DeploymentOptions, DeploymentConfig } from "rhdh-e2e-test-utils/rhdh";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
+import type { DeploymentOptions, DeploymentConfig } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
 ```
 
 - `RHDHDeployment` - Class for managing RHDH deployments
@@ -52,8 +52,8 @@ import type { DeploymentOptions, DeploymentConfig } from "rhdh-e2e-test-utils/rh
 ### Keycloak Helper (`/keycloak`)
 
 ```typescript
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
-import type { KeycloakDeploymentOptions } from "rhdh-e2e-test-utils/keycloak";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
+import type { KeycloakDeploymentOptions } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 ```
 
 - `KeycloakHelper` - Class for Keycloak deployment and management
@@ -62,7 +62,7 @@ import type { KeycloakDeploymentOptions } from "rhdh-e2e-test-utils/keycloak";
 ### Utilities (`/utils`)
 
 ```typescript
-import { $, KubernetesClientHelper, envsubst, mergeYamlFiles } from "rhdh-e2e-test-utils/utils";
+import { $, KubernetesClientHelper, envsubst, mergeYamlFiles } from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 - `$` - Bash command execution via zx
@@ -73,7 +73,7 @@ import { $, KubernetesClientHelper, envsubst, mergeYamlFiles } from "rhdh-e2e-te
 ### Helpers (`/helpers`)
 
 ```typescript
-import { UIhelper, LoginHelper, APIHelper, setupBrowser } from "rhdh-e2e-test-utils/helpers";
+import { UIhelper, LoginHelper, APIHelper, setupBrowser } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 ```
 
 - `UIhelper` - Material-UI component interactions
@@ -90,7 +90,7 @@ import {
   CatalogImportPage,
   ExtensionsPage,
   NotificationPage,
-} from "rhdh-e2e-test-utils/pages";
+} from "@red-hat-developer-hub/e2e-test-utils/pages";
 ```
 
 Page object classes for common RHDH pages.
@@ -98,7 +98,7 @@ Page object classes for common RHDH pages.
 ### ESLint Configuration (`/eslint`)
 
 ```typescript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 ```
 
 Factory function for creating ESLint flat config with Playwright and TypeScript rules.
@@ -107,7 +107,7 @@ Factory function for creating ESLint flat config with Playwright and TypeScript 
 
 ```json
 {
-  "extends": "rhdh-e2e-test-utils/tsconfig"
+  "extends": "@red-hat-developer-hub/e2e-test-utils/tsconfig"
 }
 ```
 
@@ -119,11 +119,11 @@ Base TypeScript configuration to extend in your project.
 
 ```typescript
 // playwright.config.ts
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 export default defineConfig({ projects: [{ name: "my-plugin" }] });
 
 // tests/my-plugin.spec.ts
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   await rhdh.deploy();
@@ -137,9 +137,9 @@ test("example", async ({ page }) => {
 ### Advanced Usage with Helpers
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test("catalog test", async ({ page, uiHelper, loginHelper }) => {
   await loginHelper.loginAsKeycloakUser();
@@ -155,8 +155,8 @@ test("catalog test", async ({ page, uiHelper, loginHelper }) => {
 ### Direct Deployment Control
 
 ```typescript
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 
 const keycloak = new KeycloakHelper();
 await keycloak.deploy();

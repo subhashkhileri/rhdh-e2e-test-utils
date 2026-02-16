@@ -40,7 +40,7 @@ When deployed:
 ## Disabling Global Setup
 
 ```typescript
-import { baseConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { baseConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
@@ -56,7 +56,7 @@ Create your own that calls the default:
 
 ```typescript
 // global-setup.ts
-import { globalSetup as defaultSetup } from "rhdh-e2e-test-utils/playwright-config";
+import { globalSetup as defaultSetup } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default async function globalSetup() {
   // Your custom setup
@@ -72,7 +72,7 @@ export default async function globalSetup() {
 
 ```typescript
 // playwright.config.ts
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   globalSetup: require.resolve("./global-setup"),

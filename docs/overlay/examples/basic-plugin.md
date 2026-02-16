@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This is a minimal example of E2E tests for a simple plugin that doesn't require external services.
@@ -67,7 +67,7 @@ workspaces/<plugin>/e2e-tests/
     "eslint-plugin-check-file": "^3.3.1",
     "eslint-plugin-playwright": "^2.4.0",
     "prettier": "^3.7.4",
-    "rhdh-e2e-test-utils": "1.1.10",
+    "@red-hat-developer-hub/e2e-test-utils": "1.1.10",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.50.0"
   }
@@ -77,7 +77,7 @@ workspaces/<plugin>/e2e-tests/
 ### playwright.config.ts
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `${import.meta.dirname}/.env` });
@@ -95,7 +95,7 @@ export default defineConfig({
 
 ```json
 {
-  "extends": "rhdh-e2e-test-utils/tsconfig",
+  "extends": "@red-hat-developer-hub/e2e-test-utils/tsconfig",
   "include": ["**/*.ts"]
 }
 ```
@@ -103,7 +103,7 @@ export default defineConfig({
 ### eslint.config.js
 
 ```javascript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 
 export default createEslintConfig(import.meta.dirname);
 ```
@@ -122,7 +122,7 @@ Minimal configuration for a simple plugin:
 
 ```yaml
 # RHDH app config for <plugin>
-# This file merges with defaults from rhdh-e2e-test-utils
+# This file merges with defaults from @red-hat-developer-hub/e2e-test-utils
 
 app:
   title: RHDH <Plugin> Test Instance
@@ -139,7 +139,7 @@ app:
 Simple test file:
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Test <plugin>", () => {
   // Deploy RHDH once per worker
@@ -188,7 +188,7 @@ test.describe("Test <plugin>", () => {
 For simpler tests without Keycloak:
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Test <plugin>", () => {
   test.beforeAll(async ({ rhdh }) => {

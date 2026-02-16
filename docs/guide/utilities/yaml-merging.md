@@ -5,7 +5,7 @@ The package provides utilities for merging multiple YAML files.
 ## Usage
 
 ```typescript
-import { mergeYamlFiles, mergeYamlFilesToFile } from "rhdh-e2e-test-utils/utils";
+import { mergeYamlFiles, mergeYamlFilesToFile } from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 ## `mergeYamlFiles(files)`
@@ -75,8 +75,8 @@ app:
 ## Complete Example
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { mergeYamlFilesToFile } from "rhdh-e2e-test-utils/utils";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { mergeYamlFilesToFile } from "@red-hat-developer-hub/e2e-test-utils/utils";
 import * as path from "path";
 
 test.beforeAll(async ({ rhdh }) => {

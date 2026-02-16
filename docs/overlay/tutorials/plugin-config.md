@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This tutorial explains how to configure plugin-specific settings for your E2E tests.
@@ -57,7 +57,7 @@ techRadar:
 
 ```yaml
 # rhdh app config file
-# This file merges with defaults from rhdh-e2e-test-utils
+# This file merges with defaults from @red-hat-developer-hub/e2e-test-utils
 
 app:
   title: RHDH Tech Radar Test Instance
@@ -215,9 +215,9 @@ plugins:
 
 Your configuration files are merged with defaults in this order:
 
-1. `rhdh-e2e-test-utils/config/common/` - Base defaults
-2. `rhdh-e2e-test-utils/config/auth/{guest,keycloak}/` - Auth-specific
-3. `rhdh-e2e-test-utils/config/{helm,operator}/` - Deployment method
+1. `@red-hat-developer-hub/e2e-test-utils/config/common/` - Base defaults
+2. `@red-hat-developer-hub/e2e-test-utils/config/auth/{guest,keycloak}/` - Auth-specific
+3. `@red-hat-developer-hub/e2e-test-utils/config/{helm,operator}/` - Deployment method
 4. Your `tests/config/` files - Your customizations
 
 Later files override earlier ones.

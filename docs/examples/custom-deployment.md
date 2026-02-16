@@ -5,7 +5,7 @@ Examples of custom RHDH configuration.
 ## Custom App Config
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   await rhdh.configure({
@@ -25,8 +25,8 @@ test.beforeAll(async ({ rhdh }) => {
 ## Pre-Deployment Setup
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 test.beforeAll(async ({ rhdh }) => {
   const namespace = rhdh.deploymentConfig.namespace;
@@ -49,7 +49,7 @@ test.beforeAll(async ({ rhdh }) => {
 ## Dynamic ConfigMaps
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   await rhdh.configure({ auth: "keycloak" });
@@ -70,7 +70,7 @@ test.beforeAll(async ({ rhdh }) => {
 ## Runtime Secrets
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   // Set secrets at runtime
@@ -90,7 +90,7 @@ async function getSecretFromVault(name: string): Promise<string> {
 ## Update Configuration During Test
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("update and restart", async ({ rhdh }) => {
   const namespace = rhdh.deploymentConfig.namespace;
@@ -156,7 +156,7 @@ upstream:
 ## Multiple Deployments
 
 ```typescript
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
 
 // Create multiple deployments
 const deployment1 = new RHDHDeployment("instance-1");

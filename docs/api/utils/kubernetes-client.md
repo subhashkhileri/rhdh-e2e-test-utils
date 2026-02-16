@@ -5,7 +5,7 @@ Kubernetes API wrapper for OpenShift operations.
 ## Import
 
 ```typescript
-import { KubernetesClientHelper } from "rhdh-e2e-test-utils/utils";
+import { KubernetesClientHelper } from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 ## Constructor
@@ -91,7 +91,7 @@ async restartDeployment(namespace: string, name: string): Promise<void>
 ## Example
 
 ```typescript
-import { KubernetesClientHelper } from "rhdh-e2e-test-utils/utils";
+import { KubernetesClientHelper } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 const k8s = new KubernetesClientHelper();
 

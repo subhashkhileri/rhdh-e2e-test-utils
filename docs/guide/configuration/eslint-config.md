@@ -7,7 +7,7 @@ The package provides a pre-configured ESLint setup for Playwright tests.
 Create `eslint.config.js` in your project:
 
 ```javascript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 
 export default createEslintConfig(import.meta.dirname);
 ```
@@ -79,7 +79,7 @@ The configuration enforces:
 Add custom rules after the base config:
 
 ```javascript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 
 const baseConfig = createEslintConfig(import.meta.dirname);
 
@@ -98,7 +98,7 @@ export default [
 ## Ignoring Files
 
 ```javascript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 
 const baseConfig = createEslintConfig(import.meta.dirname);
 

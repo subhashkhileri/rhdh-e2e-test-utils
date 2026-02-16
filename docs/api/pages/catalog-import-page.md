@@ -5,7 +5,7 @@ Page object for the catalog import functionality.
 ## Import
 
 ```typescript
-import { CatalogImportPage } from "rhdh-e2e-test-utils/pages";
+import { CatalogImportPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 ```
 
 ## Constructor
@@ -109,8 +109,8 @@ await catalogImportPage.inspectEntityAndVerifyYaml("kind: Component");
 
 ```typescript
 import { test, expect } from "@playwright/test";
-import { CatalogImportPage } from "rhdh-e2e-test-utils/pages";
-import { UIhelper } from "rhdh-e2e-test-utils/helpers";
+import { CatalogImportPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
+import { UIhelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test("import a new component", async ({ page }) => {
   const uiHelper = new UIhelper(page);

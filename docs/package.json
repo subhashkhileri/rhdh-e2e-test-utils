@@ -1,8 +1,8 @@
 {
-  "name": "rhdh-e2e-test-utils-docs",
+  "name": "@red-hat-developer-hub/e2e-test-utils-docs",
   "version": "1.0.0",
   "private": true,
-  "description": "Documentation for rhdh-e2e-test-utils",
+  "description": "Documentation for @red-hat-developer-hub/e2e-test-utils",
   "type": "module",
   "scripts": {
     "dev": "vitepress dev",

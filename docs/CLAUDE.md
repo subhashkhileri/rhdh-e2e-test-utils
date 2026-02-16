@@ -1,6 +1,6 @@
 # Documentation Guide for Claude
 
-This file contains essential information for maintaining and extending the VitePress documentation for `rhdh-e2e-test-utils`.
+This file contains essential information for maintaining and extending the VitePress documentation for `@red-hat-developer-hub/e2e-test-utils`.
 
 ## Documentation Structure
 
@@ -43,7 +43,7 @@ docs/
 - Use the fixture pattern (recommended) over direct instantiation
 - Standard test structure:
   ```typescript
-  import { test, expect } from "rhdh-e2e-test-utils/test";
+  import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
   test.describe("Feature", () => {
     test.beforeAll(async ({ rhdh }) => { /* deploy */ });
@@ -202,12 +202,12 @@ Base URL is configured as `/rhdh-e2e-test-utils/` in `config.ts`.
 
 | Export | Import Path | Description |
 |--------|-------------|-------------|
-| Test fixtures | `rhdh-e2e-test-utils/test` | Main test API |
-| Playwright config | `rhdh-e2e-test-utils/playwright-config` | Base config |
-| RHDH deployment | `rhdh-e2e-test-utils/rhdh` | RHDHDeployment |
-| Keycloak | `rhdh-e2e-test-utils/keycloak` | KeycloakHelper |
-| Helpers | `rhdh-e2e-test-utils/helpers` | UIhelper, LoginHelper, etc. |
-| Page objects | `rhdh-e2e-test-utils/pages` | CatalogPage, HomePage, etc. |
-| Utilities | `rhdh-e2e-test-utils/utils` | KubernetesClientHelper, etc. |
-| ESLint | `rhdh-e2e-test-utils/eslint` | ESLint config |
-| TypeScript | `rhdh-e2e-test-utils/tsconfig` | TSConfig base |
+| Test fixtures | `@red-hat-developer-hub/e2e-test-utils/test` | Main test API |
+| Playwright config | `@red-hat-developer-hub/e2e-test-utils/playwright-config` | Base config |
+| RHDH deployment | `@red-hat-developer-hub/e2e-test-utils/rhdh` | RHDHDeployment |
+| Keycloak | `@red-hat-developer-hub/e2e-test-utils/keycloak` | KeycloakHelper |
+| Helpers | `@red-hat-developer-hub/e2e-test-utils/helpers` | UIhelper, LoginHelper, etc. |
+| Page objects | `@red-hat-developer-hub/e2e-test-utils/pages` | CatalogPage, HomePage, etc. |
+| Utilities | `@red-hat-developer-hub/e2e-test-utils/utils` | KubernetesClientHelper, etc. |
+| ESLint | `@red-hat-developer-hub/e2e-test-utils/eslint` | ESLint config |
+| TypeScript | `@red-hat-developer-hub/e2e-test-utils/tsconfig` | TSConfig base |

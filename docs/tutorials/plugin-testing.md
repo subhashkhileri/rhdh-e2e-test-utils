@@ -17,14 +17,14 @@ This tutorial covers:
 cd your-plugin-workspace
 mkdir e2e-tests && cd e2e-tests
 yarn init -y
-yarn add @playwright/test rhdh-e2e-test-utils typescript dotenv
+yarn add @playwright/test @red-hat-developer-hub/e2e-test-utils typescript dotenv
 ```
 
 ## Step 2: Configuration
 
 **playwright.config.ts:**
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 import dotenv from "dotenv";
 
 dotenv.config({ path: `${import.meta.dirname}/.env` });
@@ -98,7 +98,7 @@ See [Plugin Metadata Injection](/guide/configuration/config-files#plugin-metadat
 
 **tests/specs/my-plugin.spec.ts:**
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("My Plugin", () => {
   test.beforeAll(async ({ rhdh }) => {
@@ -229,7 +229,7 @@ test("debug test", async ({ page }) => {
 ### Slow Down
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   use: {

@@ -6,14 +6,14 @@ The `UIhelper` class provides methods for interacting with Material-UI component
 
 ```typescript
 // Via fixture (recommended)
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("example", async ({ uiHelper }) => {
   await uiHelper.verifyHeading("Welcome");
 });
 
 // Direct instantiation
-import { UIhelper } from "rhdh-e2e-test-utils/helpers";
+import { UIhelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 const uiHelper = new UIhelper(page);
 ```
@@ -262,7 +262,7 @@ await uiHelper.closeDialog();
 ## Complete Example
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("interact with catalog", async ({ page, uiHelper, loginHelper }) => {
   // Login

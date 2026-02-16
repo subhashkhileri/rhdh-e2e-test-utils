@@ -5,7 +5,7 @@ Environment variable substitution.
 ## Import
 
 ```typescript
-import { envsubst } from "rhdh-e2e-test-utils/utils";
+import { envsubst } from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 ## `envsubst()`
@@ -33,7 +33,7 @@ Replace environment variable placeholders in a string.
 ## Example
 
 ```typescript
-import { envsubst } from "rhdh-e2e-test-utils/utils";
+import { envsubst } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 process.env.API_URL = "https://api.example.com";
 

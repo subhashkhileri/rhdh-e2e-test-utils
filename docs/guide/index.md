@@ -1,6 +1,6 @@
 # Getting Started
 
-`rhdh-e2e-test-utils` is a comprehensive test utility package for Red Hat Developer Hub (RHDH) end-to-end testing. This package provides a unified framework for deploying RHDH instances, running Playwright tests, and managing Kubernetes resources in OpenShift environments.
+`@red-hat-developer-hub/e2e-test-utils` is a comprehensive test utility package for Red Hat Developer Hub (RHDH) end-to-end testing. This package provides a unified framework for deploying RHDH instances, running Playwright tests, and managing Kubernetes resources in OpenShift environments.
 
 ## Overview
 
@@ -42,7 +42,7 @@ The package simplifies end-to-end testing for RHDH plugins by providing:
 │  └── specs/                                                  │
 │      └── my-plugin.spec.ts                                  │
 ├─────────────────────────────────────────────────────────────┤
-│                  rhdh-e2e-test-utils                         │
+│                  @red-hat-developer-hub/e2e-test-utils                         │
 ├─────────────────────────────────────────────────────────────┤
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
 │  │ Playwright   │  │ RHDH         │  │ Keycloak     │       │

@@ -36,7 +36,7 @@ Metadata handling is **disabled** when:
 ### Check If Enabled
 
 ```typescript
-import { shouldInjectPluginMetadata } from "rhdh-e2e-test-utils/utils";
+import { shouldInjectPluginMetadata } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 if (shouldInjectPluginMetadata()) {
   console.log("Metadata handling is enabled");
@@ -48,7 +48,7 @@ if (shouldInjectPluginMetadata()) {
 When your `dynamic-plugins.yaml` doesn't exist, generate a complete config from all metadata files:
 
 ```typescript
-import { generateDynamicPluginsConfigFromMetadata } from "rhdh-e2e-test-utils/utils";
+import { generateDynamicPluginsConfigFromMetadata } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 const config = await generateDynamicPluginsConfigFromMetadata();
 // All plugins from metadata/*.yaml are enabled by default
@@ -59,7 +59,7 @@ const config = await generateDynamicPluginsConfigFromMetadata();
 When you have a `dynamic-plugins.yaml`, inject metadata for listed plugins:
 
 ```typescript
-import { loadAndInjectPluginMetadata } from "rhdh-e2e-test-utils/utils";
+import { loadAndInjectPluginMetadata } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 const existingConfig = {
   plugins: [
@@ -82,7 +82,7 @@ const augmented = await loadAndInjectPluginMetadata(existingConfig);
 The utilities support various package reference formats:
 
 ```typescript
-import { extractPluginName } from "rhdh-e2e-test-utils/utils";
+import { extractPluginName } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 // All of these extract "my-plugin"
 extractPluginName("./dynamic-plugins/dist/my-plugin");
@@ -99,7 +99,7 @@ For custom handling, you can parse metadata files directly:
 import {
   getMetadataDirectory,
   parseAllMetadataFiles,
-} from "rhdh-e2e-test-utils/utils";
+} from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 const metadataDir = getMetadataDirectory();
 if (metadataDir) {

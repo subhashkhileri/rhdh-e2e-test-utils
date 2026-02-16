@@ -13,7 +13,7 @@ SKIP_KEYCLOAK_DEPLOYMENT=false
 ## Basic Keycloak Test
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Keycloak Authentication", () => {
   test.beforeAll(async ({ rhdh }) => {
@@ -40,8 +40,8 @@ test.describe("Keycloak Authentication", () => {
 ## Custom Users Test
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 
 let keycloak: KeycloakHelper;
 
@@ -96,7 +96,7 @@ test.describe("Custom Keycloak Users", () => {
 ## Login/Logout Flow
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("complete auth flow", async ({ page, loginHelper, uiHelper }) => {
   // Start at login

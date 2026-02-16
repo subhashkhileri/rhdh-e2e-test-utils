@@ -5,7 +5,7 @@ Shell command execution via zx.
 ## Import
 
 ```typescript
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 ## Usage
@@ -47,7 +47,7 @@ try {
 ## Example
 
 ```typescript
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 // Run setup script
 await $`bash scripts/setup.sh ${namespace}`;

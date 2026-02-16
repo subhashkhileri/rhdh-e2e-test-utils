@@ -5,7 +5,7 @@ Custom Playwright fixtures for RHDH testing.
 ## Import
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 ```
 
 ## Fixtures
@@ -83,7 +83,7 @@ test("using baseURL", async ({ page, baseURL }) => {
 ## Exported Types
 
 ```typescript
-import type { Page, BrowserContext, Locator } from "rhdh-e2e-test-utils/test";
+import type { Page, BrowserContext, Locator } from "@red-hat-developer-hub/e2e-test-utils/test";
 ```
 
 Re-exports all Playwright types for convenience.
@@ -91,7 +91,7 @@ Re-exports all Playwright types for convenience.
 ## Complete Example
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("My Tests", () => {
   test.beforeAll(async ({ rhdh }) => {

@@ -110,7 +110,7 @@ All notable changes to this project will be documented in this file.
 ## [1.1.0]
 
 ### Added
-- Initial release of `rhdh-e2e-test-utils`
+- Initial release of `@red-hat-developer-hub/e2e-test-utils`
 - RHDHDeployment class for RHDH deployment
 - Playwright test fixtures (rhdh, uiHelper, loginHelper, baseURL)
 - Base Playwright configuration with `defineConfig`

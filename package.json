@@ -1,8 +1,13 @@
 {
-  "name": "rhdh-e2e-test-utils",
+  "name": "@red-hat-developer-hub/e2e-test-utils",
   "version": "1.1.10",
   "description": "Test utilities for RHDH E2E tests",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/redhat-developer/rhdh-e2e-test-utils.git",
+    "directory": "."
+  },
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -40,6 +45,9 @@
       "types": "./dist/deployment/keycloak/index.d.ts",
       "default": "./dist/deployment/keycloak/index.js"
     }
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "files": [
     "dist",

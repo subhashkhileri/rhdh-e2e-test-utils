@@ -1,4 +1,4 @@
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Guest Authentication Tests", () => {
   test.beforeEach(async ({ loginHelper }) => {

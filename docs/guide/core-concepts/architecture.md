@@ -1,6 +1,6 @@
 # Architecture Overview
 
-This page explains how the different components of `rhdh-e2e-test-utils` work together to provide a seamless E2E testing experience.
+This page explains how the different components of `@red-hat-developer-hub/e2e-test-utils` work together to provide a seamless E2E testing experience.
 
 ## Component Diagram
 
@@ -18,7 +18,7 @@ This page explains how the different components of `rhdh-e2e-test-utils` work to
              │                      │                      │
              ▼                      ▼                      ▼
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                         rhdh-e2e-test-utils                                  │
+│                         @red-hat-developer-hub/e2e-test-utils                                  │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
 │   ┌─────────────────────────────────────────────────────────────────────┐  │
@@ -240,15 +240,15 @@ Each export serves a specific purpose:
 
 | Export | Import Path | Purpose |
 |--------|------------|---------|
-| Test fixtures | `rhdh-e2e-test-utils/test` | Main test API with fixtures |
-| Playwright config | `rhdh-e2e-test-utils/playwright-config` | Base Playwright configuration |
-| RHDH deployment | `rhdh-e2e-test-utils/rhdh` | RHDHDeployment class |
-| Keycloak | `rhdh-e2e-test-utils/keycloak` | KeycloakHelper class |
-| Helpers | `rhdh-e2e-test-utils/helpers` | UIhelper, LoginHelper, etc. |
-| Page objects | `rhdh-e2e-test-utils/pages` | Page object classes |
-| Utilities | `rhdh-e2e-test-utils/utils` | KubernetesClientHelper, etc. |
-| ESLint | `rhdh-e2e-test-utils/eslint` | ESLint configuration |
-| TypeScript | `rhdh-e2e-test-utils/tsconfig` | TypeScript base config |
+| Test fixtures | `@red-hat-developer-hub/e2e-test-utils/test` | Main test API with fixtures |
+| Playwright config | `@red-hat-developer-hub/e2e-test-utils/playwright-config` | Base Playwright configuration |
+| RHDH deployment | `@red-hat-developer-hub/e2e-test-utils/rhdh` | RHDHDeployment class |
+| Keycloak | `@red-hat-developer-hub/e2e-test-utils/keycloak` | KeycloakHelper class |
+| Helpers | `@red-hat-developer-hub/e2e-test-utils/helpers` | UIhelper, LoginHelper, etc. |
+| Page objects | `@red-hat-developer-hub/e2e-test-utils/pages` | Page object classes |
+| Utilities | `@red-hat-developer-hub/e2e-test-utils/utils` | KubernetesClientHelper, etc. |
+| ESLint | `@red-hat-developer-hub/e2e-test-utils/eslint` | ESLint configuration |
+| TypeScript | `@red-hat-developer-hub/e2e-test-utils/tsconfig` | TypeScript base config |
 
 ## Fixture Dependencies
 
@@ -285,7 +285,7 @@ test("example", async ({ uiHelper }) => {
 });
 
 // Avoid: Direct instantiation (unless needed for serial tests)
-import { UIhelper } from "rhdh-e2e-test-utils/helpers";
+import { UIhelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 const helper = new UIhelper(page);
 ```
 

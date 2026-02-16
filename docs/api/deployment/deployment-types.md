@@ -10,7 +10,7 @@ import type {
   AuthProvider,
   DeploymentOptions,
   DeploymentConfig,
-} from "rhdh-e2e-test-utils/rhdh";
+} from "@red-hat-developer-hub/e2e-test-utils/rhdh";
 ```
 
 ## DeploymentMethod
@@ -100,8 +100,8 @@ Combined type for full deployment configuration.
 ## Example Usage
 
 ```typescript
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
-import type { DeploymentOptions } from "rhdh-e2e-test-utils/rhdh";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
+import type { DeploymentOptions } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
 
 const options: DeploymentOptions = {
   version: "1.5",

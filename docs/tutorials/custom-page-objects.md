@@ -89,7 +89,7 @@ export class TechRadarPage {
 ## Using in Tests
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 import { TechRadarPage } from "../pages/tech-radar-page";
 
 test.describe("Tech Radar", () => {
@@ -123,7 +123,7 @@ test.describe("Tech Radar", () => {
 ## Extending Built-in Page Objects
 
 ```typescript
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 import { Page, expect } from "@playwright/test";
 
 export class ExtendedCatalogPage extends CatalogPage {
@@ -146,7 +146,7 @@ export class ExtendedCatalogPage extends CatalogPage {
 
 ```typescript
 import { Page } from "@playwright/test";
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 import { TechRadarPage } from "./tech-radar-page";
 
 export class AppPages {

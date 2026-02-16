@@ -5,19 +5,19 @@
 Install via npm:
 
 ```bash
-npm install rhdh-e2e-test-utils
+npm install @red-hat-developer-hub/e2e-test-utils
 ```
 
 Or via yarn:
 
 ```bash
-yarn add rhdh-e2e-test-utils
+yarn add @red-hat-developer-hub/e2e-test-utils
 ```
 
 Or directly from GitHub (for development versions):
 
 ```bash
-npm install github:redhat-developer/rhdh-e2e-test-utils#main
+npm install github:redhat-developer/@red-hat-developer-hub/e2e-test-utils#main
 ```
 
 ## Peer Dependencies
@@ -33,8 +33,8 @@ npm install @playwright/test
 After installation, you can verify by importing the package:
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 // If these imports work without errors, installation is successful
 ```

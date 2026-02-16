@@ -5,8 +5,8 @@ Examples of catalog interactions.
 ## Browse Catalog
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test.describe("Catalog Operations", () => {
   test.beforeAll(async ({ rhdh }) => {
@@ -54,8 +54,8 @@ test.describe("Catalog Operations", () => {
 ## Register Component
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { CatalogImportPage } from "rhdh-e2e-test-utils/pages";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { CatalogImportPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("register component", async ({ page, loginHelper, uiHelper }) => {
   await loginHelper.loginAsKeycloakUser();
@@ -83,8 +83,8 @@ test("register component", async ({ page, loginHelper, uiHelper }) => {
 ## Table Verification
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { CatalogPage } from "rhdh-e2e-test-utils/pages";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { CatalogPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("verify catalog table", async ({ page, loginHelper, uiHelper }) => {
   await loginHelper.loginAsKeycloakUser();
@@ -113,7 +113,7 @@ test("verify catalog table", async ({ page, loginHelper, uiHelper }) => {
 ## Navigation
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("catalog navigation", async ({ page, loginHelper, uiHelper }) => {
   await loginHelper.loginAsKeycloakUser();

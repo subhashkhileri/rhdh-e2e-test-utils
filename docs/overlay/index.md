@@ -3,7 +3,7 @@
 ::: warning Different from Package Documentation
 This section documents how to write E2E tests **within the rhdh-plugin-export-overlays repository**.
 
-If you want to learn how to use the `rhdh-e2e-test-utils` package in your own project, see the [Guide](/guide/).
+If you want to learn how to use the `@red-hat-developer-hub/e2e-test-utils` package in your own project, see the [Guide](/guide/).
 :::
 
 ## What is Overlay Testing?
@@ -11,7 +11,7 @@ If you want to learn how to use the `rhdh-e2e-test-utils` package in your own pr
 Overlay testing refers to end-to-end tests written for plugins in the [rhdh-plugin-export-overlays](https://github.com/redhat-developer/rhdh-plugin-export-overlays) repository. These tests:
 
 - Live within workspace `e2e-tests/` directories
-- Use `rhdh-e2e-test-utils` as a dependency
+- Use `@red-hat-developer-hub/e2e-test-utils` as a dependency
 - Run in CI pipelines against overlay builds
 - Test overlay-specific plugin configurations
 
@@ -28,7 +28,7 @@ Use this documentation when you are:
 
 | Aspect | Package Docs (Guide) | Overlay Docs (This Section) |
 |--------|---------------------|----------------------------|
-| **Purpose** | How to use rhdh-e2e-test-utils in any project | How to write tests within rhdh-plugin-export-overlays |
+| **Purpose** | How to use @red-hat-developer-hub/e2e-test-utils in any project | How to write tests within rhdh-plugin-export-overlays |
 | **Audience** | External consumers of the package | Overlay repository contributors |
 | **Focus** | API reference, fixtures, helpers | Repository structure, CI integration |
 | **Examples** | Generic plugin testing | Tech Radar, other overlay plugins |
@@ -80,7 +80,7 @@ Vault / .env
 1. Navigate to your plugin workspace in the overlay repository
 2. Create an `e2e-tests/` directory
 3. Set up the standard test structure
-4. Write your specs using `rhdh-e2e-test-utils`
+4. Write your specs using `@red-hat-developer-hub/e2e-test-utils`
 5. Run tests locally or via CI
 
 See [Getting Started](./getting-started) for a step-by-step walkthrough.

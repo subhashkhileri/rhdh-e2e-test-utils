@@ -5,7 +5,7 @@ Page object for the RHDH home page.
 ## Import
 
 ```typescript
-import { HomePage } from "rhdh-e2e-test-utils/pages";
+import { HomePage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 ```
 
 ## Constructor
@@ -87,7 +87,7 @@ await homePage.verifyVisitedCardContent("Recently Visited");
 
 ```typescript
 import { test, expect } from "@playwright/test";
-import { HomePage } from "rhdh-e2e-test-utils/pages";
+import { HomePage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("verify home page features", async ({ page }) => {
   const homePage = new HomePage(page);

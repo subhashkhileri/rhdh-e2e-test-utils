@@ -2,7 +2,7 @@
 
 ::: tip Overlay Documentation
 This page covers writing tests within rhdh-plugin-export-overlays.
-For using rhdh-e2e-test-utils in external projects, see the [Guide](/guide/).
+For using @red-hat-developer-hub/e2e-test-utils in external projects, see the [Guide](/guide/).
 :::
 
 This page explains how to write test specification files for overlay E2E tests.
@@ -23,7 +23,7 @@ tests/specs/
 A typical spec file follows this structure:
 
 ```typescript
-import { test, expect, Page } from "rhdh-e2e-test-utils/test";
+import { test, expect, Page } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Test <plugin>", () => {
   // Setup: Deploy RHDH once per worker
@@ -46,14 +46,14 @@ test.describe("Test <plugin>", () => {
 
 ## Imports
 
-Import test utilities from `rhdh-e2e-test-utils`:
+Import test utilities from `@red-hat-developer-hub/e2e-test-utils`:
 
 ```typescript
 // Core test fixtures
-import { test, expect, Page } from "rhdh-e2e-test-utils/test";
+import { test, expect, Page } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 // Utility functions
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 // Node.js modules
 import path from "path";
@@ -102,7 +102,7 @@ Some plugins require external services to be running before RHDH starts. For exa
 4. Deploy RHDH (uses the environment variable in its configuration)
 
 ```typescript
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 import path from "path";
 
 const setupScript = path.join(
@@ -238,8 +238,8 @@ test("Verify radar sections", async ({ page }) => {
 Complete spec file from the tech-radar workspace:
 
 ```typescript
-import { test, expect, Page } from "rhdh-e2e-test-utils/test";
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { test, expect, Page } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 import path from "path";
 
 const setupScript = path.join(

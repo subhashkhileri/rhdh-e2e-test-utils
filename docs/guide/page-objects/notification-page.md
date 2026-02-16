@@ -5,7 +5,7 @@ The `NotificationPage` class provides methods for managing notifications in RHDH
 ## Usage
 
 ```typescript
-import { NotificationPage } from "rhdh-e2e-test-utils/pages";
+import { NotificationPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 const notificationPage = new NotificationPage(page);
 ```
@@ -99,8 +99,8 @@ await notificationPage.deleteNotification(0); // Delete first notification
 ## Complete Example
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { NotificationPage } from "rhdh-e2e-test-utils/pages";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { NotificationPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("manage notifications", async ({ page, loginHelper }) => {
   await loginHelper.loginAsKeycloakUser();

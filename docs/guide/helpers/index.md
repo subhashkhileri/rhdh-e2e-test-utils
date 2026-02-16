@@ -14,7 +14,7 @@ The package provides helper classes for common testing operations in RHDH.
 
 ```typescript
 // Via fixtures (recommended)
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test("example", async ({ uiHelper, loginHelper }) => {
   await loginHelper.loginAsKeycloakUser();
@@ -22,7 +22,7 @@ test("example", async ({ uiHelper, loginHelper }) => {
 });
 
 // Direct import
-import { UIhelper, LoginHelper, APIHelper, setupBrowser } from "rhdh-e2e-test-utils/helpers";
+import { UIhelper, LoginHelper, APIHelper, setupBrowser } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 const uiHelper = new UIhelper(page);
 const loginHelper = new LoginHelper(page);
@@ -102,7 +102,7 @@ Utility for shared browser context in serial tests:
 
 ```typescript
 import { test } from "@playwright/test";
-import { setupBrowser, LoginHelper } from "rhdh-e2e-test-utils/helpers";
+import { setupBrowser, LoginHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 import type { Page, BrowserContext } from "@playwright/test";
 
 test.describe.configure({ mode: "serial" });

@@ -35,7 +35,7 @@ e2e-tests/
 
 ```json
 {
-  "extends": "rhdh-e2e-test-utils/tsconfig",
+  "extends": "@red-hat-developer-hub/e2e-test-utils/tsconfig",
   "include": ["tests/**/*.ts"]
 }
 ```
@@ -43,7 +43,7 @@ e2e-tests/
 ### ESLint
 
 ```javascript
-import { createEslintConfig } from "rhdh-e2e-test-utils/eslint";
+import { createEslintConfig } from "@red-hat-developer-hub/e2e-test-utils/eslint";
 
 export default createEslintConfig(import.meta.dirname);
 ```
@@ -51,7 +51,7 @@ export default createEslintConfig(import.meta.dirname);
 ### Playwright
 
 ```typescript
-import { defineConfig } from "rhdh-e2e-test-utils/playwright-config";
+import { defineConfig } from "@red-hat-developer-hub/e2e-test-utils/playwright-config";
 
 export default defineConfig({
   projects: [{ name: "my-plugin" }],

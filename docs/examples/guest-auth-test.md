@@ -13,7 +13,7 @@ SKIP_KEYCLOAK_DEPLOYMENT=true
 ## Test File
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Guest Authentication", () => {
   test.beforeAll(async ({ rhdh }) => {

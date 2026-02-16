@@ -5,7 +5,7 @@ The `RHDHDeployment` class is the core class for managing RHDH deployments in Op
 ## Basic Usage
 
 ```typescript
-import { RHDHDeployment } from "rhdh-e2e-test-utils/rhdh";
+import { RHDHDeployment } from "@red-hat-developer-hub/e2e-test-utils/rhdh";
 
 // Create deployment with namespace
 const deployment = new RHDHDeployment("my-test-namespace");
@@ -29,7 +29,7 @@ console.log(`RHDH URL: ${deployment.rhdhUrl}`);
 When using the test fixtures, `RHDHDeployment` is automatically created:
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   // rhdh is already instantiated with namespace from project name
@@ -238,8 +238,8 @@ Later files override earlier ones, allowing you to customize only what you need.
 ## Example: Pre-Deployment Setup
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 test.beforeAll(async ({ rhdh }) => {
   const namespace = rhdh.deploymentConfig.namespace;

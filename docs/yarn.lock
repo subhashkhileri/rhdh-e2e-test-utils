@@ -511,6 +511,14 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@red-hat-developer-hub/e2e-test-utils-docs@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "@red-hat-developer-hub/e2e-test-utils-docs@workspace:."
+  dependencies:
+    vitepress: ^1.5.0
+  languageName: unknown
+  linkType: soft
+
 "@rollup/rollup-android-arm-eabi@npm:4.55.1":
   version: 4.55.1
   resolution: "@rollup/rollup-android-arm-eabi@npm:4.55.1"
@@ -1884,14 +1892,6 @@ __metadata:
   checksum: 3b05bd55062c1d78aaabfcea43840cdf7e12099968f368e9a4c3936beb744adb41cbdb315eac6d4d8c6623005d6f87fdf16d8a10e1ff3722e84afea7281c8d13
   languageName: node
   linkType: hard
-
-"rhdh-e2e-test-utils-docs@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "rhdh-e2e-test-utils-docs@workspace:."
-  dependencies:
-    vitepress: ^1.5.0
-  languageName: unknown
-  linkType: soft
 
 "rollup@npm:^4.20.0":
   version: 4.55.1

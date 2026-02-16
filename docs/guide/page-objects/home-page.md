@@ -5,7 +5,7 @@ The `HomePage` class provides methods for interacting with the RHDH home page.
 ## Usage
 
 ```typescript
-import { HomePage } from "rhdh-e2e-test-utils/pages";
+import { HomePage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 const homePage = new HomePage(page);
 ```
@@ -40,8 +40,8 @@ await homePage.clickQuickAccessItem("Favorites", "my-component");
 ## Complete Example
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { HomePage } from "rhdh-e2e-test-utils/pages";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { HomePage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test("home page interactions", async ({ page, loginHelper }) => {
   await loginHelper.loginAsKeycloakUser();

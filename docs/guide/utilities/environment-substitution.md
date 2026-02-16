@@ -5,7 +5,7 @@ The `envsubst` function replaces environment variable placeholders in strings.
 ## Usage
 
 ```typescript
-import { envsubst } from "rhdh-e2e-test-utils/utils";
+import { envsubst } from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 ## Basic Substitution
@@ -52,7 +52,7 @@ backend:
 ```
 
 ```typescript
-import { envsubst } from "rhdh-e2e-test-utils/utils";
+import { envsubst } from "@red-hat-developer-hub/e2e-test-utils/utils";
 import * as fs from "fs";
 
 const template = fs.readFileSync("config-template.yaml", "utf-8");
@@ -83,8 +83,8 @@ If you are writing tests in the overlay repository, see [Overlay Configuration F
 ## Complete Example
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
-import { envsubst } from "rhdh-e2e-test-utils/utils";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { envsubst } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 test.beforeAll(async ({ rhdh }) => {
   // Set environment variables

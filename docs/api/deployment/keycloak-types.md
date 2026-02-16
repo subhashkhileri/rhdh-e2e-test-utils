@@ -13,7 +13,7 @@ import type {
   KeycloakGroupConfig,
   KeycloakRealmConfig,
   KeycloakConnectionConfig,
-} from "rhdh-e2e-test-utils/keycloak";
+} from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 ```
 
 ## KeycloakDeploymentOptions
@@ -139,8 +139,8 @@ await keycloak.connect({
 ## Example Usage
 
 ```typescript
-import { KeycloakHelper } from "rhdh-e2e-test-utils/keycloak";
-import type { KeycloakUserConfig } from "rhdh-e2e-test-utils/keycloak";
+import { KeycloakHelper } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
+import type { KeycloakUserConfig } from "@red-hat-developer-hub/e2e-test-utils/keycloak";
 
 const keycloak = new KeycloakHelper();
 await keycloak.deploy();

@@ -5,8 +5,8 @@ Examples of GitHub and Backstage API operations.
 ## GitHub Operations
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test.describe("GitHub API", () => {
   const owner = "my-org";
@@ -55,8 +55,8 @@ test.describe("GitHub API", () => {
 ## Backstage Catalog API
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 
 test.describe("Backstage Catalog API", () => {
   let apiHelper: APIHelper;
@@ -110,9 +110,9 @@ test.describe("Backstage Catalog API", () => {
 ## Combined Example
 
 ```typescript
-import { test, expect } from "rhdh-e2e-test-utils/test";
-import { APIHelper } from "rhdh-e2e-test-utils/helpers";
-import { CatalogImportPage } from "rhdh-e2e-test-utils/pages";
+import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
+import { APIHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
+import { CatalogImportPage } from "@red-hat-developer-hub/e2e-test-utils/pages";
 
 test.describe("Full Workflow", () => {
   const owner = "my-org";

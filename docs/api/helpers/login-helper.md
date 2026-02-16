@@ -5,7 +5,7 @@ Authentication helper for various providers.
 ## Import
 
 ```typescript
-import { LoginHelper } from "rhdh-e2e-test-utils/helpers";
+import { LoginHelper } from "@red-hat-developer-hub/e2e-test-utils/helpers";
 ```
 
 ## Constructor
@@ -61,7 +61,7 @@ Sign out of RHDH.
 ## Example
 
 ```typescript
-import { test } from "rhdh-e2e-test-utils/test";
+import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeEach(async ({ loginHelper }) => {
   await loginHelper.loginAsKeycloakUser();

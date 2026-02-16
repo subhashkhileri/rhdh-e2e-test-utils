@@ -21,7 +21,7 @@ import {
   envsubst,
   mergeYamlFiles,
   mergeYamlFilesToFile,
-} from "rhdh-e2e-test-utils/utils";
+} from "@red-hat-developer-hub/e2e-test-utils/utils";
 ```
 
 ## Quick Examples
@@ -29,7 +29,7 @@ import {
 ### Bash Commands
 
 ```typescript
-import { $ } from "rhdh-e2e-test-utils/utils";
+import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 // Execute commands
 await $`oc get pods -n my-namespace`;
@@ -42,7 +42,7 @@ console.log(result.stdout);
 ### Kubernetes Operations
 
 ```typescript
-import { KubernetesClientHelper } from "rhdh-e2e-test-utils/utils";
+import { KubernetesClientHelper } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 const k8s = new KubernetesClientHelper();
 
@@ -59,7 +59,7 @@ const url = await k8s.getRouteLocation("my-namespace", "my-route");
 ### Environment Substitution
 
 ```typescript
-import { envsubst } from "rhdh-e2e-test-utils/utils";
+import { envsubst } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 const template = "API URL: ${API_URL:-http://localhost}";
 const result = envsubst(template);
@@ -69,7 +69,7 @@ const result = envsubst(template);
 ### YAML Merging
 
 ```typescript
-import { mergeYamlFiles } from "rhdh-e2e-test-utils/utils";
+import { mergeYamlFiles } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 const merged = mergeYamlFiles([
   "base-config.yaml",
