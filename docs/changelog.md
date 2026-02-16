@@ -2,7 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.9] - Current
+## [1.1.10] - Current
+
+### Fixed
+- **`plugins-list.yaml` parsing**: Parse as proper YAML instead of text splitting, correctly handling entries with build flags (e.g., `--embed-package`, `--suppress-native-package`) and YAML comments.
+
+### Changed
+- **Video recording**: Changed mode from `"on"` to `"retain-on-failure"` and reduced size from `1920x1080` to `1280x720` to save disk space.
+- **Workers and retries**: Now configurable via `PLAYWRIGHT_WORKERS` (default: `"50%"`) and `PLAYWRIGHT_RETRIES` (default: `0`) environment variables.
+
+## [1.1.9]
 
 ### Fixed
 - **OCI URL replacement with user-provided `dynamic-plugins.yaml`**: When a workspace provides its own `dynamic-plugins.yaml`, plugin package paths were not replaced with OCI URLs for PR builds. Extracted shared `replaceWithOCIUrls()` function so both `generateDynamicPluginsConfigFromMetadata()` and `loadAndInjectPluginMetadata()` code paths now perform OCI replacement when `GIT_PR_NUMBER` is set.

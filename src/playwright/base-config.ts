@@ -11,8 +11,8 @@ import { resolve } from "path";
 export const baseConfig: PlaywrightTestConfig = {
   testDir: "./tests",
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
-  workers: "50%",
+  retries: Number(process.env.PLAYWRIGHT_RETRIES ?? 0),
+  workers: process.env.PLAYWRIGHT_WORKERS || "50%",
   outputDir: "node_modules/.cache/e2e-test-results",
   timeout: 90_000,
   reporter: [
@@ -26,8 +26,8 @@ export const baseConfig: PlaywrightTestConfig = {
     screenshot: "only-on-failure",
     viewport: { width: 1920, height: 1080 },
     video: {
-      mode: "on",
-      size: { width: 1920, height: 1080 },
+      mode: "retain-on-failure",
+      size: { width: 1280, height: 720 },
     },
     actionTimeout: 10_000,
     navigationTimeout: 50_000,
