@@ -15,7 +15,9 @@ type TeardownRegistry = Record<string, string[]>;
 
 function read(): TeardownRegistry {
   if (!fs.existsSync(TEARDOWN_FILE)) return {};
-  return JSON.parse(fs.readFileSync(TEARDOWN_FILE, "utf-8")) as TeardownRegistry;
+  return JSON.parse(
+    fs.readFileSync(TEARDOWN_FILE, "utf-8"),
+  ) as TeardownRegistry;
 }
 
 /**

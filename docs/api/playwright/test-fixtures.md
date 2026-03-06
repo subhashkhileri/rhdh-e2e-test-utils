@@ -16,14 +16,12 @@ import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 **Type:** `RHDHDeployment`
 
-Shared RHDH deployment across all tests in a worker. Wrap expensive setup in `test.runOnce` to avoid re-deploying when workers restart after test failures.
+Shared RHDH deployment across all tests in a worker. `deploy()` automatically skips if the deployment already succeeded, even after worker restarts.
 
 ```typescript
 test.beforeAll(async ({ rhdh }) => {
-  await test.runOnce("my-plugin-deploy", async () => {
-    await rhdh.configure({ auth: "keycloak" });
-    await rhdh.deploy();
-  });
+  await rhdh.configure({ auth: "keycloak" });
+  await rhdh.deploy();
 });
 
 test("access rhdh", async ({ rhdh }) => {
@@ -88,7 +86,11 @@ test("using baseURL", async ({ page, baseURL }) => {
 test.runOnce(key: string, fn: () => Promise<void> | void): Promise<boolean>
 ```
 
-Executes `fn` exactly once per test run, even across worker restarts. Returns `true` if executed, `false` if skipped. Useful for expensive or persistent operations (deployments, database seeding, service provisioning) that should not repeat after a worker restart.
+Executes `fn` exactly once per test run, even across worker restarts. Returns `true` if executed, `false` if skipped.
+
+::: tip
+`rhdh.deploy()` already uses `runOnce` internally, so you don't need to wrap simple deployments. Use `test.runOnce` when you have **additional expensive operations** (external services, scripts, data seeding) alongside `deploy()`.
+:::
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
@@ -96,15 +98,17 @@ Executes `fn` exactly once per test run, even across worker restarts. Returns `t
 | `fn` | `() => Promise<void> \| void` | Function to execute once |
 
 ```typescript
+// Wrap pre-deploy setup that shouldn't repeat
 test.beforeAll(async ({ rhdh }) => {
-  await test.runOnce("my-deploy", async () => {
+  await test.runOnce("full-setup", async () => {
+    await $`bash deploy-external-service.sh`;
     await rhdh.configure({ auth: "keycloak" });
-    await rhdh.deploy();
+    await rhdh.deploy(); // safe to nest, has its own internal protection
   });
 });
 ```
 
-See [Playwright Fixtures — `test.runOnce`](/guide/core-concepts/playwright-fixtures#test-runonce-—-execute-a-function-once-per-test-run) for detailed usage and examples.
+See [Deployment Protection](/guide/core-concepts/playwright-fixtures#deployment-protection-built-in) and [`test.runOnce`](/guide/core-concepts/playwright-fixtures#test-runonce-—-run-any-expensive-operation-once) for details.
 
 ## Exported Types
 
@@ -121,10 +125,8 @@ import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("My Tests", () => {
   test.beforeAll(async ({ rhdh }) => {
-    await test.runOnce("my-plugin-deploy", async () => {
-      await rhdh.configure({ auth: "keycloak" });
-      await rhdh.deploy();
-    });
+    await rhdh.configure({ auth: "keycloak" });
+    await rhdh.deploy();
   });
 
   test.beforeEach(async ({ page, loginHelper }) => {

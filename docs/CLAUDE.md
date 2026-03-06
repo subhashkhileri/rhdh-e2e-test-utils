@@ -47,7 +47,8 @@ docs/
 
   test.describe("Feature", () => {
     test.beforeAll(async ({ rhdh }) => {
-      await test.runOnce("my-plugin-deploy", async () => { /* deploy */ });
+      await rhdh.configure({ auth: "keycloak" });
+      await rhdh.deploy();
     });
     test.beforeEach(async ({ loginHelper }) => { /* login */ });
     test("should...", async ({ uiHelper }) => { /* test */ });

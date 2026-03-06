@@ -154,17 +154,36 @@ export default defineConfig({
 });
 ```
 
-## `test.runOnce` — Execute a Function Once Per Test Run
+## Deployment Protection (Built-in)
 
-Playwright's `beforeAll` runs once **per worker**, not once per test run. When a test fails, Playwright kills the worker and creates a new one for remaining tests — causing `beforeAll` to run again. For operations that are expensive or produce persistent side effects, this leads to unnecessary re-execution.
+`rhdh.deploy()` is automatically protected against redundant re-execution. When a test fails and Playwright restarts the worker, `deploy()` detects that the deployment already succeeded and skips — no re-deployment, no wasted time.
 
-`test.runOnce` ensures a function executes **exactly once per test run**, even across worker restarts:
+This works out of the box. A simple `beforeAll` is all you need:
 
 ```typescript
 test.beforeAll(async ({ rhdh }) => {
-  await test.runOnce("my-plugin-deploy", async () => {
+  await rhdh.configure({ auth: "keycloak" });
+  await rhdh.deploy(); // runs once, skips on worker restart
+});
+```
+
+::: tip Why is this needed?
+Playwright's `beforeAll` runs once **per worker**, not once per test run. When a test fails, Playwright kills the worker and creates a new one for remaining tests — causing `beforeAll` to run again. Without protection, this would re-deploy RHDH from scratch every time a test fails.
+:::
+
+## `test.runOnce` — Run Any Expensive Operation Once
+
+While `rhdh.deploy()` has built-in protection, you may have **other expensive operations** in your `beforeAll` that also shouldn't repeat on worker restart — deploying external services, seeding databases, running setup scripts, etc.
+
+`test.runOnce` ensures any function executes **exactly once per test run**, even across worker restarts:
+
+```typescript
+test.beforeAll(async ({ rhdh }) => {
+  await test.runOnce("tech-radar-setup", async () => {
     await rhdh.configure({ auth: "keycloak" });
-    await rhdh.deploy();
+    await $`bash ${setupScript} ${namespace}`;  // expensive external service
+    process.env.DATA_URL = await rhdh.k8sClient.getRouteLocation(namespace, "my-service");
+    await rhdh.deploy();  // also protected internally, nesting is safe
   });
 });
 ```
@@ -173,40 +192,81 @@ test.beforeAll(async ({ rhdh }) => {
 
 - Uses file-based flags scoped to the Playwright runner process
 - When a worker restarts after a test failure, `runOnce` detects the flag and skips
-- Any state created by the function (deployments, databases, services) stays alive
+- Any state created by the function (deployments, services, data) stays alive
 - Flags reset automatically between test runs
 
 ### When to Use
 
-Use `test.runOnce` when your `beforeAll` performs an operation that:
-- Is **expensive** (deployments, database seeding, service provisioning)
-- Creates **persistent state** that survives beyond the worker process (Kubernetes resources, external services, test data)
-- Should **not repeat** once successfully completed
+| Scenario | What to use |
+|----------|------------|
+| Just `configure()` + `deploy()` | Nothing extra — `deploy()` is already protected |
+| Pre-deploy setup (external services, scripts, env vars) + `deploy()` | Wrap the entire block in `test.runOnce` |
+| Multiple independent expensive operations | Use separate `test.runOnce` calls with different keys |
 
-Common examples:
-- RHDH deployment (`rhdh.deploy()`)
-- External service deployment (customization providers, mock APIs)
-- Database seeding or migration
-- Any setup script that takes significant time
+### Examples
+
+**Simple deployment — no `test.runOnce` needed:**
+
+```typescript
+test.beforeAll(async ({ rhdh }) => {
+  await rhdh.configure({ auth: "keycloak" });
+  await rhdh.deploy();
+});
+```
+
+**Pre-deploy setup — wrap in `test.runOnce`:**
+
+```typescript
+test.beforeAll(async ({ rhdh }) => {
+  await test.runOnce("tech-radar-full-setup", async () => {
+    await rhdh.configure({ auth: "keycloak" });
+    await $`bash deploy-external-service.sh ${rhdh.deploymentConfig.namespace}`;
+    process.env.DATA_URL = await rhdh.k8sClient.getRouteLocation(
+      rhdh.deploymentConfig.namespace, "data-provider"
+    );
+    await rhdh.deploy();
+  });
+});
+```
+
+**Multiple independent operations with separate keys:**
+
+```typescript
+test.describe("Feature A", () => {
+  test.beforeAll(async ({ rhdh }) => {
+    await test.runOnce("seed-catalog-data", async () => {
+      await apiHelper.importEntity("https://example.com/catalog-info.yaml");
+    });
+  });
+});
+
+test.describe("Feature B", () => {
+  test.beforeAll(async () => {
+    await test.runOnce("deploy-mock-api", async () => {
+      await $`bash deploy-mock.sh`;
+    });
+  });
+});
+```
 
 ### Key: Unique Identifier
 
-The `key` parameter must be unique across all `runOnce` calls in your test run. Use a descriptive name:
+The `key` parameter must be unique across all `runOnce` calls in your test run. Use a descriptive name that reflects the operation:
 
 ```typescript
-// Deploy RHDH
-await test.runOnce("tech-radar-deploy", async () => {
-  await rhdh.deploy();
-});
+await test.runOnce("tech-radar-deploy", async () => { ... });
+await test.runOnce("tech-radar-data-provider", async () => { ... });
+await test.runOnce("catalog-seed-data", async () => { ... });
+```
 
-// Deploy an external service
-await test.runOnce("tech-radar-data-provider", async () => {
-  await $`bash ${setupScript} ${namespace}`;
-});
+### Nesting
 
-// Seed test data
-await test.runOnce("catalog-seed-data", async () => {
-  await apiHelper.importEntity("https://example.com/catalog-info.yaml");
+`test.runOnce` can be safely nested. Since `rhdh.deploy()` uses `runOnce` internally, wrapping it in an outer `test.runOnce` is harmless — the outer call skips everything on worker restart, and the inner one never runs:
+
+```typescript
+await test.runOnce("full-setup", async () => {
+  await $`bash setup.sh`;          // protected by outer runOnce
+  await rhdh.deploy();             // has its own internal runOnce (harmless)
 });
 ```
 
@@ -215,7 +275,7 @@ await test.runOnce("catalog-seed-data", async () => {
 In CI environments (`CI` environment variable is set), namespaces are automatically deleted after all tests complete. This is handled by a built-in **teardown reporter** that:
 
 1. Runs in the main Playwright process (survives worker restarts)
-2. Waits for **all tests** in a project to finish
+2. Waits for **all tests** to finish
 3. Deletes the namespace matching the project name
 
 ### Default Behavior
@@ -238,11 +298,9 @@ If you deploy to a namespace that differs from the project name, register it for
 import { registerTeardownNamespace } from "@red-hat-developer-hub/e2e-test-utils/teardown";
 
 test.beforeAll(async ({ rhdh }) => {
-  await test.runOnce("custom-deploy", async () => {
-    await rhdh.configure({ namespace: "my-custom-ns", auth: "keycloak" });
-    await rhdh.deploy();
-    registerTeardownNamespace("my-project", "my-custom-ns");
-  });
+  await rhdh.configure({ namespace: "my-custom-ns", auth: "keycloak" });
+  await rhdh.deploy();
+  registerTeardownNamespace("my-project", "my-custom-ns");
 });
 ```
 
@@ -300,14 +358,12 @@ import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("My Plugin Tests", () => {
   test.beforeAll(async ({ rhdh }) => {
-    await test.runOnce("my-plugin-deploy", async () => {
-      await rhdh.configure({
-        auth: "keycloak",
-        appConfig: "tests/config/app-config.yaml",
-        dynamicPlugins: "tests/config/plugins.yaml",
-      });
-      await rhdh.deploy();
+    await rhdh.configure({
+      auth: "keycloak",
+      appConfig: "tests/config/app-config.yaml",
+      dynamicPlugins: "tests/config/plugins.yaml",
     });
+    await rhdh.deploy();
   });
 
   test.beforeEach(async ({ page, loginHelper }) => {

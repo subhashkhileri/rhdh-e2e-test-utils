@@ -5,7 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [1.1.14] - Current
 
 ### Added
-- **`test.runOnce(key, fn)`**: Execute a function exactly once per test run, even across worker restarts. Prevents re-running expensive operations (deployments, service provisioning, data seeding) when Playwright creates new workers after test failures.
+- **`deploy()` built-in protection**: `rhdh.deploy()` now automatically skips if the deployment already succeeded in the current test run. No code changes needed — existing `beforeAll` patterns work as before, but deployments are no longer repeated when Playwright restarts workers after test failures.
+- **`test.runOnce(key, fn)`**: Execute any function exactly once per test run, even across worker restarts. Use for expensive pre-deploy operations (external services, setup scripts, data seeding) that `deploy()` alone doesn't cover. Safe to nest with `deploy()`'s built-in protection.
 - **Teardown reporter**: Built-in Playwright reporter that automatically deletes Kubernetes namespaces after all tests complete. Active only in CI (`process.env.CI`).
 - **`registerTeardownNamespace(projectName, namespace)`**: Register custom namespaces for automatic cleanup. Import from `@red-hat-developer-hub/e2e-test-utils/teardown`.
 

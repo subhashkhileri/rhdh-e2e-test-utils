@@ -8,6 +8,7 @@ import {
   generateDynamicPluginsConfigFromMetadata,
 } from "../../utils/plugin-metadata.js";
 import { envsubst } from "../../utils/common.js";
+import { runOnce } from "../../playwright/run-once.js";
 import cloneDeepWith from "lodash.clonedeepwith";
 import fs from "fs-extra";
 import {
@@ -38,28 +39,40 @@ export class RHDHDeployment {
   }
 
   async deploy(options?: { timeout?: number | null }): Promise<void> {
-    this._log("Starting RHDH deployment...");
     // Default 600s, custom number to override, null to skip and let consumer control the timeout
     const timeout = options?.timeout === undefined ? 600_000 : options.timeout;
     if (timeout !== null) {
       test.setTimeout(timeout);
     }
 
-    await this.k8sClient.createNamespaceIfNotExists(
-      this.deploymentConfig.namespace,
+    const executed = await runOnce(
+      `deploy-${this.deploymentConfig.namespace}`,
+      async () => {
+        this._log("Starting RHDH deployment...");
+
+        await this.k8sClient.createNamespaceIfNotExists(
+          this.deploymentConfig.namespace,
+        );
+
+        await this._applyAppConfig();
+        await this._applySecrets();
+
+        if (this.deploymentConfig.method === "helm") {
+          await this._deployWithHelm(this.deploymentConfig.valueFile);
+          await this.scaleDownAndRestart(); // Restart as helm does not monitor config changes
+        } else {
+          await this._applyDynamicPlugins();
+          await this._deployWithOperator(this.deploymentConfig.subscription);
+        }
+        await this.waitUntilReady();
+      },
     );
 
-    await this._applyAppConfig();
-    await this._applySecrets();
-
-    if (this.deploymentConfig.method === "helm") {
-      await this._deployWithHelm(this.deploymentConfig.valueFile);
-      await this.scaleDownAndRestart(); // Restart as helm does not monitor config changes
-    } else {
-      await this._applyDynamicPlugins();
-      await this._deployWithOperator(this.deploymentConfig.subscription);
+    if (!executed) {
+      this._log(
+        `Deployment already completed for namespace "${this.deploymentConfig.namespace}", skipping`,
+      );
     }
-    await this.waitUntilReady();
   }
 
   private async _applyAppConfig(): Promise<void> {

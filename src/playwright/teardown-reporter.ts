@@ -27,21 +27,32 @@ export default class TeardownReporter implements Reporter {
     try {
       k8sClient = new KubernetesClientHelper();
     } catch (error) {
-      console.error(`[TeardownReporter] Cannot connect to cluster, skipping teardown:`, error);
+      console.error(
+        `[TeardownReporter] Cannot connect to cluster, skipping teardown:`,
+        error,
+      );
       return;
     }
 
     for (const projectName of this._projects) {
       const customNamespaces = getTeardownNamespaces(projectName);
-      const namespaces = customNamespaces.length > 0 ? customNamespaces : [projectName];
+      const namespaces =
+        customNamespaces.length > 0 ? customNamespaces : [projectName];
 
       for (const ns of namespaces) {
-        console.log(`[TeardownReporter] Deleting namespace "${ns}" (project: ${projectName})`);
+        console.log(
+          `[TeardownReporter] Deleting namespace "${ns}" (project: ${projectName})`,
+        );
         try {
           await k8sClient.deleteNamespace(ns);
-          console.log(`[TeardownReporter] Namespace "${ns}" deleted successfully`);
+          console.log(
+            `[TeardownReporter] Namespace "${ns}" deleted successfully`,
+          );
         } catch (error) {
-          console.error(`[TeardownReporter] Failed to delete namespace "${ns}":`, error);
+          console.error(
+            `[TeardownReporter] Failed to delete namespace "${ns}":`,
+            error,
+          );
         }
       }
     }

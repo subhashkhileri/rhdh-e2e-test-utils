@@ -33,10 +33,8 @@ import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   // rhdh is already instantiated with namespace from project name
-  await test.runOnce("my-plugin-deploy", async () => {
-    await rhdh.configure({ auth: "keycloak" });
-    await rhdh.deploy();
-  });
+  await rhdh.configure({ auth: "keycloak" });
+  await rhdh.deploy(); // automatically skips if already deployed
 });
 
 test("example", async ({ rhdh }) => {
@@ -111,6 +109,8 @@ await rhdh.deploy({ timeout: 0 });
 test.setTimeout(900_000);
 await rhdh.deploy({ timeout: null });
 ```
+
+`deploy()` automatically skips if the deployment already succeeded in the current test run (e.g., after a worker restart due to test failure). This prevents expensive re-deployments.
 
 This method:
 1. Merges configuration files (common → auth → project)
@@ -261,7 +261,8 @@ import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 test.beforeAll(async ({ rhdh }) => {
-  await test.runOnce("my-plugin-deploy", async () => {
+  // Wrap in test.runOnce because the setup script is also expensive
+  await test.runOnce("my-plugin-setup", async () => {
     const namespace = rhdh.deploymentConfig.namespace;
 
     // Configure RHDH
@@ -276,7 +277,7 @@ test.beforeAll(async ({ rhdh }) => {
       "my-service"
     );
 
-    // Deploy RHDH (uses env vars set above)
+    // Deploy RHDH (has built-in protection, safe to nest inside runOnce)
     await rhdh.deploy();
   });
 });
