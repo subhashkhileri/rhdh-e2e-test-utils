@@ -1,6 +1,6 @@
 {
   "name": "@red-hat-developer-hub/e2e-test-utils",
-  "version": "1.1.13",
+  "version": "1.1.14",
   "description": "Test utilities for RHDH E2E tests",
   "license": "Apache-2.0",
   "repository": {
@@ -44,6 +44,10 @@
     "./keycloak": {
       "types": "./dist/deployment/keycloak/index.d.ts",
       "default": "./dist/deployment/keycloak/index.js"
+    },
+    "./teardown": {
+      "types": "./dist/playwright/teardown-namespaces.d.ts",
+      "default": "./dist/playwright/teardown-namespaces.js"
     }
   },
   "publishConfig": {
@@ -84,7 +88,8 @@
     "@types/js-yaml": "^4.0.9",
     "@types/lodash.clonedeepwith": "^4.5.9",
     "@types/lodash.mergewith": "^4.6.9",
-    "@types/node": "^24.10.1"
+    "@types/node": "^24.10.1",
+    "@types/proper-lockfile": "^4.1.4"
   },
   "dependencies": {
     "@axe-core/playwright": "^4.11.0",
@@ -100,6 +105,7 @@
     "lodash.mergewith": "^4.6.2",
     "otplib": "12.0.1",
     "prettier": "^3.7.4",
+    "proper-lockfile": "^4.1.2",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.48.1",
     "zx": "^8.8.5"

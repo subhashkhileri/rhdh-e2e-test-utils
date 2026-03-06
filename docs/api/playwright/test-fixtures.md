@@ -16,12 +16,14 @@ import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 **Type:** `RHDHDeployment`
 
-Shared RHDH deployment across all tests in a worker.
+Shared RHDH deployment across all tests in a worker. Wrap expensive setup in `test.runOnce` to avoid re-deploying when workers restart after test failures.
 
 ```typescript
 test.beforeAll(async ({ rhdh }) => {
-  await rhdh.configure({ auth: "keycloak" });
-  await rhdh.deploy();
+  await test.runOnce("my-plugin-deploy", async () => {
+    await rhdh.configure({ auth: "keycloak" });
+    await rhdh.deploy();
+  });
 });
 
 test("access rhdh", async ({ rhdh }) => {
@@ -80,6 +82,30 @@ test("using baseURL", async ({ page, baseURL }) => {
 });
 ```
 
+## `test.runOnce`
+
+```typescript
+test.runOnce(key: string, fn: () => Promise<void> | void): Promise<boolean>
+```
+
+Executes `fn` exactly once per test run, even across worker restarts. Returns `true` if executed, `false` if skipped. Useful for expensive or persistent operations (deployments, database seeding, service provisioning) that should not repeat after a worker restart.
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `key` | `string` | Unique identifier for this operation |
+| `fn` | `() => Promise<void> \| void` | Function to execute once |
+
+```typescript
+test.beforeAll(async ({ rhdh }) => {
+  await test.runOnce("my-deploy", async () => {
+    await rhdh.configure({ auth: "keycloak" });
+    await rhdh.deploy();
+  });
+});
+```
+
+See [Playwright Fixtures — `test.runOnce`](/guide/core-concepts/playwright-fixtures#test-runonce-—-execute-a-function-once-per-test-run) for detailed usage and examples.
+
 ## Exported Types
 
 ```typescript
@@ -95,8 +121,10 @@ import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("My Tests", () => {
   test.beforeAll(async ({ rhdh }) => {
-    await rhdh.configure({ auth: "keycloak" });
-    await rhdh.deploy();
+    await test.runOnce("my-plugin-deploy", async () => {
+      await rhdh.configure({ auth: "keycloak" });
+      await rhdh.deploy();
+    });
   });
 
   test.beforeEach(async ({ page, loginHelper }) => {

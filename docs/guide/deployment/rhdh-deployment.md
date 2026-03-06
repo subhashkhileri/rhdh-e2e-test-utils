@@ -33,8 +33,10 @@ import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.beforeAll(async ({ rhdh }) => {
   // rhdh is already instantiated with namespace from project name
-  await rhdh.configure({ auth: "keycloak" });
-  await rhdh.deploy();
+  await test.runOnce("my-plugin-deploy", async () => {
+    await rhdh.configure({ auth: "keycloak" });
+    await rhdh.deploy();
+  });
 });
 
 test("example", async ({ rhdh }) => {
@@ -176,7 +178,7 @@ await deployment.teardown();
 ```
 
 ::: warning
-This permanently deletes all resources in the namespace. In CI, this happens automatically.
+You typically don't need to call this manually. In CI, the built-in teardown reporter automatically deletes namespaces after all tests complete. See [Namespace Cleanup](/guide/core-concepts/playwright-fixtures#namespace-cleanup-teardown).
 :::
 
 ## Properties
@@ -259,21 +261,23 @@ import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 test.beforeAll(async ({ rhdh }) => {
-  const namespace = rhdh.deploymentConfig.namespace;
+  await test.runOnce("my-plugin-deploy", async () => {
+    const namespace = rhdh.deploymentConfig.namespace;
 
-  // Configure RHDH
-  await rhdh.configure({ auth: "keycloak" });
+    // Configure RHDH
+    await rhdh.configure({ auth: "keycloak" });
 
-  // Run custom setup before deployment
-  await $`bash scripts/setup.sh ${namespace}`;
+    // Run custom setup before deployment
+    await $`bash scripts/setup.sh ${namespace}`;
 
-  // Set runtime environment variables
-  process.env.MY_CUSTOM_URL = await rhdh.k8sClient.getRouteLocation(
-    namespace,
-    "my-service"
-  );
+    // Set runtime environment variables
+    process.env.MY_CUSTOM_URL = await rhdh.k8sClient.getRouteLocation(
+      namespace,
+      "my-service"
+    );
 
-  // Deploy RHDH (uses env vars set above)
-  await rhdh.deploy();
+    // Deploy RHDH (uses env vars set above)
+    await rhdh.deploy();
+  });
 });
 ```

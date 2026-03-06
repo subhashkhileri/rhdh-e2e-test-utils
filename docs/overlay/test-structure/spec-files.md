@@ -26,10 +26,12 @@ A typical spec file follows this structure:
 import { test, expect, Page } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Test <plugin>", () => {
-  // Setup: Deploy RHDH once per worker
+  // Setup: Deploy RHDH once per test run
   test.beforeAll(async ({ rhdh }) => {
-    await rhdh.configure({ auth: "keycloak" });
-    await rhdh.deploy();
+    await test.runOnce("my-plugin-deploy", async () => {
+      await rhdh.configure({ auth: "keycloak" });
+      await rhdh.deploy();
+    });
   });
 
   // Login before each test
@@ -43,6 +45,14 @@ test.describe("Test <plugin>", () => {
   });
 });
 ```
+
+::: info Why `test.runOnce`?
+When a test fails, Playwright kills the worker and creates a new one for remaining tests. Without `runOnce`, `beforeAll` would re-execute expensive setup (deployments, service provisioning, data seeding) from scratch. `runOnce` ensures the operation happens only once; remaining tests reuse the existing state. See [Playwright Fixtures — `test.runOnce`](/guide/core-concepts/playwright-fixtures#test-runonce-—-execute-a-function-once-per-test-run) for details.
+:::
+
+::: info Automatic Cleanup
+In CI, namespaces are automatically deleted after all tests complete via the built-in teardown reporter. No manual cleanup code is needed. See [Namespace Cleanup](/guide/core-concepts/playwright-fixtures#namespace-cleanup-teardown) for details.
+:::
 
 ## Imports
 
@@ -84,8 +94,10 @@ For plugins that only need configuration (no external services):
 
 ```typescript
 test.beforeAll(async ({ rhdh }) => {
-  await rhdh.configure({ auth: "keycloak" });
-  await rhdh.deploy();
+  await test.runOnce("my-plugin-deploy", async () => {
+    await rhdh.configure({ auth: "keycloak" });
+    await rhdh.deploy();
+  });
 });
 ```
 
@@ -111,24 +123,26 @@ const setupScript = path.join(
 );
 
 test.beforeAll(async ({ rhdh }) => {
-  const project = rhdh.deploymentConfig.namespace;
+  await test.runOnce("tech-radar-deploy", async () => {
+    const project = rhdh.deploymentConfig.namespace;
 
-  // 1. Configure RHDH first
-  await rhdh.configure({ auth: "keycloak" });
+    // 1. Configure RHDH first
+    await rhdh.configure({ auth: "keycloak" });
 
-  // 2. Deploy external service
-  await $`bash ${setupScript} ${project}`;
+    // 2. Deploy external service
+    await $`bash ${setupScript} ${project}`;
 
-  // 3. Get service URL and set as env var
-  process.env.TECH_RADAR_DATA_URL = (
-    await rhdh.k8sClient.getRouteLocation(
-      project,
-      "test-backstage-customization-provider",
-    )
-  ).replace("http://", "");
+    // 3. Get service URL and set as env var
+    process.env.TECH_RADAR_DATA_URL = (
+      await rhdh.k8sClient.getRouteLocation(
+        project,
+        "test-backstage-customization-provider",
+      )
+    ).replace("http://", "");
 
-  // 4. Deploy RHDH (will use TECH_RADAR_DATA_URL from rhdh-secrets.yaml)
-  await rhdh.deploy();
+    // 4. Deploy RHDH (will use TECH_RADAR_DATA_URL from rhdh-secrets.yaml)
+    await rhdh.deploy();
+  });
 });
 ```
 
@@ -140,8 +154,10 @@ For simpler tests without Keycloak:
 
 ```typescript
 test.beforeAll(async ({ rhdh }) => {
-  await rhdh.configure({ auth: "guest" });
-  await rhdh.deploy();
+  await test.runOnce("my-plugin-guest-deploy", async () => {
+    await rhdh.configure({ auth: "guest" });
+    await rhdh.deploy();
+  });
 });
 
 test.beforeEach(async ({ loginHelper }) => {
@@ -249,16 +265,18 @@ const setupScript = path.join(
 
 test.describe("Test tech-radar plugin", () => {
   test.beforeAll(async ({ rhdh }) => {
-    const project = rhdh.deploymentConfig.namespace;
-    await rhdh.configure({ auth: "keycloak" });
-    await $`bash ${setupScript} ${project}`;
-    process.env.TECH_RADAR_DATA_URL = (
-      await rhdh.k8sClient.getRouteLocation(
-        project,
-        "test-backstage-customization-provider",
-      )
-    ).replace("http://", "");
-    await rhdh.deploy();
+    await test.runOnce("tech-radar-deploy", async () => {
+      const project = rhdh.deploymentConfig.namespace;
+      await rhdh.configure({ auth: "keycloak" });
+      await $`bash ${setupScript} ${project}`;
+      process.env.TECH_RADAR_DATA_URL = (
+        await rhdh.k8sClient.getRouteLocation(
+          project,
+          "test-backstage-customization-provider",
+        )
+      ).replace("http://", "");
+      await rhdh.deploy();
+    });
   });
 
   test.beforeEach(async ({ loginHelper }) => {

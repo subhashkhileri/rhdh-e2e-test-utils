@@ -46,7 +46,9 @@ docs/
   import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
   test.describe("Feature", () => {
-    test.beforeAll(async ({ rhdh }) => { /* deploy */ });
+    test.beforeAll(async ({ rhdh }) => {
+      await test.runOnce("my-plugin-deploy", async () => { /* deploy */ });
+    });
     test.beforeEach(async ({ loginHelper }) => { /* login */ });
     test("should...", async ({ uiHelper }) => { /* test */ });
   });
@@ -121,6 +123,8 @@ When documenting, reference these source files:
 | Fixtures | `src/playwright/fixtures/test.ts` |
 | Base Config | `src/playwright/base-config.ts` |
 | Global Setup | `src/playwright/global-setup.ts` |
+| Teardown Reporter | `src/playwright/teardown-reporter.ts` |
+| Teardown Namespaces | `src/playwright/teardown-namespaces.ts` |
 
 ## Common Tasks
 
@@ -209,5 +213,6 @@ Base URL is configured as `/rhdh-e2e-test-utils/` in `config.ts`.
 | Helpers | `@red-hat-developer-hub/e2e-test-utils/helpers` | UIhelper, LoginHelper, etc. |
 | Page objects | `@red-hat-developer-hub/e2e-test-utils/pages` | CatalogPage, HomePage, etc. |
 | Utilities | `@red-hat-developer-hub/e2e-test-utils/utils` | KubernetesClientHelper, etc. |
+| Teardown | `@red-hat-developer-hub/e2e-test-utils/teardown` | Custom namespace teardown registration |
 | ESLint | `@red-hat-developer-hub/e2e-test-utils/eslint` | ESLint config |
 | TypeScript | `@red-hat-developer-hub/e2e-test-utils/tsconfig` | TSConfig base |

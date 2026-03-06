@@ -154,16 +154,103 @@ export default defineConfig({
 });
 ```
 
-## Auto-Cleanup
+## `test.runOnce` — Execute a Function Once Per Test Run
 
-In CI environments (when `CI` environment variable is set):
+Playwright's `beforeAll` runs once **per worker**, not once per test run. When a test fails, Playwright kills the worker and creates a new one for remaining tests — causing `beforeAll` to run again. For operations that are expensive or produce persistent side effects, this leads to unnecessary re-execution.
 
-- Namespaces are automatically deleted after tests complete
-- Prevents resource accumulation on shared clusters
+`test.runOnce` ensures a function executes **exactly once per test run**, even across worker restarts:
 
-For local development:
-- Namespaces are preserved for debugging
-- Manual cleanup may be required
+```typescript
+test.beforeAll(async ({ rhdh }) => {
+  await test.runOnce("my-plugin-deploy", async () => {
+    await rhdh.configure({ auth: "keycloak" });
+    await rhdh.deploy();
+  });
+});
+```
+
+### How It Works
+
+- Uses file-based flags scoped to the Playwright runner process
+- When a worker restarts after a test failure, `runOnce` detects the flag and skips
+- Any state created by the function (deployments, databases, services) stays alive
+- Flags reset automatically between test runs
+
+### When to Use
+
+Use `test.runOnce` when your `beforeAll` performs an operation that:
+- Is **expensive** (deployments, database seeding, service provisioning)
+- Creates **persistent state** that survives beyond the worker process (Kubernetes resources, external services, test data)
+- Should **not repeat** once successfully completed
+
+Common examples:
+- RHDH deployment (`rhdh.deploy()`)
+- External service deployment (customization providers, mock APIs)
+- Database seeding or migration
+- Any setup script that takes significant time
+
+### Key: Unique Identifier
+
+The `key` parameter must be unique across all `runOnce` calls in your test run. Use a descriptive name:
+
+```typescript
+// Deploy RHDH
+await test.runOnce("tech-radar-deploy", async () => {
+  await rhdh.deploy();
+});
+
+// Deploy an external service
+await test.runOnce("tech-radar-data-provider", async () => {
+  await $`bash ${setupScript} ${namespace}`;
+});
+
+// Seed test data
+await test.runOnce("catalog-seed-data", async () => {
+  await apiHelper.importEntity("https://example.com/catalog-info.yaml");
+});
+```
+
+## Namespace Cleanup (Teardown)
+
+In CI environments (`CI` environment variable is set), namespaces are automatically deleted after all tests complete. This is handled by a built-in **teardown reporter** that:
+
+1. Runs in the main Playwright process (survives worker restarts)
+2. Waits for **all tests** in a project to finish
+3. Deletes the namespace matching the project name
+
+### Default Behavior
+
+No configuration needed. The namespace is derived from your project name:
+
+```typescript
+// playwright.config.ts
+projects: [
+  { name: "tech-radar" },   // Namespace "tech-radar" deleted after all tests
+  { name: "catalog" },      // Namespace "catalog" deleted after all tests
+]
+```
+
+### Custom Namespaces
+
+If you deploy to a namespace that differs from the project name, register it for cleanup:
+
+```typescript
+import { registerTeardownNamespace } from "@red-hat-developer-hub/e2e-test-utils/teardown";
+
+test.beforeAll(async ({ rhdh }) => {
+  await test.runOnce("custom-deploy", async () => {
+    await rhdh.configure({ namespace: "my-custom-ns", auth: "keycloak" });
+    await rhdh.deploy();
+    registerTeardownNamespace("my-project", "my-custom-ns");
+  });
+});
+```
+
+Multiple namespaces per project are supported — all registered namespaces are deleted after that project's tests complete.
+
+### Local Development
+
+Namespaces are **not** deleted locally (only in CI). This preserves deployments for debugging.
 
 ## Best Practices for Projects and Spec Files
 
@@ -213,12 +300,14 @@ import { test, expect } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("My Plugin Tests", () => {
   test.beforeAll(async ({ rhdh }) => {
-    await rhdh.configure({
-      auth: "keycloak",
-      appConfig: "tests/config/app-config.yaml",
-      dynamicPlugins: "tests/config/plugins.yaml",
+    await test.runOnce("my-plugin-deploy", async () => {
+      await rhdh.configure({
+        auth: "keycloak",
+        appConfig: "tests/config/app-config.yaml",
+        dynamicPlugins: "tests/config/plugins.yaml",
+      });
+      await rhdh.deploy();
     });
-    await rhdh.deploy();
   });
 
   test.beforeEach(async ({ page, loginHelper }) => {

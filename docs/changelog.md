@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.13] - Current
+## [1.1.14] - Current
+
+### Added
+- **`test.runOnce(key, fn)`**: Execute a function exactly once per test run, even across worker restarts. Prevents re-running expensive operations (deployments, service provisioning, data seeding) when Playwright creates new workers after test failures.
+- **Teardown reporter**: Built-in Playwright reporter that automatically deletes Kubernetes namespaces after all tests complete. Active only in CI (`process.env.CI`).
+- **`registerTeardownNamespace(projectName, namespace)`**: Register custom namespaces for automatic cleanup. Import from `@red-hat-developer-hub/e2e-test-utils/teardown`.
+
+### Changed
+- Namespace cleanup moved from worker fixture to teardown reporter to prevent premature deletion on test failures.
+
+## [1.1.13]
 
 ### Added
 - Support for GitHub authentication provider
