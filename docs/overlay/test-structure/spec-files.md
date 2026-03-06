@@ -26,10 +26,10 @@ A typical spec file follows this structure:
 import { test, expect, Page } from "@red-hat-developer-hub/e2e-test-utils/test";
 
 test.describe("Test <plugin>", () => {
-  // Setup: Deploy RHDH once per worker
+  // Setup: Deploy RHDH
   test.beforeAll(async ({ rhdh }) => {
     await rhdh.configure({ auth: "keycloak" });
-    await rhdh.deploy();
+    await rhdh.deploy(); // automatically skips if already deployed
   });
 
   // Login before each test
@@ -43,6 +43,14 @@ test.describe("Test <plugin>", () => {
   });
 });
 ```
+
+::: tip Automatic deployment protection
+`rhdh.deploy()` automatically skips if the deployment already succeeded — even after Playwright restarts the worker due to a test failure. No extra wrapping needed for simple setups. For pre-deploy setup (external services, scripts), wrap the entire block in `test.runOnce`. See [Deployment Protection](/guide/core-concepts/playwright-fixtures#deployment-protection-built-in) for details.
+:::
+
+::: info Automatic Cleanup
+In CI, namespaces are automatically deleted after all tests complete via the built-in teardown reporter. No manual cleanup code is needed. See [Namespace Cleanup](/guide/core-concepts/playwright-fixtures#namespace-cleanup-teardown) for details.
+:::
 
 ## Imports
 
@@ -89,7 +97,7 @@ test.beforeAll(async ({ rhdh }) => {
 });
 ```
 
-This is the simplest setup. RHDH is configured and deployed directly. Plugin configuration comes from `tests/config/app-config-rhdh.yaml`.
+This is the simplest setup. RHDH is configured and deployed directly. `deploy()` automatically skips if already deployed (e.g., after a worker restart). Plugin configuration comes from `tests/config/app-config-rhdh.yaml`.
 
 ### Scenario 2: With Pre-requisites (External Services)
 
@@ -101,6 +109,8 @@ Some plugins require external services to be running before RHDH starts. For exa
 3. Get service URL and set as environment variable
 4. Deploy RHDH (uses the environment variable in its configuration)
 
+Since this setup includes an external service deployment (step 2) that is expensive and shouldn't repeat, wrap the entire block in `test.runOnce`:
+
 ```typescript
 import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 import path from "path";
@@ -111,24 +121,26 @@ const setupScript = path.join(
 );
 
 test.beforeAll(async ({ rhdh }) => {
-  const project = rhdh.deploymentConfig.namespace;
+  await test.runOnce("tech-radar-setup", async () => {
+    const project = rhdh.deploymentConfig.namespace;
 
-  // 1. Configure RHDH first
-  await rhdh.configure({ auth: "keycloak" });
+    // 1. Configure RHDH first
+    await rhdh.configure({ auth: "keycloak" });
 
-  // 2. Deploy external service
-  await $`bash ${setupScript} ${project}`;
+    // 2. Deploy external service
+    await $`bash ${setupScript} ${project}`;
 
-  // 3. Get service URL and set as env var
-  process.env.TECH_RADAR_DATA_URL = (
-    await rhdh.k8sClient.getRouteLocation(
-      project,
-      "test-backstage-customization-provider",
-    )
-  ).replace("http://", "");
+    // 3. Get service URL and set as env var
+    process.env.TECH_RADAR_DATA_URL = (
+      await rhdh.k8sClient.getRouteLocation(
+        project,
+        "test-backstage-customization-provider",
+      )
+    ).replace("http://", "");
 
-  // 4. Deploy RHDH (will use TECH_RADAR_DATA_URL from rhdh-secrets.yaml)
-  await rhdh.deploy();
+    // 4. Deploy RHDH (has its own built-in protection, nesting is safe)
+    await rhdh.deploy();
+  });
 });
 ```
 
@@ -249,16 +261,18 @@ const setupScript = path.join(
 
 test.describe("Test tech-radar plugin", () => {
   test.beforeAll(async ({ rhdh }) => {
-    const project = rhdh.deploymentConfig.namespace;
-    await rhdh.configure({ auth: "keycloak" });
-    await $`bash ${setupScript} ${project}`;
-    process.env.TECH_RADAR_DATA_URL = (
-      await rhdh.k8sClient.getRouteLocation(
-        project,
-        "test-backstage-customization-provider",
-      )
-    ).replace("http://", "");
-    await rhdh.deploy();
+    await test.runOnce("tech-radar-setup", async () => {
+      const project = rhdh.deploymentConfig.namespace;
+      await rhdh.configure({ auth: "keycloak" });
+      await $`bash ${setupScript} ${project}`;
+      process.env.TECH_RADAR_DATA_URL = (
+        await rhdh.k8sClient.getRouteLocation(
+          project,
+          "test-backstage-customization-provider",
+        )
+      ).replace("http://", "");
+      await rhdh.deploy(); // built-in protection, safe to nest inside runOnce
+    });
   });
 
   test.beforeEach(async ({ loginHelper }) => {

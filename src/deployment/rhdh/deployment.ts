@@ -8,6 +8,7 @@ import {
   generateDynamicPluginsConfigFromMetadata,
 } from "../../utils/plugin-metadata.js";
 import { envsubst } from "../../utils/common.js";
+import { runOnce } from "../../playwright/run-once.js";
 import cloneDeepWith from "lodash.clonedeepwith";
 import fs from "fs-extra";
 import {
@@ -30,36 +31,45 @@ export class RHDHDeployment {
   constructor(namespace: string) {
     this.deploymentConfig = this._buildDeploymentConfig({ namespace });
     this.rhdhUrl = this._buildBaseUrl();
-    this._log(
-      `RHDH deployment initialized (namespace: ${this.deploymentConfig.namespace})`,
-    );
-    this._log("RHDH Base URL: " + this.rhdhUrl);
-    console.table(this.deploymentConfig);
   }
 
   async deploy(options?: { timeout?: number | null }): Promise<void> {
-    this._log("Starting RHDH deployment...");
     // Default 600s, custom number to override, null to skip and let consumer control the timeout
     const timeout = options?.timeout === undefined ? 600_000 : options.timeout;
     if (timeout !== null) {
       test.setTimeout(timeout);
     }
 
-    await this.k8sClient.createNamespaceIfNotExists(
-      this.deploymentConfig.namespace,
+    const executed = await runOnce(
+      `deploy-${this.deploymentConfig.namespace}`,
+      async () => {
+        this._log("Starting RHDH deployment...");
+        this._log("RHDH Base URL: " + this.rhdhUrl);
+        console.table(this.deploymentConfig);
+
+        await this.k8sClient.createNamespaceIfNotExists(
+          this.deploymentConfig.namespace,
+        );
+
+        await this._applyAppConfig();
+        await this._applySecrets();
+
+        if (this.deploymentConfig.method === "helm") {
+          await this._deployWithHelm(this.deploymentConfig.valueFile);
+          await this.scaleDownAndRestart(); // Restart as helm does not monitor config changes
+        } else {
+          await this._applyDynamicPlugins();
+          await this._deployWithOperator(this.deploymentConfig.subscription);
+        }
+        await this.waitUntilReady();
+      },
     );
 
-    await this._applyAppConfig();
-    await this._applySecrets();
-
-    if (this.deploymentConfig.method === "helm") {
-      await this._deployWithHelm(this.deploymentConfig.valueFile);
-      await this.scaleDownAndRestart(); // Restart as helm does not monitor config changes
-    } else {
-      await this._applyDynamicPlugins();
-      await this._deployWithOperator(this.deploymentConfig.subscription);
+    if (!executed) {
+      this._log(
+        `Deployment already completed for namespace "${this.deploymentConfig.namespace}", skipping`,
+      );
     }
-    await this.waitUntilReady();
   }
 
   private async _applyAppConfig(): Promise<void> {
@@ -413,10 +423,6 @@ export class RHDHDeployment {
     if (deploymentOptions) {
       this.deploymentConfig = this._buildDeploymentConfig(deploymentOptions);
       this.rhdhUrl = this._buildBaseUrl();
-      this._log(
-        `RHDH deployment initialized (namespace: ${this.deploymentConfig.namespace})`,
-      );
-      console.table(this.deploymentConfig);
     }
     await this.k8sClient.createNamespaceIfNotExists(
       this.deploymentConfig.namespace,

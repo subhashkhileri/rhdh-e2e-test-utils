@@ -1,6 +1,7 @@
 import { RHDHDeployment } from "../../deployment/rhdh/index.js";
 import { test as base } from "@playwright/test";
 import { LoginHelper, UIhelper } from "../helpers/index.js";
+import { runOnce } from "../run-once.js";
 
 type RHDHDeploymentTestFixtures = {
   rhdh: RHDHDeployment;
@@ -12,30 +13,17 @@ type RHDHDeploymentWorkerFixtures = {
   rhdhDeploymentWorker: RHDHDeployment;
 };
 
-export * from "@playwright/test";
-
-export const test = base.extend<
+const baseTest = base.extend<
   RHDHDeploymentTestFixtures,
   RHDHDeploymentWorkerFixtures
 >({
   rhdhDeploymentWorker: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use, workerInfo) => {
-      console.log(
-        `Deploying rhdh for plugin ${workerInfo.project.name} in namespace ${workerInfo.project.name}`,
-      );
-
       const rhdhDeployment = new RHDHDeployment(workerInfo.project.name);
 
-      try {
-        await rhdhDeployment.configure();
-        await use(rhdhDeployment);
-      } finally {
-        if (process.env.CI) {
-          console.log(`Deleting namespace ${workerInfo.project.name}`);
-          await rhdhDeployment.teardown();
-        }
-      }
+      await rhdhDeployment.configure();
+      await use(rhdhDeployment);
     },
     { scope: "worker", auto: true },
   ],
@@ -65,3 +53,9 @@ export const test = base.extend<
     { scope: "test" },
   ] as const,
 });
+
+export const test = Object.assign(baseTest, {
+  runOnce,
+});
+
+export * from "@playwright/test";

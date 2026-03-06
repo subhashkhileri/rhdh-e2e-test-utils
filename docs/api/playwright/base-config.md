@@ -59,7 +59,7 @@ Raw base configuration object. Use for advanced customization.
   retries: Number(process.env.PLAYWRIGHT_RETRIES ?? 0),
   workers: process.env.PLAYWRIGHT_WORKERS || "50%",
   outputDir: "node_modules/.cache/e2e-test-results",
-  reporter: [["list"], ["html"], ["json"]],
+  reporter: [["list"], ["html"], ["json"], ["teardown-reporter"]],
   use: {
     viewport: { width: 1920, height: 1080 },
     video: { mode: "retain-on-failure", size: { width: 1280, height: 720 } },

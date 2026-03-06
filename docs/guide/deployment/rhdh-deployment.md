@@ -34,7 +34,7 @@ import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 test.beforeAll(async ({ rhdh }) => {
   // rhdh is already instantiated with namespace from project name
   await rhdh.configure({ auth: "keycloak" });
-  await rhdh.deploy();
+  await rhdh.deploy(); // automatically skips if already deployed
 });
 
 test("example", async ({ rhdh }) => {
@@ -110,6 +110,8 @@ test.setTimeout(900_000);
 await rhdh.deploy({ timeout: null });
 ```
 
+`deploy()` automatically skips if the deployment already succeeded in the current test run (e.g., after a worker restart due to test failure). This prevents expensive re-deployments.
+
 This method:
 1. Merges configuration files (common → auth → project)
 2. [Injects plugin metadata](/guide/configuration/config-files#plugin-metadata-injection) into dynamic plugins config
@@ -176,7 +178,7 @@ await deployment.teardown();
 ```
 
 ::: warning
-This permanently deletes all resources in the namespace. In CI, this happens automatically.
+You typically don't need to call this manually. In CI, the built-in teardown reporter automatically deletes namespaces after all tests complete. See [Namespace Cleanup](/guide/core-concepts/playwright-fixtures#namespace-cleanup-teardown).
 :::
 
 ## Properties
@@ -259,21 +261,24 @@ import { test } from "@red-hat-developer-hub/e2e-test-utils/test";
 import { $ } from "@red-hat-developer-hub/e2e-test-utils/utils";
 
 test.beforeAll(async ({ rhdh }) => {
-  const namespace = rhdh.deploymentConfig.namespace;
+  // Wrap in test.runOnce because the setup script is also expensive
+  await test.runOnce("my-plugin-setup", async () => {
+    const namespace = rhdh.deploymentConfig.namespace;
 
-  // Configure RHDH
-  await rhdh.configure({ auth: "keycloak" });
+    // Configure RHDH
+    await rhdh.configure({ auth: "keycloak" });
 
-  // Run custom setup before deployment
-  await $`bash scripts/setup.sh ${namespace}`;
+    // Run custom setup before deployment
+    await $`bash scripts/setup.sh ${namespace}`;
 
-  // Set runtime environment variables
-  process.env.MY_CUSTOM_URL = await rhdh.k8sClient.getRouteLocation(
-    namespace,
-    "my-service"
-  );
+    // Set runtime environment variables
+    process.env.MY_CUSTOM_URL = await rhdh.k8sClient.getRouteLocation(
+      namespace,
+      "my-service"
+    );
 
-  // Deploy RHDH (uses env vars set above)
-  await rhdh.deploy();
+    // Deploy RHDH (has built-in protection, safe to nest inside runOnce)
+    await rhdh.deploy();
+  });
 });
 ```
