@@ -6,3 +6,4 @@ export {
   mergeYamlFilesToFile,
 } from "./merge-yamls.js";
 export { KubernetesClientHelper } from "./kubernetes-client.js";
+export { WorkspacePaths } from "./workspace-paths.js";

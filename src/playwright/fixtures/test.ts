@@ -2,6 +2,8 @@ import { RHDHDeployment } from "../../deployment/rhdh/index.js";
 import { test as base } from "@playwright/test";
 import { LoginHelper, UIhelper } from "../helpers/index.js";
 import { runOnce } from "../run-once.js";
+import { $ } from "../../utils/bash.js";
+import path from "path";
 
 type RHDHDeploymentTestFixtures = {
   rhdh: RHDHDeployment;
@@ -20,6 +22,13 @@ const baseTest = base.extend<
   rhdhDeploymentWorker: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use, workerInfo) => {
+      // Set CWD to the workspace's e2e-tests directory so that relative
+      // config paths resolve correctly even when Playwright runs from the repo root.
+      // Each worker is a separate process, so this doesn't affect other workers.
+      const e2eRoot = path.resolve(workerInfo.project.testDir, "..");
+      process.chdir(e2eRoot);
+      $.cwd = e2eRoot;
+
       const rhdhDeployment = new RHDHDeployment(workerInfo.project.name);
 
       await rhdhDeployment.configure();

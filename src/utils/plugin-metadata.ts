@@ -7,6 +7,206 @@ import { deepMerge } from "./merge-yamls.js";
 const OCI_REGISTRY_PREFIX =
   "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays";
 
+// ── Types ─────────────────────────────────────────────────────────────────────
+
+export interface PluginMetadata {
+  packagePath: string;
+  pluginConfig: Record<string, unknown>;
+  packageName: string;
+  sourceFile: string;
+}
+
+interface PackageCRD {
+  spec?: {
+    packageName?: string;
+    dynamicArtifact?: string;
+    appConfigExamples?: Array<{
+      title?: string;
+      content?: Record<string, unknown>;
+    }>;
+  };
+}
+
+export interface PluginEntry {
+  package: string;
+  disabled?: boolean;
+  pluginConfig?: Record<string, unknown>;
+  [key: string]: unknown;
+}
+
+export interface DynamicPluginsConfig {
+  plugins?: PluginEntry[];
+  includes?: string[];
+  [key: string]: unknown;
+}
+
+// ── Detection ─────────────────────────────────────────────────────────────────
+
+/**
+ * Detects if we're running in a nightly/periodic job context.
+ * Controls the entire nightly vs PR routing in deployment:
+ * - Nightly: uses metadata OCI refs (latest published versions), skips metadata injection
+ * - PR/local: uses metadata + OCI URL replacement
+ *
+ * Returns true when:
+ * - JOB_NAME contains "periodic-" (OpenShift CI nightly/periodic jobs), OR
+ * - E2E_NIGHTLY_MODE is set (manual override for local testing)
+ */
+export function isNightlyJob(): boolean {
+  if (
+    process.env.E2E_NIGHTLY_MODE === "true" ||
+    process.env.E2E_NIGHTLY_MODE === "1"
+  ) {
+    console.log("[PluginMetadata] Nightly mode (E2E_NIGHTLY_MODE is set)");
+    return true;
+  }
+
+  const jobName = process.env.JOB_NAME || "";
+  if (jobName.includes("periodic-")) {
+    console.log("[PluginMetadata] Nightly mode (periodic job detected)");
+    return true;
+  }
+
+  return false;
+}
+
+// ── Utilities ─────────────────────────────────────────────────────────────────
+
+/**
+ * Extracts the plugin name from a package path or OCI reference.
+ *
+ * Handles various formats:
+ * - Local path: ./dynamic-plugins/dist/backstage-community-plugin-tech-radar
+ * - OCI with alias: oci://quay.io/rhdh/plugin@sha256:...!backstage-community-plugin-tech-radar
+ * - OCI without alias: oci://quay.io/rhdh/backstage-community-plugin-tech-radar:tag
+ */
+export function extractPluginName(packageRef: string): string {
+  const ref = packageRef.includes("!") ? packageRef.split("!")[0] : packageRef;
+  const match = ref.match(/\/([^/:@]+)(?:[:@].*)?$/);
+  return match?.[1] || packageRef;
+}
+
+/**
+ * Derives the displayName from a packageName.
+ *   @backstage-community/plugin-tech-radar → backstage-community-plugin-tech-radar
+ */
+function toDisplayName(packageName: string): string {
+  return packageName.replace(/^@/, "").replace(/\//g, "-");
+}
+
+// ── Metadata Loading ──────────────────────────────────────────────────────────
+
+export const DEFAULT_METADATA_PATH = "../metadata";
+
+export function getMetadataDirectory(
+  metadataPath: string = DEFAULT_METADATA_PATH,
+): string | null {
+  const resolvedPath = path.resolve(metadataPath);
+  if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) {
+    console.log(`[PluginMetadata] Using metadata directory: ${resolvedPath}`);
+    return resolvedPath;
+  }
+  console.log(`[PluginMetadata] Metadata directory not found: ${resolvedPath}`);
+  return null;
+}
+
+export async function parseMetadataFile(
+  filePath: string,
+): Promise<PluginMetadata> {
+  const content = await fs.readFile(filePath, "utf8");
+  const parsed = yaml.load(content) as PackageCRD;
+
+  const packagePath = parsed?.spec?.dynamicArtifact;
+  const packageName = parsed?.spec?.packageName;
+  const pluginConfig = parsed?.spec?.appConfigExamples?.[0]?.content;
+
+  if (!packagePath) {
+    throw new Error(
+      `[PluginMetadata] Missing required field spec.dynamicArtifact in ${filePath}`,
+    );
+  }
+  if (!packageName) {
+    throw new Error(
+      `[PluginMetadata] Missing required field spec.packageName in ${filePath}`,
+    );
+  }
+
+  return {
+    packagePath,
+    pluginConfig: pluginConfig || {},
+    packageName,
+    sourceFile: filePath,
+  };
+}
+
+export async function parseAllMetadataFiles(
+  metadataDir: string,
+): Promise<Map<string, PluginMetadata>> {
+  const pattern = path.join(metadataDir, "*.yaml");
+  const files = await glob(pattern);
+
+  console.log(
+    `[PluginMetadata] Found ${files.length} metadata files in ${metadataDir}`,
+  );
+
+  const metadataMap = new Map<string, PluginMetadata>();
+
+  for (const file of files) {
+    const metadata = await parseMetadataFile(file);
+    const pluginName = extractPluginName(metadata.packagePath);
+    metadataMap.set(pluginName, metadata);
+    console.log(
+      `[PluginMetadata] Mapped plugin: ${pluginName} <- ${metadata.packagePath}`,
+    );
+  }
+
+  console.log(
+    `[PluginMetadata] Successfully parsed ${metadataMap.size} plugin metadata entries`,
+  );
+
+  return metadataMap;
+}
+
+/**
+ * Loads and validates metadata from the workspace metadata directory.
+ * @throws Error if metadata directory not found or no valid metadata files
+ */
+async function loadMetadata(
+  metadataPath: string,
+): Promise<[string, Map<string, PluginMetadata>]> {
+  const metadataDir = getMetadataDirectory(metadataPath);
+
+  if (!metadataDir) {
+    throw new Error(
+      `[PluginMetadata] Metadata directory not found at: ${path.resolve(metadataPath)}`,
+    );
+  }
+
+  const metadataMap = await parseAllMetadataFiles(metadataDir);
+
+  if (metadataMap.size === 0) {
+    throw new Error(
+      `[PluginMetadata] No valid metadata files found in ${metadataDir}`,
+    );
+  }
+
+  return [metadataDir, metadataMap];
+}
+
+/**
+ * Tries to load metadata, returns empty map if not available.
+ * Used by processPluginsForDeployment where metadata is optional.
+ */
+async function tryLoadMetadata(
+  metadataPath: string,
+): Promise<Map<string, PluginMetadata>> {
+  const metadataDir = getMetadataDirectory(metadataPath);
+  if (!metadataDir) return new Map();
+  return await parseAllMetadataFiles(metadataDir);
+}
+
+// ── PR: Fetch OCI URLs ───────────────────────────────────────────────────────
+
 /**
  * Fetches plugin versions from source repo and builds OCI URL map.
  * Only called when GIT_PR_NUMBER is set.
@@ -47,7 +247,6 @@ async function getOCIUrlsForPR(
     );
   }
 
-  // Parse owner/repo from URL
   const match = repo.match(/github\.com\/(.+?)(?:\.git)?$/);
   if (!match) {
     throw new Error(
@@ -56,7 +255,6 @@ async function getOCIUrlsForPR(
   }
   const ownerRepo = match[1];
 
-  // Parse plugins-list.yaml as YAML and extract keys (plugin paths)
   const pluginsListContent = await fs.readFile(pluginsListPath, "utf-8");
   const pluginsListData = yaml.load(pluginsListContent) as Record<
     string,
@@ -70,7 +268,6 @@ async function getOCIUrlsForPR(
   }
 
   const pluginPaths = Object.keys(pluginsListData);
-
   const workspaceName = path.basename(workspacePath);
 
   console.log(
@@ -109,12 +306,9 @@ async function getOCIUrlsForPR(
     }
 
     const { name, version } = pkgJson;
-
-    // @backstage-community/plugin-tech-radar -> backstage-community-plugin-tech-radar
-    const displayName = name.replace(/^@/, "").replace(/\//g, "-");
+    const displayName = toDisplayName(name);
     // TODO(RHDHBUGS-2530): Remove !alias suffix once Konflux builds include
-    // io.backstage.dynamic-packages annotation. The suffix is a workaround
-    // because install-dynamic-plugins.py can't auto-detect plugin path without it.
+    // io.backstage.dynamic-packages annotation.
     const ociUrl = `${OCI_REGISTRY_PREFIX}/${displayName}:pr_${prNumber}__${version}!${displayName}`;
 
     ociUrls.set(displayName, ociUrl);
@@ -124,93 +318,21 @@ async function getOCIUrlsForPR(
   return ociUrls;
 }
 
-/**
- * Represents parsed plugin metadata from a Package CRD file.
- */
-export interface PluginMetadata {
-  /** The dynamic artifact path (e.g., ./dynamic-plugins/dist/plugin-name) */
-  packagePath: string;
-  /** The plugin configuration from appConfigExamples[0].content */
-  pluginConfig: Record<string, unknown>;
-  /** The package name (e.g., @backstage-community/plugin-tech-radar) */
-  packageName: string;
-  /** Source metadata file path */
-  sourceFile: string;
-}
+// ── Core: Unified Plugin Processing ──────────────────────────────────────────
 
 /**
- * Structure of a Package CRD metadata file.
- */
-interface PackageCRD {
-  spec?: {
-    packageName?: string;
-    dynamicArtifact?: string;
-    appConfigExamples?: Array<{
-      title?: string;
-      content?: Record<string, unknown>;
-    }>;
-  };
-}
-
-/**
- * Checks if plugin metadata handling should be enabled.
- * This controls both auto-generation and injection of plugin metadata.
+ * Resolves plugin package references to their target OCI URLs where applicable.
  *
- * Default: ENABLED (for local dev and PR builds)
- * Disabled when:
- * - RHDH_SKIP_PLUGIN_METADATA_INJECTION is set, OR
- * - JOB_NAME contains "periodic-" (nightly/periodic builds)
+ * Resolution priority for each plugin:
+ * 1. PR OCI URL — if GIT_PR_NUMBER set and a PR image was published for this plugin
+ * 2. Metadata OCI ref — uses dynamicArtifact from metadata (latest published version)
+ * 3. Unchanged — local paths, npm packages, or other formats kept as-is
  */
-export function shouldInjectPluginMetadata(): boolean {
-  // Explicit opt-out
-  if (process.env.RHDH_SKIP_PLUGIN_METADATA_INJECTION) {
-    console.log(
-      "[PluginMetadata] Metadata handling disabled (RHDH_SKIP_PLUGIN_METADATA_INJECTION is set)",
-    );
-    return false;
-  }
-
-  // Periodic/nightly job
-  const jobName = process.env.JOB_NAME || "";
-  if (jobName.includes("periodic-")) {
-    console.log(
-      "[PluginMetadata] Metadata handling disabled (periodic job detected)",
-    );
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Extracts the plugin name from a package path or OCI reference.
- *
- * Handles various formats:
- * - Local path: ./dynamic-plugins/dist/backstage-community-plugin-tech-radar
- * - OCI with integrity: oci://quay.io/rhdh/plugin@sha256:...!backstage-community-plugin-tech-radar
- * - OCI without integrity: oci://quay.io/rhdh/backstage-community-plugin-tech-radar:tag
- *
- * @param packageRef The package reference string
- * @returns The extracted plugin name
- */
-export function extractPluginName(packageRef: string): string {
-  // Strip ! suffix if present (e.g., oci://...@sha256:...!alias)
-  const ref = packageRef.includes("!") ? packageRef.split("!")[0] : packageRef;
-
-  // Regex to extract plugin name from various formats:
-  // Captures the last path segment (chars except / : @) before any :tag or @digest
-  const match = ref.match(/\/([^/:@]+)(?:[:@].*)?$/);
-  return match?.[1] || packageRef;
-}
-
 /**
  * Returns a stable merge key for a plugin entry so OCI and local path for the same
  * logical plugin match when merging dynamic-plugins configs. Strips a trailing
  * "-dynamic" so e.g. backstage-community-plugin-catalog-backend-module-keycloak-dynamic
  * and ...-keycloak (from OCI) map to the same key.
- *
- * @param entry Plugin entry with optional package reference
- * @returns Normalized key for merge deduplication, or empty string if package is missing
  */
 export function getNormalizedPluginMergeKey(entry: {
   package?: string;
@@ -222,178 +344,64 @@ export function getNormalizedPluginMergeKey(entry: {
   return extractPluginName(pkg).replace(/-dynamic$/, "");
 }
 
-/**
- * Default metadata directory path relative to the e2e-tests directory.
- * Follows the same pattern as user config paths (e.g., tests/config/dynamic-plugins.yaml).
- */
-export const DEFAULT_METADATA_PATH = "../metadata";
-
-/**
- * Gets the metadata directory path.
- * Uses the provided path or falls back to DEFAULT_METADATA_PATH.
- *
- * @param metadataPath Optional custom path to metadata directory
- * @returns The metadata directory path, or null if it doesn't exist
- */
-export function getMetadataDirectory(
-  metadataPath: string = DEFAULT_METADATA_PATH,
-): string | null {
-  const resolvedPath = path.resolve(metadataPath);
-
-  if (fs.existsSync(resolvedPath) && fs.statSync(resolvedPath).isDirectory()) {
-    console.log(`[PluginMetadata] Using metadata directory: ${resolvedPath}`);
-    return resolvedPath;
-  }
-
-  console.log(`[PluginMetadata] Metadata directory not found: ${resolvedPath}`);
-  return null;
-}
-
-/**
- * Parses a single metadata YAML file and extracts plugin configuration.
- *
- * @param filePath Path to the metadata YAML file
- * @returns PluginMetadata if valid, null otherwise
- */
-export async function parseMetadataFile(
-  filePath: string,
-): Promise<PluginMetadata> {
-  const content = await fs.readFile(filePath, "utf8");
-  const parsed = yaml.load(content) as PackageCRD;
-
-  const packagePath = parsed?.spec?.dynamicArtifact;
-  const packageName = parsed?.spec?.packageName;
-  const pluginConfig = parsed?.spec?.appConfigExamples?.[0]?.content;
-
-  if (!packagePath) {
-    throw new Error(
-      `[PluginMetadata] Missing required field spec.dynamicArtifact in ${filePath}`,
-    );
-  }
-
-  if (!packageName) {
-    throw new Error(
-      `[PluginMetadata] Missing required field spec.packageName in ${filePath}`,
-    );
-  }
-
-  return {
-    packagePath,
-    pluginConfig: pluginConfig || {},
-    packageName,
-    sourceFile: filePath,
-  };
-}
-
-/**
- * Parses all metadata files in a directory and builds a map of plugin name to config.
- * The plugin name is extracted from the dynamicArtifact path for flexible matching.
- *
- * @param metadataDir Path to the metadata directory
- * @returns Map of plugin name to plugin configuration
- */
-export async function parseAllMetadataFiles(
-  metadataDir: string,
-): Promise<Map<string, PluginMetadata>> {
-  const pattern = path.join(metadataDir, "*.yaml");
-  const files = await glob(pattern);
-
-  console.log(
-    `[PluginMetadata] Found ${files.length} metadata files in ${metadataDir}`,
-  );
-
-  const metadataMap = new Map<string, PluginMetadata>();
-
-  for (const file of files) {
-    const metadata = await parseMetadataFile(file);
-    const pluginName = extractPluginName(metadata.packagePath);
-    metadataMap.set(pluginName, metadata);
-    console.log(
-      `[PluginMetadata] Mapped plugin: ${pluginName} <- ${metadata.packagePath}`,
-    );
-  }
-
-  console.log(
-    `[PluginMetadata] Successfully parsed ${metadataMap.size} plugin metadata entries`,
-  );
-
-  return metadataMap;
-}
-
-/**
- * Plugin entry in dynamic-plugins.yaml
- */
-export interface PluginEntry {
-  package: string;
-  disabled?: boolean;
-  pluginConfig?: Record<string, unknown>;
-  [key: string]: unknown;
-}
-
-/**
- * Dynamic plugins configuration structure
- */
-export interface DynamicPluginsConfig {
-  plugins?: PluginEntry[];
-  includes?: string[];
-  [key: string]: unknown;
-}
-
-/**
- * Replaces local package paths with OCI URLs for plugins that have matching metadata.
- * Only applies to plugins with metadata (workspace plugins). Plugins without metadata
- * (e.g., keycloak, bulk-import from auth defaults) keep their original paths.
- *
- * @param plugins The plugin entries to process
- * @param metadataMap Map of plugin names to plugin metadata
- * @param metadataPath Path to the metadata directory (used to resolve workspace root)
- * @returns Plugin entries with OCI URLs replaced where applicable
- */
-async function replaceWithOCIUrls(
+async function resolvePluginPackages(
   plugins: PluginEntry[],
   metadataMap: Map<string, PluginMetadata>,
   metadataPath: string,
 ): Promise<PluginEntry[]> {
+  // Build PR OCI URLs if applicable
   const prNumber = process.env.GIT_PR_NUMBER;
-  if (!prNumber) {
-    return plugins;
+  let prOciUrls: Map<string, string> | null = null;
+  if (prNumber) {
+    console.log(
+      `[PluginMetadata] PR build detected (PR #${prNumber}), fetching OCI URLs...`,
+    );
+    const workspacePath = path.resolve(metadataPath, "..");
+    prOciUrls = await getOCIUrlsForPR(workspacePath, prNumber);
   }
 
-  console.log(
-    `[PluginMetadata] PR build detected (PR #${prNumber}), fetching OCI URLs...`,
-  );
-  const workspacePath = path.resolve(metadataPath, "..");
-  const ociUrls = await getOCIUrlsForPR(workspacePath, prNumber);
-
   return plugins.map((plugin) => {
-    const pluginName = extractPluginName(plugin.package);
+    const pkg = plugin.package;
+    const pluginName = extractPluginName(pkg);
     const metadata = metadataMap.get(pluginName);
-    if (!metadata?.packageName) return plugin;
 
-    const displayName = metadata.packageName
-      .replace(/^@/, "")
-      .replace(/\//g, "-");
-    const ociUrl = ociUrls.get(displayName);
-    if (!ociUrl) return plugin;
+    // 1. With metadata: resolve to PR OCI URL or metadata's dynamicArtifact
+    if (metadata?.packageName) {
+      const displayName = toDisplayName(metadata.packageName);
 
-    console.log(`[PluginMetadata] Replacing ${plugin.package} with ${ociUrl}`);
-    return { ...plugin, package: ociUrl };
+      // PR: use PR-specific OCI URL if this plugin is part of the PR build
+      if (prOciUrls) {
+        const prUrl = prOciUrls.get(displayName);
+        if (prUrl) {
+          console.log(`[PluginMetadata] PR: ${pkg} → ${prUrl}`);
+          return { ...plugin, package: prUrl };
+        }
+      }
+
+      // Use metadata's dynamicArtifact directly (latest published version).
+      // This is more accurate than {{inherit}} because metadata is updated daily
+      // while the DPDY in the catalog index may lag behind.
+      if (metadata.packagePath.startsWith("oci://")) {
+        console.log(`[PluginMetadata] ${pkg} → ${metadata.packagePath}`);
+        return { ...plugin, package: metadata.packagePath };
+      }
+
+      return plugin;
+    }
+
+    // 2. Local paths (./dynamic-plugins/dist/...) and other formats — keep as-is.
+    // Local paths reference plugins bundled in the RHDH container image and work
+    // without OCI resolution. When the catalog index moves all plugins to OCI refs,
+    // they'll be handled by step 1 or 2 above automatically.
+    return plugin;
   });
 }
 
 /**
  * Injects plugin configurations from metadata into a dynamic plugins config.
  * Metadata config serves as the base, user-provided pluginConfig overrides it.
- *
- * Matching is done by extracting the plugin name from both the package reference
- * and the metadata's dynamicArtifact, allowing flexible matching across different
- * package formats (local paths, OCI references, etc.).
- *
- * @param dynamicPluginsConfig The dynamic plugins configuration to augment
- * @param metadataMap Map of plugin names to plugin metadata
- * @returns The augmented configuration with injected pluginConfigs
  */
-export function injectMetadataConfig(
+function injectMetadataConfig(
   dynamicPluginsConfig: DynamicPluginsConfig,
   metadataMap: Map<string, PluginMetadata>,
 ): DynamicPluginsConfig {
@@ -402,12 +410,10 @@ export function injectMetadataConfig(
   }
 
   const augmentedPlugins = dynamicPluginsConfig.plugins.map((plugin) => {
-    // Extract plugin name from package reference for flexible matching
     const pluginName = extractPluginName(plugin.package);
     const metadata = metadataMap.get(pluginName);
 
     if (!metadata) {
-      // No metadata found for this plugin, keep as-is
       console.log(
         `[PluginMetadata] No metadata found for: ${pluginName} (from ${plugin.package})`,
       );
@@ -418,7 +424,6 @@ export function injectMetadataConfig(
       `[PluginMetadata] Injecting config for: ${pluginName} (from ${plugin.package})`,
     );
 
-    // Merge: metadata config (base) + user config (override)
     const mergedPluginConfig = deepMerge(
       metadata.pluginConfig,
       plugin.pluginConfig || {},
@@ -435,6 +440,8 @@ export function injectMetadataConfig(
     plugins: augmentedPlugins,
   };
 }
+
+// ── Public API ────────────────────────────────────────────────────────────────
 
 /**
  * Generates dynamic-plugins configuration for wrapper plugins
@@ -459,123 +466,86 @@ export function disablePluginWrappers(plugins: string[]): DynamicPluginsConfig {
 }
 
 /**
- * Generates a complete dynamic-plugins configuration from metadata files.
- * Iterates through all metadata files and creates plugin entries with:
- * - package: the dynamicArtifact path
- * - disabled: false (enabled by default)
- * - pluginConfig: from appConfigExamples[0].content
+ * Auto-generates plugin entries from workspace metadata files.
+ * Creates raw entries with local paths and disabled: false.
+ * Does NOT include pluginConfig — that's handled by processPluginsForDeployment.
  *
- * @param metadataPath Optional custom path to metadata directory (default: ../metadata)
- * @returns Complete dynamic plugins configuration
- * @throws Error if metadata directory not found or no valid metadata files
+ * @param metadataPath Optional custom path to metadata directory
+ * @returns Plugin entries discovered from metadata
  */
-export async function generateDynamicPluginsConfigFromMetadata(
+export async function generatePluginsFromMetadata(
   metadataPath: string = DEFAULT_METADATA_PATH,
 ): Promise<DynamicPluginsConfig> {
-  // Skip if metadata handling is disabled
-  if (!shouldInjectPluginMetadata()) {
-    console.log(
-      "[PluginMetadata] Returning empty config (metadata handling disabled)",
-    );
-    return { plugins: [] };
-  }
-
   console.log(
-    "[PluginMetadata] No dynamic-plugins config provided, generating from metadata...",
+    "[PluginMetadata] Auto-generating plugin entries from metadata...",
   );
 
-  // Get metadata directory
-  const metadataDir = getMetadataDirectory(metadataPath);
+  const [, metadataMap] = await loadMetadata(metadataPath);
 
-  if (!metadataDir) {
-    throw new Error(
-      `[PluginMetadata] Cannot generate dynamic-plugins config: metadata directory not found at: ${path.resolve(metadataPath)}`,
-    );
-  }
-
-  // Parse all metadata files
-  const metadataMap = await parseAllMetadataFiles(metadataDir);
-
-  if (metadataMap.size === 0) {
-    throw new Error(
-      `[PluginMetadata] Cannot generate dynamic-plugins config: no valid metadata files found in ${metadataDir}`,
-    );
-  }
-
-  // Build plugin entries from metadata
-  let plugins: PluginEntry[] = [];
+  const plugins: PluginEntry[] = [];
 
   for (const [pluginName, metadata] of metadataMap) {
     console.log(
       `[PluginMetadata] Adding plugin: ${pluginName} (${metadata.packagePath})`,
     );
-
     plugins.push({
       package: metadata.packagePath,
       disabled: false,
-      pluginConfig: metadata.pluginConfig,
     });
   }
 
-  // Replace local paths with OCI URLs for PR builds
-  plugins = await replaceWithOCIUrls(plugins, metadataMap, metadataPath);
-
   console.log(
-    `[PluginMetadata] Generated dynamic-plugins config with ${plugins.length} plugins`,
+    `[PluginMetadata] Generated ${plugins.length} plugin entries from metadata`,
   );
 
   return { plugins };
 }
 
 /**
- * Main function to load and inject plugin metadata for PR builds.
- * For non-PR builds (nightly), returns the config unchanged.
+ * Processes a dynamic plugins configuration for deployment.
+ * Single entry point for both PR and nightly flows.
  *
- * @param dynamicPluginsConfig The dynamic plugins configuration
- * @param metadataPath Optional custom path to metadata directory (default: ../metadata)
- * @returns Augmented configuration with metadata (for PR) or unchanged (for nightly)
- * @throws Error if PR build but no metadata directory found
+ * Operations (in order):
+ * 1. Inject appConfigExamples from metadata (PR mode only, unless RHDH_SKIP_PLUGIN_METADATA_INJECTION is set)
+ * 2. Resolve all packages to OCI references:
+ *    - PR with GIT_PR_NUMBER: workspace plugins in PR build → pr_ tags, rest unchanged
+ *    - PR without GIT_PR_NUMBER: OCI plugins with metadata → metadata refs, rest unchanged
+ *    - Nightly: OCI plugins with metadata → metadata refs, rest unchanged
+ *
+ * @param config The merged dynamic plugins configuration
+ * @param metadataPath Optional custom path to metadata directory
+ * @returns Processed configuration ready for deployment
  */
-export async function loadAndInjectPluginMetadata(
-  dynamicPluginsConfig: DynamicPluginsConfig,
+export async function processPluginsForDeployment(
+  config: DynamicPluginsConfig,
   metadataPath: string = DEFAULT_METADATA_PATH,
 ): Promise<DynamicPluginsConfig> {
-  // Skip metadata injection if disabled
-  if (!shouldInjectPluginMetadata()) {
-    return dynamicPluginsConfig;
+  if (!config.plugins) return config;
+
+  const metadataMap = await tryLoadMetadata(metadataPath);
+
+  let result = { ...config };
+
+  // Inject appConfigExamples from metadata (PR mode only)
+  if (
+    !isNightlyJob() &&
+    process.env.RHDH_SKIP_PLUGIN_METADATA_INJECTION !== "true" &&
+    metadataMap.size > 0
+  ) {
+    console.log("[PluginMetadata] Injecting metadata configs...");
+    result = injectMetadataConfig(result, metadataMap);
   }
 
-  console.log("[PluginMetadata] Loading plugin metadata...");
-
-  // Get metadata directory
-  const metadataDir = getMetadataDirectory(metadataPath);
-
-  if (!metadataDir) {
-    throw new Error(
-      `[PluginMetadata] PR build requires metadata directory but not found at: ${path.resolve(metadataPath)}`,
-    );
-  }
-
-  // Parse all metadata files
-  const metadataMap = await parseAllMetadataFiles(metadataDir);
-
-  if (metadataMap.size === 0) {
-    throw new Error(
-      `[PluginMetadata] PR build requires plugin metadata but no valid metadata files found in ${metadataDir}`,
-    );
-  }
-
-  // Inject metadata configs into the dynamic plugins config
-  const result = injectMetadataConfig(dynamicPluginsConfig, metadataMap);
-
-  // Replace local paths with OCI URLs for PR builds
-  if (result.plugins) {
-    result.plugins = await replaceWithOCIUrls(
-      result.plugins,
+  // Resolve all packages to OCI references
+  console.log("[PluginMetadata] Resolving plugin packages to OCI...");
+  result = {
+    ...result,
+    plugins: await resolvePluginPackages(
+      result.plugins!,
       metadataMap,
       metadataPath,
-    );
-  }
+    ),
+  };
 
   return result;
 }
