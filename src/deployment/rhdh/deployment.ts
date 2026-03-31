@@ -4,7 +4,7 @@ import { $ } from "../../utils/bash.js";
 import yaml from "js-yaml";
 import os from "os";
 import path from "path";
-import { test } from "@playwright/test";
+import { test, request, expect } from "@playwright/test";
 import { mergeYamlFilesIfExists, deepMerge } from "../../utils/merge-yamls.js";
 import {
   generatePluginsFromMetadata,
@@ -61,8 +61,11 @@ export class RHDHDeployment {
         await this._applySecrets();
 
         if (this.deploymentConfig.method === "helm") {
+          const isUpgrade = await this._deploymentExists();
           await this._deployWithHelm(this.deploymentConfig.valueFile);
-          await this.scaleDownAndRestart(); // Restart as helm does not monitor config changes
+          if (isUpgrade) {
+            await this.scaleDownAndRestart(); // Restart as helm does not monitor config changes
+          }
         } else {
           await this._applyDynamicPlugins();
           await this._deployWithOperator(this.deploymentConfig.subscription);
@@ -369,31 +372,45 @@ export class RHDHDeployment {
   }
 
   async waitUntilReady(timeout: number = 500): Promise<void> {
-    this._log(
-      `Waiting for RHDH deployment to be ready in namespace ${this.deploymentConfig.namespace}...`,
-    );
-
+    const namespace = this.deploymentConfig.namespace;
     const labelSelector =
       "app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)";
+    const startTime = Date.now();
 
     try {
       await this.k8sClient.waitForPodsWithFailureDetection(
-        this.deploymentConfig.namespace,
+        namespace,
         labelSelector,
         timeout,
       );
-      this._log(
-        `RHDH deployment is ready in namespace ${this.deploymentConfig.namespace}`,
-      );
     } catch (error) {
       throw new Error(
-        `RHDH deployment failed in namespace ${this.deploymentConfig.namespace}: ${error instanceof Error ? error.message : error}`,
+        `RHDH deployment failed in ${namespace}: ${error instanceof Error ? error.message : error}`,
       );
     }
+
+    // Use remaining timeout for route readiness check
+    const remaining = timeout * 1000 - (Date.now() - startTime);
+    await expect(async () => {
+      const context = await request.newContext({ ignoreHTTPSErrors: true });
+      const response = await context.get(this.rhdhUrl);
+      await context.dispose();
+      expect(response.ok()).toBeTruthy();
+    }).toPass({ timeout: Math.max(remaining, 30_000), intervals: [5_000] });
+    this._log(`RHDH is ready in ${namespace}`);
   }
 
   async teardown(): Promise<void> {
     await this.k8sClient.deleteNamespace(this.deploymentConfig.namespace);
+  }
+
+  private async _deploymentExists(): Promise<boolean> {
+    try {
+      await $`oc get deployment redhat-developer-hub -n ${this.deploymentConfig.namespace} --no-headers 2>/dev/null`;
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async _resolveChartVersion(version: string): Promise<string> {

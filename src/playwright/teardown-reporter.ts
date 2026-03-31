@@ -18,7 +18,7 @@ import { getTeardownNamespaces } from "./teardown-namespaces.js";
  * Falls back in onEnd() to clean up any projects that didn't complete naturally
  * (e.g., interrupted runs, maxFailures).
  *
- * Only active when process.env.CI is set.
+ * Only active when process.env.CI === "true".
  *
  * By default, deletes the namespace matching the project name.
  * For custom namespaces, consumers can register them via registerTeardownNamespace().
@@ -42,7 +42,7 @@ export default class TeardownReporter implements Reporter {
   }
 
   onTestEnd(test: TestCase, result: TestResult): void {
-    if (!process.env.CI) return;
+    if (process.env.CI !== "true") return;
 
     const project = test.parent.project();
     if (!project) return;
@@ -68,7 +68,7 @@ export default class TeardownReporter implements Reporter {
   }
 
   async onEnd(): Promise<void> {
-    if (!process.env.CI) return;
+    if (process.env.CI !== "true") return;
 
     // Await all in-flight deletions started from onTestEnd
     await Promise.all(this._pendingDeletions.values());

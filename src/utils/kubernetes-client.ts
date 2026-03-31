@@ -632,9 +632,6 @@ class KubernetesClientHelper {
       console.log(`\n[K8sHelper] ─── Pod Status ───`);
       await $`oc get pods -n ${namespace} -l ${labelSelector} -o wide`;
 
-      console.log(`\n[K8sHelper] ─── Pod Details ───`);
-      await $`oc describe pods -n ${namespace} -l ${labelSelector}`;
-
       console.log(`\n[K8sHelper] ─── Namespace Events ───`);
       await $`oc get events -n ${namespace} --sort-by='.lastTimestamp'`;
 

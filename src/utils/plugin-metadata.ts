@@ -53,6 +53,11 @@ export interface DynamicPluginsConfig {
  * - E2E_NIGHTLY_MODE is set (manual override for local testing)
  */
 export function isNightlyJob(): boolean {
+  // PR check takes precedence over nightly mode
+  if (process.env.GIT_PR_NUMBER) {
+    return false;
+  }
+
   if (
     process.env.E2E_NIGHTLY_MODE === "true" ||
     process.env.E2E_NIGHTLY_MODE === "1"
