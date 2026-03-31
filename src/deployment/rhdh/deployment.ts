@@ -1,13 +1,17 @@
 import { KubernetesClientHelper } from "../../utils/kubernetes-client.js";
+import { WorkspacePaths } from "../../utils/workspace-paths.js";
 import { $ } from "../../utils/bash.js";
 import yaml from "js-yaml";
-import { test } from "@playwright/test";
+import os from "os";
+import path from "path";
+import { test, request, expect } from "@playwright/test";
 import { mergeYamlFilesIfExists, deepMerge } from "../../utils/merge-yamls.js";
 import {
-  loadAndInjectPluginMetadata,
-  generateDynamicPluginsConfigFromMetadata,
+  generatePluginsFromMetadata,
+  processPluginsForDeployment,
   getNormalizedPluginMergeKey,
   disablePluginWrappers,
+  type DynamicPluginsConfig,
 } from "../../utils/plugin-metadata.js";
 import { envsubst } from "../../utils/common.js";
 import { runOnce } from "../../playwright/run-once.js";
@@ -57,8 +61,11 @@ export class RHDHDeployment {
         await this._applySecrets();
 
         if (this.deploymentConfig.method === "helm") {
+          const isUpgrade = await this._deploymentExists();
           await this._deployWithHelm(this.deploymentConfig.valueFile);
-          await this.scaleDownAndRestart(); // Restart as helm does not monitor config changes
+          if (isUpgrade) {
+            await this.scaleDownAndRestart(); // Restart as helm does not monitor config changes
+          }
         } else {
           await this._applyDynamicPlugins();
           await this._deployWithOperator(this.deploymentConfig.subscription);
@@ -114,69 +121,91 @@ export class RHDHDeployment {
     );
   }
 
+  /** Shared merge strategy for dynamic plugin arrays. */
+  private static readonly pluginMergeOpts = {
+    arrayMergeStrategy: { byKey: "package" },
+  } as const;
+
+  /**
+   * Merges package defaults + auth config (+ optional user config) into a
+   * single dynamic plugins configuration.
+   */
+  private async _mergeBaseConfigs(
+    userConfigPath?: string,
+  ): Promise<Record<string, unknown>> {
+    const authConfig = AUTH_CONFIG_PATHS[this.deploymentConfig.auth];
+    const paths = [
+      DEFAULT_CONFIG_PATHS.dynamicPlugins,
+      authConfig.dynamicPlugins,
+      ...(userConfigPath ? [userConfigPath] : []),
+    ];
+    return await mergeYamlFilesIfExists(paths, RHDHDeployment.pluginMergeOpts);
+  }
+
+  /**
+   * Merges a generated plugin config with the base (defaults + auth) config.
+   */
+  private async _mergeGeneratedWithBase(
+    generatedConfig: Record<string, unknown>,
+  ): Promise<Record<string, unknown>> {
+    const baseConfig = await this._mergeBaseConfigs();
+    // Use normalizeKey so OCI and local path for the same logical plugin
+    // (e.g., keycloak from metadata OCI + auth local path with -dynamic suffix)
+    // are deduplicated; generated (metadata) wins so OCI URL is kept.
+    return deepMerge(baseConfig, generatedConfig, {
+      arrayMergeStrategy: {
+        byKey: "package",
+        normalizeKey: (item) =>
+          getNormalizedPluginMergeKey(item as Record<string, unknown>),
+      },
+    });
+  }
+
   /**
    * Builds the merged dynamic plugins configuration.
-   * Merges: package defaults + auth config + user config + metadata (for PR builds).
+   *
+   * 1. Assembles raw config: user-provided OR auto-generated from metadata
+   * 2. Processes for deployment: injects metadata (PR) + resolves all packages to OCI
+   *
+   * The processing step is shared — processPluginsForDeployment handles
+   * both PR and nightly via isNightlyJob() and GIT_PR_NUMBER detection.
    */
   private async _buildDynamicPluginsConfig(): Promise<Record<string, unknown>> {
     const userConfigPath = this.deploymentConfig.dynamicPlugins;
     const userConfigExists = userConfigPath && fs.existsSync(userConfigPath);
-    const authConfig = AUTH_CONFIG_PATHS[this.deploymentConfig.auth];
     const wrapperPlugins = disablePluginWrappers(
       this.deploymentConfig.disableWrappers,
     );
 
-    // If user's dynamic-plugins config doesn't exist, auto-generate from metadata
-    if (!userConfigExists) {
+    let config: Record<string, unknown>;
+
+    if (userConfigExists) {
+      this._log(`Using user config: ${userConfigPath}`);
+      config = await this._mergeBaseConfigs(userConfigPath);
+    } else {
       this._log(
-        `Dynamic plugins config not found at '${userConfigPath}', auto-generating from metadata...`,
+        `No user config at '${userConfigPath}', auto-generating from metadata...`,
       );
-      const metadataConfig = await generateDynamicPluginsConfigFromMetadata();
-
-      // Merge with package defaults and auth config. Use normalized plugin key so
-      // the same logical plugin (e.g. keycloak from metadata OCI + auth local path)
-      // is deduplicated; metadata (source) wins so OCI URL is kept on PR builds.
-      const authPlugins = await mergeYamlFilesIfExists(
-        [DEFAULT_CONFIG_PATHS.dynamicPlugins, authConfig.dynamicPlugins],
-        { arrayMergeStrategy: { byKey: "package" } },
+      const generated = await generatePluginsFromMetadata(
+        WorkspacePaths.metadataDir,
       );
-      const dynamicPlugins = deepMerge(authPlugins, metadataConfig, {
-        arrayMergeStrategy: {
-          byKey: "package",
-          normalizeKey: (item) =>
-            getNormalizedPluginMergeKey(item as Record<string, unknown>),
-        },
-      });
-
-      if (!process.env.GIT_PR_NUMBER) {
-        return dynamicPlugins;
-      }
-      return deepMerge(dynamicPlugins, wrapperPlugins, {
-        arrayMergeStrategy: "concat",
-      });
+      config = await this._mergeGeneratedWithBase(generated);
     }
 
-    // User config exists - merge provided configs and inject metadata for listed plugins only
-    let dynamicPluginsConfig = await mergeYamlFilesIfExists(
-      [
-        DEFAULT_CONFIG_PATHS.dynamicPlugins,
-        authConfig.dynamicPlugins,
-        userConfigPath,
-      ],
-      { arrayMergeStrategy: { byKey: "package" } },
+    // Process for deployment: inject metadata (PR only) + resolve all packages to OCI
+    let result = await processPluginsForDeployment(
+      config as DynamicPluginsConfig,
+      WorkspacePaths.metadataDir,
     );
 
-    // Inject plugin metadata configuration for plugins in the config
-    dynamicPluginsConfig =
-      await loadAndInjectPluginMetadata(dynamicPluginsConfig);
-
+    // Disable wrapper plugins (PR builds only)
     if (process.env.GIT_PR_NUMBER) {
-      dynamicPluginsConfig = deepMerge(dynamicPluginsConfig, wrapperPlugins, {
+      result = deepMerge(result, wrapperPlugins, {
         arrayMergeStrategy: "concat",
-      });
+      }) as DynamicPluginsConfig;
     }
 
-    return dynamicPluginsConfig;
+    return result;
   }
 
   private async _applyDynamicPlugins(): Promise<void> {
@@ -208,16 +237,42 @@ export class RHDHDeployment {
     }
     valueFileObject.global.dynamic = await this._buildDynamicPluginsConfig();
 
+    // Set catalog index image if CATALOG_INDEX_IMAGE env var is provided.
+    // The catalog index provides dynamic-plugins.default.yaml with default plugin
+    // configurations and versions for the RHDH release.
+    const catalogIndexImage = process.env.CATALOG_INDEX_IMAGE;
+    if (catalogIndexImage) {
+      const [imageRef, tag] = catalogIndexImage.split(":");
+      const firstSlash = imageRef.indexOf("/");
+      valueFileObject.global.catalogIndex = {
+        image: {
+          registry: imageRef.substring(0, firstSlash),
+          repository: imageRef.substring(firstSlash + 1),
+          tag: tag || "latest",
+        },
+      };
+      this._log(`Catalog index image: ${catalogIndexImage}`);
+    }
+
     this._logBoxen("Dynamic Plugins", valueFileObject.global.dynamic);
 
-    fs.writeFileSync(
-      `/tmp/${this.deploymentConfig.namespace}-value-file.yaml`,
-      yaml.dump(valueFileObject),
+    // Escape {{inherit}} for Helm's Go template engine.
+    // The RHDH chart uses `tpl` on dynamic plugin values, so {{inherit}} would be
+    // interpreted as a Go template action. Escaping to {{ "{{inherit}}" }} produces
+    // the literal string {{inherit}} after template rendering.
+    const valuesYaml = yaml
+      .dump(valueFileObject)
+      .replace(/\{\{inherit\}\}/g, '{{ "{{inherit}}" }}');
+
+    const valueFilePath = path.join(
+      os.tmpdir(),
+      `${this.deploymentConfig.namespace}-value-file.yaml`,
     );
+    fs.writeFileSync(valueFilePath, valuesYaml);
 
     await $`
       helm upgrade redhat-developer-hub -i "${process.env.CHART_URL || CHART_URL}" --version "${chartVersion}" \
-        -f "/tmp/${this.deploymentConfig.namespace}-value-file.yaml" \
+        -f "${valueFilePath}" \
         --set global.clusterRouterBase="${process.env.K8S_CLUSTER_ROUTER_BASE}" \
         --namespace="${this.deploymentConfig.namespace}"
     `;
@@ -226,15 +281,34 @@ export class RHDHDeployment {
   }
 
   private async _deployWithOperator(subscription: string): Promise<void> {
-    const subscriptionObject = await mergeYamlFilesIfExists([
+    const subscriptionObject = (await mergeYamlFilesIfExists([
       DEFAULT_CONFIG_PATHS.operator.subscription,
       subscription,
-    ]);
+    ])) as Record<string, Record<string, Record<string, unknown>>>;
+
+    // Set catalog index image if CATALOG_INDEX_IMAGE env var is provided.
+    const catalogIndexImage = process.env.CATALOG_INDEX_IMAGE;
+    if (catalogIndexImage) {
+      const spec = (subscriptionObject.spec ??= {});
+      const app = (spec.application ??= {}) as Record<string, unknown>;
+      const extraEnvs = ((app.extraEnvs as Record<string, unknown>) ??=
+        {}) as Record<string, unknown>;
+      const envs = ((extraEnvs.envs as Array<Record<string, unknown>>) ??=
+        []) as Array<Record<string, unknown>>;
+      envs.push({
+        name: "CATALOG_INDEX_IMAGE",
+        value: catalogIndexImage,
+        containers: ["install-dynamic-plugins"],
+      });
+      this._log(`Catalog index image: ${catalogIndexImage}`);
+    }
+
     this._logBoxen("Subscription", subscriptionObject);
-    fs.writeFileSync(
-      `/tmp/${this.deploymentConfig.namespace}-subscription.yaml`,
-      yaml.dump(subscriptionObject),
+    const subscriptionFilePath = path.join(
+      os.tmpdir(),
+      `${this.deploymentConfig.namespace}-subscription.yaml`,
     );
+    fs.writeFileSync(subscriptionFilePath, yaml.dump(subscriptionObject));
 
     const version = this.deploymentConfig.version;
     const isSemanticVersion = /^\d+(\.\d+)?$/.test(version);
@@ -268,7 +342,7 @@ export class RHDHDeployment {
         echo "Backstage CRD is created."
       ' || echo "Error: Timed out waiting for Backstage CRD creation."
 
-      oc apply -f "/tmp/${this.deploymentConfig.namespace}-subscription.yaml" -n "${this.deploymentConfig.namespace}"
+      oc apply -f "${subscriptionFilePath}" -n "${this.deploymentConfig.namespace}"
     `;
 
     this._log("Operator deployment executed successfully.");
@@ -298,31 +372,45 @@ export class RHDHDeployment {
   }
 
   async waitUntilReady(timeout: number = 500): Promise<void> {
-    this._log(
-      `Waiting for RHDH deployment to be ready in namespace ${this.deploymentConfig.namespace}...`,
-    );
-
+    const namespace = this.deploymentConfig.namespace;
     const labelSelector =
       "app.kubernetes.io/instance in (redhat-developer-hub,developer-hub)";
+    const startTime = Date.now();
 
     try {
       await this.k8sClient.waitForPodsWithFailureDetection(
-        this.deploymentConfig.namespace,
+        namespace,
         labelSelector,
         timeout,
       );
-      this._log(
-        `RHDH deployment is ready in namespace ${this.deploymentConfig.namespace}`,
-      );
     } catch (error) {
       throw new Error(
-        `RHDH deployment failed in namespace ${this.deploymentConfig.namespace}: ${error instanceof Error ? error.message : error}`,
+        `RHDH deployment failed in ${namespace}: ${error instanceof Error ? error.message : error}`,
       );
     }
+
+    // Use remaining timeout for route readiness check
+    const remaining = timeout * 1000 - (Date.now() - startTime);
+    await expect(async () => {
+      const context = await request.newContext({ ignoreHTTPSErrors: true });
+      const response = await context.get(this.rhdhUrl);
+      await context.dispose();
+      expect(response.ok()).toBeTruthy();
+    }).toPass({ timeout: Math.max(remaining, 30_000), intervals: [5_000] });
+    this._log(`RHDH is ready in ${namespace}`);
   }
 
   async teardown(): Promise<void> {
     await this.k8sClient.deleteNamespace(this.deploymentConfig.namespace);
+  }
+
+  private async _deploymentExists(): Promise<boolean> {
+    try {
+      await $`oc get deployment redhat-developer-hub -n ${this.deploymentConfig.namespace} --no-headers 2>/dev/null`;
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   private async _resolveChartVersion(version: string): Promise<string> {
@@ -420,10 +508,9 @@ export class RHDHDeployment {
       version,
       namespace: input.namespace ?? this.deploymentConfig.namespace,
       auth: input.auth ?? "keycloak",
-      appConfig: input.appConfig ?? `tests/config/app-config-rhdh.yaml`,
-      secrets: input.secrets ?? `tests/config/rhdh-secrets.yaml`,
-      dynamicPlugins:
-        input.dynamicPlugins ?? `tests/config/dynamic-plugins.yaml`,
+      appConfig: input.appConfig ?? WorkspacePaths.appConfig,
+      secrets: input.secrets ?? WorkspacePaths.secrets,
+      dynamicPlugins: input.dynamicPlugins ?? WorkspacePaths.dynamicPlugins,
       disableWrappers: input.disableWrappers ?? [],
     };
 
@@ -431,13 +518,13 @@ export class RHDHDeployment {
       return {
         ...base,
         method,
-        valueFile: input.valueFile ?? `tests/config/value_file.yaml`,
+        valueFile: input.valueFile ?? WorkspacePaths.valueFile,
       };
     } else if (method === "operator") {
       return {
         ...base,
         method,
-        subscription: input.subscription ?? `tests/config/subscription.yaml`,
+        subscription: input.subscription ?? WorkspacePaths.subscription,
       };
     } else {
       throw new Error(`Invalid RHDH installation method: ${method}`);

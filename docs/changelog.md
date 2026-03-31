@@ -2,7 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.23] - Current
+## [1.1.24] - Current
+
+### Added
+
+- **Nightly E2E support with metadata-based OCI resolution**: `processPluginsForDeployment` resolves plugin packages to OCI refs using workspace metadata (`spec.dynamicArtifact`). Supports both nightly (metadata refs) and PR (`pr_` tags) flows automatically.
+- **`generatePluginsFromMetadata`**: Auto-generates plugin entries from workspace metadata files when no user-provided `dynamic-plugins.yaml` exists.
+- **`WorkspacePaths`**: New utility that resolves workspace config file paths relative to `e2e-tests/` directory.
+- **Per-project namespace teardown**: `TeardownReporter` now deletes namespaces as soon as all tests in a project finish, freeing cluster resources early instead of waiting for the entire suite.
+
+### Fixed
+
+- **Route readiness race condition**: Added HTTP health check against the RHDH route after pod readiness, closing the gap between pod `Ready=True` and the OpenShift Router serving traffic.
+- **Skip restart on fresh helm install**: `scaleDownAndRestart` is now only called on upgrades (existing deployment detected), avoiding unnecessary scale-down/up cycles on first install.
+- **Boolean env var handling**: `CI`, `E2E_NIGHTLY_MODE`, and `RHDH_SKIP_PLUGIN_METADATA_INJECTION` now use strict comparison (`=== "true"`) instead of truthy checks, so `"false"` is no longer treated as `true`.
+- **PR takes precedence over nightly mode**: `isNightlyJob()` returns `false` when `GIT_PR_NUMBER` is set, preventing broken combinations of PR images with nightly config.
+
+## [1.1.23]
 
 ### Fixed
 

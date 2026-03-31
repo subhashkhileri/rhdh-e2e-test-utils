@@ -173,6 +173,7 @@ export class UIhelper {
   async goToPageUrl(url: string, heading?: string) {
     await this.page.goto(url);
     await expect(this.page).toHaveURL(url);
+    await this.waitForLoad();
     if (heading) {
       await this.verifyHeading(heading);
     }
