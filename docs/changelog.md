@@ -191,7 +191,7 @@ All notable changes to this project will be documented in this file.
 - **Plugin metadata auto-generation**: When `dynamic-plugins.yaml` doesn't exist, configuration is automatically generated from `metadata/*.yaml` files
 - **OCI URL generation for PR builds**: When `GIT_PR_NUMBER` is set, local plugin paths are replaced with OCI URLs (e.g., `oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/my-plugin:pr_1234__1.0.0`)
 - Plugin metadata injection into existing `dynamic-plugins.yaml` configurations
-- New utilities: `shouldInjectPluginMetadata()`, `generateDynamicPluginsConfigFromMetadata()`, `loadAndInjectPluginMetadata()`, `extractPluginName()`
+- New utilities: `extractPluginName()`, `generatePluginsFromMetadata()`, `processPluginsForDeployment()`, `isNightlyJob()`
 - **Early pod failure detection**: `waitForPodsWithFailureDetection()` in KubernetesClientHelper detects CrashLoopBackOff, ImagePullBackOff, init container failures, etc. within seconds instead of waiting for full timeout
 
 ### Changed
