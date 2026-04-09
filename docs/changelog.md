@@ -2,7 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.28] - Current
+## [1.1.29] - Current
+
+### Changed
+
+- **Pin all dependency versions**: Removed `^` range prefixes from all `dependencies` and `devDependencies` to use exact versions, preventing unexpected breaking changes from transitive updates. `peerDependencies` retain ranges for consumer flexibility.
+- **Update all dependencies to latest versions**: Bumped all packages to their latest versions except `@keycloak/keycloak-admin-client` (pinned at 26.5.6 due to broken postinstall in newer versions). Notable major bumps: `eslint` 9→10, `@eslint/js` 9→10, `typescript` 5→6, `otplib` 12→13, `lint-staged` 15→16.
+- **Update Yarn to 4.12.0**: Bumped `packageManager` from `yarn@3.8.7` to `yarn@4.12.0`.
+
+## [1.1.28]
 
 - **APIHelper.createGitHubRepoWithFile**: Ensure file creation happens after repository creation.
 
