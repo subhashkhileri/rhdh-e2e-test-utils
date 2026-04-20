@@ -107,12 +107,14 @@ test.describe("My Plugin", { tag: "@skip-ocp-helm-nightly" }, () => {
 
 ### Available Tags
 
-| Tag | Skipped in |
-|-----|-----------|
-| `@skip-ocp-helm` | `e2e-ocp-helm` (PR check) |
-| `@skip-ocp-helm-nightly` | `e2e-ocp-helm-nightly` |
-| `@skip-ocp-operator` | `e2e-ocp-operator` (PR check) |
-| `@skip-ocp-operator-nightly` | `e2e-ocp-operator-nightly` |
+| Tag | Skipped in | Not skipped in |
+|-----|-----------|----------------|
+| `@skip-ocp-helm` | `e2e-ocp-helm` (PR check) | `e2e-ocp-helm-nightly` |
+| `@skip-ocp-helm-nightly` | `e2e-ocp-helm-nightly` | `e2e-ocp-helm` (PR check) |
+| `@skip-ocp-operator` | `e2e-ocp-operator` (PR check) | `e2e-ocp-operator-nightly` |
+| `@skip-ocp-operator-nightly` | `e2e-ocp-operator-nightly` | `e2e-ocp-operator` (PR check) |
+
+Each tag matches exactly — `@skip-ocp-helm` won't accidentally skip tests in the nightly job.
 
 Multiple tags can be combined on a single test or describe block:
 

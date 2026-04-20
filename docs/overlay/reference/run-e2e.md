@@ -90,14 +90,14 @@ When `JOB_NAME` is set (by OpenShift CI), the script auto-derives a Playwright t
 
 ### How It Works
 
-The job suffix is extracted from `JOB_NAME` by stripping everything up to and including `-e2e-`:
+The job suffix is extracted from `JOB_NAME` by stripping everything up to and including `-e2e-`. A negative lookahead `(?!-)` is appended so each tag matches exactly — `@skip-ocp-helm` won't accidentally filter `@skip-ocp-helm-nightly`:
 
-| JOB_NAME (suffix shown) | Derived tag | `--grep-invert` |
-|--------------------------|-------------|-----------------|
-| `...-e2e-ocp-helm` | `@skip-ocp-helm` | `@skip-ocp-helm` |
-| `...-e2e-ocp-helm-nightly` | `@skip-ocp-helm-nightly` | `@skip-ocp-helm-nightly` |
-| `...-e2e-ocp-operator` | `@skip-ocp-operator` | `@skip-ocp-operator` |
-| `...-e2e-ocp-operator-nightly` | `@skip-ocp-operator-nightly` | `@skip-ocp-operator-nightly` |
+| JOB_NAME (suffix shown) | `--grep-invert` pattern |
+|--------------------------|-------------------------|
+| `...-e2e-ocp-helm` | `@skip-ocp-helm(?!-)` |
+| `...-e2e-ocp-helm-nightly` | `@skip-ocp-helm-nightly(?!-)` |
+| `...-e2e-ocp-operator` | `@skip-ocp-operator(?!-)` |
+| `...-e2e-ocp-operator-nightly` | `@skip-ocp-operator-nightly(?!-)` |
 
 If `JOB_NAME` doesn't contain `-e2e-`, no tag is derived and no filtering is applied.
 
@@ -106,10 +106,10 @@ If `JOB_NAME` doesn't contain `-e2e-`, no tag is derived and no filtering is app
 Add Playwright tags to `test.describe` or individual `test` calls:
 
 ```typescript
-// Skip in ocp-helm-nightly job
+// Skip only in ocp-helm-nightly job
 test.describe("My Plugin", { tag: "@skip-ocp-helm-nightly" }, () => { ... });
 
-// Skip in all ocp-helm jobs (PR + nightly, since regex matches as substring)
+// Skip only in ocp-helm PR check job (won't affect nightly)
 test("expensive test", { tag: "@skip-ocp-helm" }, async () => { ... });
 
 // Multiple tags — skip in both helm and operator nightly
