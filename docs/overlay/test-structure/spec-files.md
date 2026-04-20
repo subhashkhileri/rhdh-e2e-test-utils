@@ -52,7 +52,15 @@ test.describe("Test <plugin>", () => {
 In CI, namespaces are automatically deleted after all tests complete via the built-in teardown reporter. No manual cleanup code is needed. See [Namespace Cleanup](/guide/core-concepts/playwright-fixtures#namespace-cleanup-teardown) for details.
 :::
 
-## Tagging Tests
+## Skipping and Disabling Tests
+
+| Mechanism | When to use | Report |
+|-----------|-------------|--------|
+| `{ tag: "@skip-ocp-helm" }` | Test works, but skip in a specific CI job | Hidden from that job and report |
+| `test.fixme()` | Test is broken or flaky, needs fixing | Shows as "skipped" everywhere |
+| `test.skip(condition, reason)` | Skip based on runtime (e.g., missing secret) | Shows as "skipped" with reason |
+
+### Tagging Tests
 
 Use Playwright tags to control which tests run in which CI jobs. Tags are added via the second argument to `test.describe` or `test`:
 
