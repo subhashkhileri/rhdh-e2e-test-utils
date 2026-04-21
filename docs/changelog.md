@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.31] - Current
+## [1.1.32] - Current
+
+### Fixed
+
+- **Normalize `-dynamic` suffix in `extractPluginName`**: Plugins whose metadata `dynamicArtifact` is a local path (ending in `-dynamic`) were not matched during PR OCI resolution or config injection, because the metadata map key included the `-dynamic` suffix while OCI URL lookups did not. `extractPluginName` now strips the `-dynamic` suffix so local paths and OCI refs for the same logical plugin produce the same key. ([RHDHBUGS-2987](https://issues.redhat.com/browse/RHDHBUGS-2987))
+
+## [1.1.31]
 
 ### Fixed
 
