@@ -52,6 +52,7 @@ workspaces/tech-radar/e2e-tests/
   "description": "E2E tests for Tech Radar plugin",
   "scripts": {
     "test": "playwright test",
+    "test:vault": "VAULT=1 playwright test",
     "report": "playwright show-report",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",

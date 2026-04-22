@@ -15,6 +15,23 @@ All secrets **must** start with the `VAULT_` prefix (e.g., `VAULT_API_KEY`, `VAU
 
 For complete Vault setup instructions including paths, annotations, and access requests, see [OpenShift CI Pipeline - Vault Secrets](/overlay/tutorials/ci-pipeline#vault-secrets).
 
+## Vault Auto-Loading (Local Development)
+
+Set `VAULT=1` or `VAULT=true` to automatically fetch secrets from Vault during global setup. This replaces the need to manually copy secrets into `.env` files.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VAULT` | Enable automatic Vault secret loading | - |
+| `VAULT_ADDR` | Vault server URL | `https://vault.ci.openshift.org` |
+| `VAULT_BASE_PATH` | Base path in Vault KV store | `selfservice/rhdh-plugin-export-overlays` |
+
+```bash
+VAULT=1 yarn test
+VAULT=1 ./run-e2e.sh -w argocd
+```
+
+See [Running Locally - Secrets from Vault](/overlay/tutorials/running-locally#secrets-from-vault) for full details.
+
 ## Core Variables
 
 ### RHDH Configuration

@@ -11,6 +11,7 @@ import {
   DEFAULT_RHDH_CLIENT,
   DEFAULT_USERS,
 } from "../deployment/keycloak/constants.js";
+import { loadLocalVaultSecrets } from "../utils/vault.js";
 
 const REQUIRED_BINARIES = ["oc", "kubectl", "helm"] as const;
 
@@ -78,6 +79,7 @@ async function deployKeycloak(): Promise<void> {
 
 export default async function globalSetup(): Promise<void> {
   console.log("Running global setup...");
+  await loadLocalVaultSecrets();
   await checkRequiredBinaries();
   await setClusterRouterBaseEnv();
   await deployKeycloak();

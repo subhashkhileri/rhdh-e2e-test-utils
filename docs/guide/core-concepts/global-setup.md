@@ -4,7 +4,33 @@ The package includes a global setup function that runs once before all tests. Th
 
 ## What Global Setup Does
 
-### 1. Binary Validation
+### 1. Vault Secret Loading (Local Development)
+
+When `VAULT=1` or `VAULT=true` is set, global setup fetches secrets from HashiCorp Vault before anything else runs:
+
+- Checks that the `vault` CLI is installed
+- Logs in via OIDC if not already authenticated (opens browser)
+- Fetches global secrets and per-workspace secrets
+- Injects all `VAULT_*` keys into `process.env`
+- Only logs key names, never secret values
+
+```bash
+# From workspace
+VAULT=1 yarn test
+
+# From repo root
+VAULT=1 ./run-e2e.sh -w argocd
+```
+
+If you don't have Vault access, request it in Slack: `#rhdh-e2e-tests`.
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VAULT` | Enable Vault secret loading (`1` or `true`) | - |
+| `VAULT_ADDR` | Vault server URL | `https://vault.ci.openshift.org` |
+| `VAULT_BASE_PATH` | Base path in Vault | `selfservice/rhdh-plugin-export-overlays` |
+
+### 2. Binary Validation
 
 Checks that required CLI tools are installed and available:
 
@@ -16,7 +42,7 @@ Checks that required CLI tools are installed and available:
 
 If any binary is missing, tests will fail with a clear error message.
 
-### 2. Cluster Router Base
+### 3. Cluster Router Base
 
 Fetches the OpenShift ingress domain and sets the `K8S_CLUSTER_ROUTER_BASE` environment variable:
 
@@ -27,7 +53,7 @@ K8S_CLUSTER_ROUTER_BASE=apps.cluster-abc123.example.com
 
 This is used to construct route URLs for deployed applications.
 
-### 3. Keycloak Deployment
+### 4. Keycloak Deployment
 
 Automatically deploys and configures Keycloak for OIDC authentication:
 

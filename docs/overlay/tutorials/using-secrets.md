@@ -6,6 +6,14 @@ This page explains how to consume Vault secrets in overlay E2E tests.
 
 In OpenShift CI, Vault secrets are exported as environment variables with the `VAULT_` prefix.
 
+For **local development**, set `VAULT=1` to automatically fetch secrets from Vault instead of manually copying them into `.env` files:
+
+```bash
+VAULT=1 yarn test
+```
+
+See [Running Locally](/overlay/tutorials/running-locally#secrets-from-vault) for details.
+
 ## Vault Setup (CI)
 
 ### Secret Naming Convention

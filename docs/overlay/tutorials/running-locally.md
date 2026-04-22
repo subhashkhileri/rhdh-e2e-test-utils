@@ -196,23 +196,62 @@ If you see odd module-resolution issues while testing a locally linked `e2e-test
 NODE_PRESERVE_SYMLINKS=1 yarn test:headed
 ```
 
+## Secrets from Vault
+
+Instead of manually copying secrets from the Vault UI into `.env` files, you can fetch them automatically by setting `VAULT=1`:
+
+```bash
+# From workspace
+cd workspaces/argocd/e2e-tests
+yarn test:vault
+
+# Or equivalently
+VAULT=1 yarn test
+
+# From repo root
+VAULT=1 ./run-e2e.sh -w argocd
+```
+
+This will:
+
+1. Check that the `vault` CLI is installed
+2. Log you in via OIDC if needed (opens a browser)
+3. Fetch global secrets and all per-workspace secrets from Vault
+4. Inject `VAULT_*` keys into `process.env` for the test run
+
+::: tip
+If you don't have Vault access, request it in Slack: `#rhdh-e2e-tests`.
+:::
+
+**Prerequisites:** Install the [Vault CLI](https://developer.hashicorp.com/vault/downloads).
+
+You can also override the Vault server or base path:
+
+```bash
+VAULT=1 VAULT_ADDR=https://my-vault.example.com VAULT_BASE_PATH=my/path yarn test
+```
+
 ## Environment Variables
 
 ### Using .env File
 
-Create `.env` for local configuration:
+Create `.env` for local configuration (alternative to Vault):
 
 ```bash
 # .env
 RHDH_VERSION=1.5
 INSTALLATION_METHOD=helm
 SKIP_KEYCLOAK_DEPLOYMENT=false
+
+# Secrets (or use VAULT=1 instead)
+VAULT_GITHUB_TOKEN=ghp_xxx
 ```
 
 ### Common Variables
 
 | Variable                   | Description                                        | Default         |
 | -------------------------- | -------------------------------------------------- | --------------- |
+| `VAULT`                    | Fetch secrets from Vault automatically (`1` or `true`) | -           |
 | `RHDH_VERSION`             | RHDH version to deploy                             | `next` (latest) |
 | `INSTALLATION_METHOD`      | `helm` or `operator`                               | `helm`          |
 | `SKIP_KEYCLOAK_DEPLOYMENT` | Skip Keycloak deployment entirely (for guest auth) | `false`         |

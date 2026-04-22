@@ -22,6 +22,16 @@ Equivalent to:
 playwright test
 ```
 
+### yarn test:vault
+
+Run tests with secrets automatically fetched from Vault:
+
+```bash
+yarn test:vault
+```
+
+Equivalent to `VAULT=1 yarn test`. Handles OIDC login, fetches global and per-workspace secrets. See [Running Locally - Secrets from Vault](/overlay/tutorials/running-locally#secrets-from-vault) for details.
+
 ### yarn test:headed
 
 Run tests with browser visible:
@@ -139,6 +149,7 @@ Standard `package.json` scripts section:
 {
   "scripts": {
     "test": "playwright test",
+    "test:vault": "VAULT=1 playwright test",
     "report": "playwright show-report",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",

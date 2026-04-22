@@ -45,6 +45,7 @@ Create `package.json` with the following content:
   "description": "E2E tests for <your-plugin>",
   "scripts": {
     "test": "playwright test",
+    "test:vault": "VAULT=1 playwright test",
     "report": "playwright show-report",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",

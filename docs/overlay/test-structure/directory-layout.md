@@ -49,6 +49,7 @@ Defines the test package with dependencies and scripts:
   "packageManager": "yarn@4.12.0",
   "scripts": {
     "test": "playwright test",
+    "test:vault": "VAULT=1 playwright test",
     "report": "playwright show-report",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
