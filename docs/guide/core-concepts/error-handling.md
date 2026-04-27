@@ -280,6 +280,14 @@ await page.click('button[data-testid="save"]');
 await expect(page.getByText("Saved")).toBeVisible();
 ```
 
+## Cluster Diagnostic Logs
+
+When tests fail, the framework automatically collects cluster diagnostics (pod logs, events, deployments) to `node_modules/.cache/e2e-test-results/logs/<namespace>/`. This includes per-container logs for all pods (init and app containers), with previous restart logs when available.
+
+Check these files first when debugging deployment or pod failures — they're often more useful than Playwright's HTML report for infrastructure issues.
+
+See [Kubernetes Client — Diagnostic Log Collection](/guide/utilities/kubernetes-client#diagnostic-log-collection) for the full list of collected resources and API details.
+
 ## Error Handling Checklist
 
 - [ ] Use specific error messages that include context

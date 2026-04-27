@@ -121,6 +121,44 @@ When a failure is detected, the method:
 2. Fetches container logs via `oc logs`
 3. Throws an error with the failure details
 
+## Diagnostic Log Collection
+
+### `collectDiagnosticLogs(namespace, outputDir?)`
+
+Collects comprehensive cluster diagnostics and saves them to files. Uses `kubectl` for cross-platform compatibility (OpenShift, EKS, GKE, etc.). OpenShift-specific resources (routes) are collected on a best-effort basis.
+
+```typescript
+await k8sClient.collectDiagnosticLogs("my-namespace");
+// Saves to: node_modules/.cache/e2e-test-results/logs/my-namespace/
+
+// Or with a custom output directory:
+await k8sClient.collectDiagnosticLogs("my-namespace", "/tmp/debug-logs");
+```
+
+**Collected resources:**
+
+| File | Content |
+|------|---------|
+| `events.txt` | Namespace events sorted by timestamp |
+| `pods.txt` | Pod status (`kubectl get pods -o wide`) |
+| `describe-pods.txt` | Full pod descriptions |
+| `deployments.txt` | Deployment status |
+| `describe-deployments.txt` | Full deployment descriptions |
+| `statefulsets.txt` | StatefulSet status |
+| `routes.txt` | OpenShift routes (skipped on non-OpenShift clusters) |
+| `pods/<pod>/<container>.log` | Current logs per container (init + app) |
+| `pods/<pod>/<container>.previous.log` | Previous restart logs (only if pod restarted) |
+
+**Key behaviors:**
+- Logs are collected per-container rather than `--all-containers`, so a failed init container doesn't block collection of other container logs
+- Empty files are not created (e.g., when there are no previous logs)
+- Resource types that don't exist on the cluster (e.g., routes on non-OpenShift) are silently skipped
+- All resource collection runs in parallel via `Promise.allSettled`
+
+**Automatic collection on test failure:**
+
+In the overlay testing flow, you don't need to call this manually. The built-in `TeardownReporter` automatically calls `collectDiagnosticLogs` for any project that had test failures. This works on both CI and local runs.
+
 ## Deployment Operations
 
 ### `scaleDeployment(namespace, name, replicas)`

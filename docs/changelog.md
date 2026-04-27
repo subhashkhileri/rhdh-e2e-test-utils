@@ -2,11 +2,26 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.33] - Current
+## [1.1.34] - Current
+
+### Added
+
+- **Diagnostic log collection on failure**: `collectDiagnosticLogs(namespace, outputDir?)` on `KubernetesClientHelper` captures comprehensive cluster state (events, pod status, deployments, statefulsets, routes, and per-container pod logs including init containers and previous restarts) to files under `node_modules/.cache/e2e-test-results/logs/<namespace>/`. Uses `kubectl` for cross-platform compatibility. Empty files (e.g. no previous logs) are not created.
+- **TeardownReporter collects diagnostics on test failure**: When any test in a project fails, the teardown reporter automatically calls `collectDiagnosticLogs` before namespace deletion. Diagnostic collection runs on both CI and local; namespace deletion remains CI-only.
+- **Per-container pod log collection**: Logs are collected per-container (init + app containers) instead of `--all-containers`, which fails entirely if any container hasn't started. Files saved to `pods/<pod-name>/<container-name>.log` and `pods/<pod-name>/<container-name>.previous.log`.
+
+### Changed
+
+- **TeardownReporter tracks test failures**: Added `_projectsWithFailures` set to track which projects had test failures, so diagnostic logs are only collected when needed.
+- **TeardownReporter active on non-CI**: The reporter now processes `onTestEnd`/`onEnd` regardless of `CI` env var. Log collection runs always; namespace deletion is still gated on `CI=true`.
+
+## [1.1.33]
 
 ### Added
 
 - **Automatic Vault secret loading for local development**: Set `VAULT=1` or `VAULT=true` to automatically fetch secrets from HashiCorp Vault during global setup. Handles OIDC login, fetches global and per-workspace secrets, and injects them into `process.env`. Only secret key names are logged, never values. Configurable via `VAULT_ADDR` and `VAULT_BASE_PATH` env vars. Logs a Slack channel (`#rhdh-e2e-tests`) when permission is denied.
+
+## [1.1.32]
 
 ### Fixed
 

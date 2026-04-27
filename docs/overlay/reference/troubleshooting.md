@@ -271,6 +271,40 @@ oc login --token=<token> --server=<server>
 - Check route/service configuration
 - Verify network policies
 
+## Diagnostic Logs
+
+When tests fail, the `TeardownReporter` automatically collects cluster diagnostics and saves them to:
+
+```
+node_modules/.cache/e2e-test-results/logs/<project-name>/
+├── events.txt              # Namespace events (sorted by time)
+├── pods.txt                # Pod status
+├── describe-pods.txt       # Full pod descriptions
+├── deployments.txt         # Deployment status
+├── describe-deployments.txt
+├── statefulsets.txt
+├── routes.txt              # OpenShift routes
+└── pods/
+    └── <pod-name>/
+        ├── <container>.log          # Current logs
+        └── <container>.previous.log # Previous restart logs
+```
+
+This runs automatically on **both CI and local** — no configuration needed. Namespace deletion remains CI-only.
+
+**When using `run-e2e.sh`**, logs are written relative to the repo root. When running from a workspace (`cd workspaces/my-plugin/e2e-tests && yarn test`), they're relative to the `e2e-tests/` directory.
+
+**Logs are only collected for projects with failures.** If all tests pass, no diagnostic logs are written.
+
+To collect diagnostics manually (e.g., from a custom script):
+
+```typescript
+import { KubernetesClientHelper } from "@red-hat-developer-hub/e2e-test-utils/utils";
+
+const k8sClient = new KubernetesClientHelper();
+await k8sClient.collectDiagnosticLogs("my-namespace", "./my-logs");
+```
+
 ## Debugging Tips
 
 ### Use Headed Mode
