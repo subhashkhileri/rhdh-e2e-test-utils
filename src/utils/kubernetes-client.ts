@@ -629,14 +629,11 @@ class KubernetesClientHelper {
       await new Promise((r) => setTimeout(r, pollIntervalMs));
     }
 
-    // Timeout reached - collect diagnostic info before throwing
+    // Timeout reached - print diagnostics to stdio before throwing
     console.log(`\n[K8sHelper] ═══ Pod Diagnostics (timeout reached) ═══`);
     try {
       console.log(`\n[K8sHelper] ─── Pod Status ───`);
       await $`oc get pods -n ${namespace} -l ${labelSelector} -o wide`;
-
-      console.log(`\n[K8sHelper] ─── Namespace Events ───`);
-      await $`oc get events -n ${namespace} --sort-by='.lastTimestamp'`;
 
       console.log(`\n[K8sHelper] ─── Pod Logs ───`);
       await $`oc logs -n ${namespace} -l ${labelSelector} --all-containers --tail=100 2>&1 || true`;
@@ -648,6 +645,120 @@ class KubernetesClientHelper {
     throw new Error(
       `Timeout waiting for pods (${labelSelector}) after ${timeoutSeconds}s`,
     );
+  }
+
+  /**
+   * Collects diagnostic logs for all resources in a namespace and saves them as files.
+   * Uses kubectl for cross-platform compatibility (works on OpenShift, EKS, GKE, etc.).
+   * OpenShift-specific resources (routes) are collected on a best-effort basis.
+   *
+   * @param namespace - Namespace to collect diagnostics from
+   * @param outputDir - Directory to write log files to (defaults to playwright-report/logs/<namespace>)
+   */
+  async collectDiagnosticLogs(
+    namespace: string,
+    outputDir: string = path.join(
+      "node_modules",
+      ".cache",
+      "e2e-test-results",
+      "logs",
+      namespace,
+    ),
+  ): Promise<void> {
+    fs.mkdirSync(outputDir, { recursive: true });
+    console.log(
+      `[K8sHelper] Collecting diagnostic logs for "${namespace}" → ${outputDir}`,
+    );
+    const quiet = $({
+      stdio: ["pipe", "pipe", "pipe"],
+      timeout: "20s",
+    });
+
+    const save = async (filePath: string, cmd: Promise<{ stdout: string }>) => {
+      try {
+        const result = await cmd;
+        fs.mkdirSync(path.dirname(filePath), { recursive: true });
+        fs.writeFileSync(filePath, result.stdout);
+      } catch {
+        // ignore — resource type may not exist on this cluster
+      }
+    };
+
+    await Promise.allSettled([
+      save(
+        path.join(outputDir, "events.txt"),
+        quiet`kubectl get events -n ${namespace} --sort-by='.lastTimestamp'`,
+      ),
+      save(
+        path.join(outputDir, "pods.txt"),
+        quiet`kubectl get pods -n ${namespace} -o wide`,
+      ),
+      save(
+        path.join(outputDir, "describe-pods.txt"),
+        quiet`kubectl describe pods -n ${namespace}`,
+      ),
+      save(
+        path.join(outputDir, "deployments.txt"),
+        quiet`kubectl get deployments -n ${namespace} -o wide`,
+      ),
+      save(
+        path.join(outputDir, "describe-deployments.txt"),
+        quiet`kubectl describe deployments -n ${namespace}`,
+      ),
+      save(
+        path.join(outputDir, "statefulsets.txt"),
+        quiet`kubectl get statefulsets -n ${namespace} -o wide`,
+      ),
+      save(
+        path.join(outputDir, "routes.txt"),
+        quiet`kubectl get routes -n ${namespace} -o wide`,
+      ),
+    ]);
+
+    try {
+      const pods = (await this._k8sApi.listNamespacedPod({ namespace })).items;
+      const saveLogs = async (
+        filePath: string,
+        cmd: Promise<{ stdout: string }>,
+      ) => {
+        try {
+          const result = await cmd;
+          if (result.stdout.trim()) {
+            fs.mkdirSync(path.dirname(filePath), { recursive: true });
+            fs.writeFileSync(filePath, result.stdout);
+          }
+        } catch {
+          // ignore — container may not have started or no previous logs
+        }
+      };
+
+      await Promise.allSettled(
+        pods
+          .filter((pod) => pod.metadata?.name)
+          .flatMap((pod) => {
+            const podName = pod.metadata!.name!;
+            const podDir = path.join(outputDir, "pods", podName);
+            const containers = [
+              ...(pod.spec?.initContainers ?? []),
+              ...(pod.spec?.containers ?? []),
+            ];
+            return containers
+              .filter((c) => c.name)
+              .flatMap((c) => [
+                saveLogs(
+                  path.join(podDir, `${c.name}.log`),
+                  quiet`kubectl logs ${podName} -n ${namespace} -c ${c.name}`,
+                ),
+                saveLogs(
+                  path.join(podDir, `${c.name}.previous.log`),
+                  quiet`kubectl logs ${podName} -n ${namespace} -c ${c.name} --previous`,
+                ),
+              ]);
+          }),
+      );
+    } catch {
+      // ignore
+    }
   }
 
   /**
