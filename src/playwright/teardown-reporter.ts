@@ -117,13 +117,26 @@ export default class TeardownReporter implements Reporter {
       }
     }
 
-    // Delete namespaces only in CI
+    // Retry + catch to avoid crashing Playwright if the cluster becomes unreachable.
+    const maxAttempts = 2;
     if (process.env.CI === "true") {
       for (const ns of namespaces) {
         console.log(
           `[TeardownReporter] Deleting namespace "${ns}" (project: ${projectName})`,
         );
-        await k8sClient.deleteNamespace(ns);
+        for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+          try {
+            await k8sClient.deleteNamespace(ns);
+            break;
+          } catch (error) {
+            console.error(
+              `[TeardownReporter] Failed to delete namespace "${ns}" (attempt ${attempt}/${maxAttempts}):`,
+              error,
+            );
+            if (attempt < maxAttempts)
+              await new Promise((r) => setTimeout(r, 5000));
+          }
+        }
       }
     }
   }

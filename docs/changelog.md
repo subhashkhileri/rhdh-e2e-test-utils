@@ -2,7 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.34] - Current
+## [1.1.35] - Current
+
+### Fixed
+
+- **Resilient namespace deletion in TeardownReporter**: Retry once with 5s delay and catch errors to prevent cluster connectivity failures (e.g. DNS `EAI_AGAIN`) from crashing Playwright before it generates the HTML report.
+
+## [1.1.34]
 
 ### Added
 
