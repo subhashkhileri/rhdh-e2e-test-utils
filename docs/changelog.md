@@ -2,7 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.1.35] - Current
+## [1.1.36] - Current
+
+### Fixed
+
+- **Resolve wrapper plugins from metadata in nightly mode**: When a plugin's metadata `spec.dynamicArtifact` is a wrapper path (`./dynamic-plugins/dist/...`) but the user's `dynamic-plugins.yaml` has a stale OCI ref, the resolver now uses the metadata path instead of passing through the stale ref. Previously, only OCI-based metadata artifacts were resolved — wrapper paths fell through unchanged, causing nightly tests to deploy with outdated OCI images instead of the bundled wrapper.
+
+### Added
+
+- **Plugin Metadata Resolution documentation**: New overlay reference page (`docs/overlay/reference/plugin-metadata-resolution.md`) with scenario tables showing how every plugin type resolves in PR check and nightly modes, config injection behavior with deep merge examples, and cross-workspace plugin handling.
+
+## [1.1.35]
 
 ### Fixed
 

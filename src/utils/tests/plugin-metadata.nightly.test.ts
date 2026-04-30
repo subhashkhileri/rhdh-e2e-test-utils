@@ -215,6 +215,43 @@ describe("processPluginsForDeployment — nightly mode", () => {
     }
   });
 
+  it("resolves wrapper plugin to wrapper path when user config has stale OCI ref", async () => {
+    // Reproduces: metadata says plugin is a wrapper (local path), but user's
+    // dynamic-plugins.yaml has a hardcoded OCI ref from a previous version.
+    // In nightly mode, the plugin should resolve to the wrapper path from
+    // metadata, not pass through the stale OCI ref unchanged.
+    const metadataDir = await createMetadataFixture([
+      {
+        name: "backstage-plugin-catalog-backend-module-github-org",
+        packageName: "@backstage/plugin-catalog-backend-module-github-org",
+        dynamicArtifact:
+          "./dynamic-plugins/dist/backstage-plugin-catalog-backend-module-github-org-dynamic",
+      },
+    ]);
+
+    try {
+      const config: DynamicPluginsConfig = {
+        plugins: [
+          {
+            package:
+              "oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/backstage-plugin-catalog-backend-module-github-org:bs_1.45.3__0.3.16",
+            disabled: false,
+          },
+        ],
+      };
+
+      const result = await processPluginsForDeployment(config, metadataDir);
+
+      assert.strictEqual(
+        result.plugins![0].package,
+        "./dynamic-plugins/dist/backstage-plugin-catalog-backend-module-github-org-dynamic",
+        "when metadata has a wrapper path, nightly must resolve to wrapper — not pass through stale OCI ref from user config",
+      );
+    } finally {
+      await fs.remove(metadataDir);
+    }
+  });
+
   it("keeps local path plugins unchanged in nightly", async () => {
     const metadataDir = await createMetadataFixture([
       {

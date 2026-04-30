@@ -97,15 +97,20 @@ Array merge uses "replace" strategy by default. Plugin arrays use `byKey: "packa
 
 ### Plugin Metadata Resolution
 
-`RHDHDeployment.deploy()` internally calls `processPluginsForDeployment()` which operates in two modes:
+`RHDHDeployment.deploy()` internally calls `processPluginsForDeployment()` which does two things:
 
-| Mode          | Detection                                                  | Behavior                                                                                      |
-| ------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| **PR check**  | `GIT_PR_NUMBER` is set                                     | Injects metadata configs + resolves to PR-built OCI URLs (`pr_{number}__{version}`)           |
-| **Nightly**   | `E2E_NIGHTLY_MODE=true` or `JOB_NAME` contains `periodic-` | Resolves to released OCI refs from `spec.dynamicArtifact` in metadata; skips config injection |
-| **Local dev** | Neither set                                                | Uses local paths as-is; injects metadata configs                                              |
+1. **Config injection** (PR/local only, skipped in nightly): deep-merges `appConfigExamples` from metadata as base `pluginConfig`, user `pluginConfig` overrides on conflict
+2. **Package resolution** (all modes): replaces the `package` field using metadata's `spec.dynamicArtifact` as the source of truth
+
+| Mode          | Detection                                                  | Package resolution                                                        | Config injection |
+| ------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------- | ---------------- |
+| **PR check**  | `GIT_PR_NUMBER` is set                                     | PR-built OCI URLs (`pr_{number}__{version}`) for workspace plugins        | Yes              |
+| **Nightly**   | `E2E_NIGHTLY_MODE=true` or `JOB_NAME` contains `periodic-` | Uses `spec.dynamicArtifact` from metadata as-is (OCI ref or wrapper path) | Skipped          |
+| **Local dev** | Neither set                                                | Uses `spec.dynamicArtifact` from metadata as-is (OCI ref or wrapper path) | Yes              |
 
 Priority: `GIT_PR_NUMBER` (forces PR mode) > `E2E_NIGHTLY_MODE` > `JOB_NAME`
+
+Metadata always wins for package resolution — if the user config has a stale OCI ref but metadata says wrapper (or vice versa), the metadata value is used. Plugins without a metadata match (cross-workspace, npm packages) pass through unchanged.
 
 When no `dynamic-plugins.yaml` exists in the workspace, plugins are auto-generated from `metadata/*.yaml` files.
 

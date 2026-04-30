@@ -393,7 +393,12 @@ async function resolvePluginPackages(
         return { ...plugin, package: metadata.packagePath };
       }
 
-      return plugin;
+      // Wrapper (local path): metadata is the source of truth.
+      // The user config may have a stale OCI ref from a previous version.
+      if (pkg !== metadata.packagePath) {
+        console.log(`[PluginMetadata] ${pkg} → ${metadata.packagePath}`);
+      }
+      return { ...plugin, package: metadata.packagePath };
     }
 
     // 2. Local paths (./dynamic-plugins/dist/...) and other formats — keep as-is.

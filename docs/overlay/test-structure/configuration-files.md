@@ -285,90 +285,11 @@ spec:
 
 This file is merged with the package's default subscription configuration.
 
-## Plugin Package References
+## Plugin Package Resolution
 
-When providing plugin packages (in `dynamic-plugins.yaml` if you create one), you can use either:
+Plugin `package` references in `dynamic-plugins.yaml` are automatically resolved before deployment. The framework uses workspace `metadata/*.yaml` files as the source of truth — whatever `spec.dynamicArtifact` says (OCI ref or wrapper path), that's what the plugin resolves to.
 
-- **Local paths**: `./dynamic-plugins/dist/my-plugin`
-- **OCI references**: `oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/my-plugin:1.0.0`
-
-Both formats work for local development.
-
-## PR Builds and OCI Images
-
-When `GIT_PR_NUMBER` is set (either in CI or locally), the package automatically replaces plugin paths with OCI image references built from that PR.
-
-### How It Works
-
-1. The `/publish` command (as a PR comment) triggers a workflow that builds OCI images from the PR
-2. Images are pushed to `ghcr.io/redhat-developer/rhdh-plugin-export-overlays`
-3. When tests run with `GIT_PR_NUMBER` set (CI or local), the package:
-   - Reads `source.json` and `plugins-list.yaml`
-   - Fetches plugin versions from the source repo's `package.json` files
-   - Replaces plugin paths with OCI URLs pointing to the PR-built images
-
-### OCI URL Format
-
-```
-oci://ghcr.io/redhat-developer/rhdh-plugin-export-overlays/{plugin-name}:pr_{PR_NUMBER}__{version}
-```
-
-### Automatic Replacement
-
-**In CI (PR executions):** The replacement happens automatically. It doesn't matter what format you use in your configuration - it will be replaced with the OCI reference for that PR's built images.
-
-**Locally with `GIT_PR_NUMBER`:** If you set `GIT_PR_NUMBER` locally, it will fetch and use the published OCI images from that PR. This is useful for testing PR builds locally.
-
-```bash
-# Test locally using PR 1845's published OCI images
-export GIT_PR_NUMBER=1845
-yarn test
-```
-
-For a full local workflow, see [Local OCI Testing](../reference/local-oci-testing).
-
-### What You Don't Need to Do
-
-The OCI URL replacement is **automatic**. You don't need to:
-- Create or modify any configuration files for PR builds
-- Specify OCI URLs manually
-- Handle different configurations for local vs CI
-
-The package handles this transparently based on the `GIT_PR_NUMBER` environment variable.
-
-### Required Files for OCI URL Generation
-
-When `GIT_PR_NUMBER` is set, these files must exist in the workspace root:
-
-| File | Purpose |
-|------|---------|
-| `source.json` | Contains `repo` (GitHub URL) and `repo-ref` (commit SHA) |
-| `plugins-list.yaml` | Lists plugin paths (e.g., `plugins/tech-radar:`) |
-
-In CI, these are generated automatically. For local testing with `GIT_PR_NUMBER`, you may need to create them or copy them from a CI run.
-
-::: warning Strict Validation
-OCI URL generation is strict - deployment will fail if required files are missing or version fetching fails. This ensures builds don't silently fall back to local paths.
-:::
-
-## Nightly Builds and OCI Resolution
-
-In nightly mode (`E2E_NIGHTLY_MODE=true`), plugin packages are resolved to **released** OCI refs from workspace metadata (`spec.dynamicArtifact`) instead of PR-built images. Metadata config injection is skipped — only package resolution happens.
-
-### How Each Plugin Type Is Resolved
-
-| Plugin Type | Example | Resolution |
-|-------------|---------|------------|
-| Workspace plugin with metadata | `./dynamic-plugins/dist/plugin-tech-radar` | Metadata OCI ref (e.g., `oci://ghcr.io/.../plugin-tech-radar:bs_1.45.3__1.13.0`) |
-| Cross-workspace plugin (no metadata) | `./dynamic-plugins/dist/backstage-plugin-kubernetes-backend-dynamic` | Kept as-is |
-| npm package | `@red-hat-developer-hub/backstage-plugin-global-header-test@0.0.2` | Kept as-is (with integrity hash preserved) |
-| Existing OCI reference | `oci://quay.io/.../plugin-name:tag` | Kept as-is |
-
-::: info Multiple Registries
-Plugin OCI refs use the **actual registry** from each plugin's metadata — plugins may come from `ghcr.io`, `quay.io/rhdh`, `registry.access.redhat.com/rhdh`, or other registries. The system does not assume a single registry.
-:::
-
-See [Plugin Metadata - Mode Comparison](/guide/utilities/plugin-metadata#mode-comparison) for the full comparison of PR check, nightly, and local dev modes.
+The resolution behaves differently in PR, nightly, and local dev modes. For the complete resolution logic with concrete input/output examples, see **[Plugin Metadata Resolution](../reference/plugin-metadata-resolution)**.
 
 ## Configuration Merging
 
@@ -599,4 +520,5 @@ In PR mode, `pluginConfig` from metadata is injected. In nightly mode, local pat
 - [Directory Layout](./directory-layout) - Where config files go
 - [Spec Files](./spec-files) - Using config in tests
 - [Environment Variables](/overlay/reference/environment-variables) - All supported variables
-- [Plugin Metadata](/guide/utilities/plugin-metadata) - How metadata resolution works
+- [Plugin Metadata Resolution](/overlay/reference/plugin-metadata-resolution) - How package resolution works in PR, nightly, and local modes
+- [Local OCI Testing](/overlay/reference/local-oci-testing) - Testing with PR-built OCI images locally

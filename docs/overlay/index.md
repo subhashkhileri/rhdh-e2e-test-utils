@@ -115,7 +115,9 @@ Complete working examples:
 
 ### Reference
 Quick reference materials:
+- [Plugin Metadata Resolution](./reference/plugin-metadata-resolution) - How plugin packages are resolved in PR, nightly, and local modes
 - [Environment Variables](./reference/environment-variables) - Configuration options
+- [Local OCI Testing](./reference/local-oci-testing) - Testing with PR-built images locally
 - [Package.json Scripts](./reference/scripts) - Available commands
 - [Common Patterns](./reference/patterns) - Testing patterns
 - [Troubleshooting](./reference/troubleshooting) - Common issues and solutions
@@ -123,6 +125,5 @@ Quick reference materials:
 ## Related Pages
 
 - [Guide](/guide/) - Package documentation for external projects
-- [Plugin Metadata Guide](/guide/utilities/plugin-metadata) - How metadata configuration works
 - [API Reference](/api/) - Full API documentation
 - [Tutorials](/tutorials/) - Package usage tutorials
